@@ -1,0 +1,22 @@
+citHeader("To cite package 'RSA' in publications use:")
+
+## R >= 2.8.0 passes package metadata to citation().
+if(!exists("meta") || is.null(meta)) meta <- packageDescription("RSA")
+year <- sub("-.*", "", meta$Date)
+#note <- sprintf("R package version %s", meta$Version)
+title.bibtex <- paste("{RSA}: An R package for response surface analysis (version ",meta$Version,")", sep="")
+title <- paste("RSA: An R package for response surface analysis (version ",meta$Version,").", sep="")
+
+    
+citEntry(entry = "Manual",
+  title = title.bibtex,
+  author = personList(as.person("Felix D. Schönbrodt")),
+  year = year,
+  url = "http://cran.r-project.org/web/packages/RSA/index.html",
+
+  textVersion =
+  paste("Schönbrodt, F.D.",
+       sprintf("(%s).", year),
+       title,
+        "Retrieved from http://cran.r-project.org/web/packages/RSA/index.html")
+)

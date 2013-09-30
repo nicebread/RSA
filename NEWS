@@ -1,0 +1,111 @@
+# ---------------------------------------------------------------------
+# version 0.7.4
+
+New features:
+
+- new parameter in plotRSA: `contour.highlight`. Provide a vector of values, which indicate contour lines that should be plotted in bold.
+
+Improvements
+- Suppressed another (uncritical) lavaan warning: NaN in sqrt(b3 * b5).
+- Improved modeltree plot: non-significant models (with R2.p > .05) are printed in gray
+
+# ---------------------------------------------------------------------
+# version 0.7.3
+
+New features:
+
+- new parameter in plotRSA: `points.value`. If set to "raw", the original response is splotted, if set to "predicted", the predicted value is plotted.
+- new parameter in plotRSA: `jitter`. The amount of jitter of the raw data points (to avoid overplotting). For standardized predictors, values around .02 make sense.
+
+Package structure:
+
+- Moved plyr, gridExtra, and RColorBrewer into the Imports section
+
+# ---------------------------------------------------------------------
+# version 0.7.2
+
+New features:
+
+- Added a graphical model comparison: `plot(compare(r1))` (requires package qgraph)
+- new parameter in plotRSA: `pal.range`. If set to "box", the color ramp in the 3d and contour plots is scaled to the zlim, if set to "surface" it is scaled to the range of the actual surface. If set to "box", different 3d surface plots can be compared along their color, as long as the zlim is the same for both.
+- new parameter in plotRSA: `maxlines`. Plots the maximum X for a given Y and vice versa.
+
+- New models:
+	- added the "shifted rising ridge model" (SRR)
+	- added the "shifted and rotated rising ridge model" (SRRR)
+
+# ---------------------------------------------------------------------
+# version 0.7.1
+
+New features:
+
+- new option in `getPar`: "r2.adj"
+- added the null model (= intercept-only model) to `RSA` and `compare` (the null model can also be plotted and only shows the flat intercept surface)
+
+Bug fixes:
+
+- Example lines now are < 100 characters in order to pass R CMD check
+
+
+# ---------------------------------------------------------------------
+# version 0.7
+
+New features:
+
+- Added the "rising ridge" model (label = "RR")
+- Added a movie function `movieRSA`: Create rotating and surface changing videos of surface plots! (this function needs ffmpeg to be accessible from the command line. It works on Mac OS, not sure about Windows or Linux!)
+
+Changes:
+
+- The color ramp in the 3d and contour plots now is scaled to the zlim, not to the range of the actual surface (as before). That means: Different surface plots can be compared along their color, as long as the zlim is the same for both.
+- Moved packages tkrplot and rgl into "Suggests"
+- Renamed parameter "showSP" to "param" in the plotRSA function
+- Renamed parameter "rot" to "rotation" and "label.rot" to "label.rotation" in plotRSA
+- Changed default rotation of 2d plot (it's now more comparable with the contour plot)
+
+Bug Fixes:
+
+- Fixed minor bug in plotRSA if axes limits were not identical
+- Suppress specific (unavoidable but irrelevant) warnings from lavaan
+
+
+# ---------------------------------------------------------------------
+# version 0.6.1
+
+Removed German umlauts for proper compiling
+
+# ---------------------------------------------------------------------
+# version 0.6
+
+New features:
+
+- Added parameter "cubic" to RSA function. If set to TRUE, also a cubic surface is fitted, adding four new parameters to the equation: X^3, Y^3, XY^2, and X^2Y
+- Added parameter "project" to plotRSA. If project=TRUE, all lines which are defines by parameter "axes" are projected onto the floor of the cube.
+- plotRSA now can plot a convex hull around the data points (set hull=TRUE); both in type="3d" and type="contour"
+- plotRSA now can plot the CI of the stationary point (set SP.CI=TRUE); only for type="contour"
+- All surface parameters now are also calculated for IA and sqdiff models
+
+Changes:
+
+- Changed parameter name "showBorder" to "border"
+- Changed parameter name "showContour" to "contour"
+
+
+# ---------------------------------------------------------------------
+# version 0.5.1
+
+New features:
+
+- Added parameter "surface" to plot.RSA. surface = "predict" (default) plots the predicted surface. This is the known behavior of the function. surface = "smooth" plots a 2d-smoothed surface of the raw data (employs the Tps function of the fields package).
+
+
+
+# ---------------------------------------------------------------------
+#  version 0.4
+
+- first "public" release on CRAN
+- no known bugs
+
+
+# Known Todos:
+- axes labels in plot.RSA(type="3d") have the correct rotation for the default plot rotation, but they do not rotate with the plot.

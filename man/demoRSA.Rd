@@ -1,0 +1,107 @@
+\name{demoRSA}
+\alias{demoRSA}
+\title{Plots a response surface of a polynomial equation of second degree with interactive controls}
+\usage{
+  demoRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0,
+    wx = 0, wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0,
+    b0 = 0, type = "3d", zlim = c(-2, 2), xlim = c(-2, 2),
+    ylim = c(-2, 2), points = FALSE, model = "full",
+    extended = FALSE, ...)
+}
+\arguments{
+  \item{x}{Either an RSA object (returned by the \code{RSA}
+  function), or the coefficient for the X predictor}
+
+  \item{y}{Y coefficient}
+
+  \item{x2}{X^2 coefficient}
+
+  \item{y2}{Y^2 coefficient}
+
+  \item{xy}{XY interaction coefficient}
+
+  \item{y3}{Y^3 coefficient}
+
+  \item{x3}{X^3 coefficient}
+
+  \item{xy2}{XY^2 coefficient}
+
+  \item{x2y}{X^2Y coefficient}
+
+  \item{w}{W coefficient (for (un)constrained absolute
+  difference model)}
+
+  \item{wx}{WX coefficient (for (un)constrained absolute
+  difference model)}
+
+  \item{wy}{WY coefficient (for (un)constrained absolute
+  difference model)}
+
+  \item{b0}{Intercept}
+
+  \item{xlim}{Limits of the x axis}
+
+  \item{ylim}{Limits of the y axis}
+
+  \item{zlim}{Limits of the z axis}
+
+  \item{type}{\code{3d} for 3d surface plot, \code{contour}
+  for 2d contour plot. Shortcuts (i.e., first letter of
+  string) are sufficient; be careful: "contour" is very
+  slow at the moment}
+
+  \item{points}{Should the original data points be
+  overplotted?}
+
+  \item{model}{If x is an RSA object: from which model
+  should the response surface be computed?}
+
+  \item{extended}{Show additional controls (not implemented
+  yet)}
+
+  \item{...}{Other parameters passed through to plot.RSA
+  (e.g., xlab, ylab, zlab, cex, legend)}
+}
+\description{
+  Plots an RSA object, or a response surface with specified
+  parameters, with interactive controls for coefficients.
+}
+\details{
+  No details so far. Just play around with the interface!
+}
+\examples{
+# Plot response surfaces from known parameters
+# example of Edwards (2002), Figure 3
+\dontrun{
+demoRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628, type="3d")
+demoRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628, legend=FALSE, type="c")
+}
+
+# Plot response surface from an RSA object
+\dontrun{
+set.seed(0xBEEF)
+n <- 300
+err <- 2
+x <- rnorm(n, 0, 5)
+y <- rnorm(n, 0, 5)
+df <- data.frame(x, y)
+df <- within(df, {
+	diff <- x-y
+	absdiff <- abs(x-y)
+	sqdiff <- (x-y)^2
+	z.diff <- diff + rnorm(n, 0, err)
+	z.abs <- absdiff + rnorm(n, 0, err)
+	z.sq <- sqdiff + rnorm(n, 0, err)
+	z.add <- diff + 0.4*x + rnorm(n, 0, err)
+	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
+})
+
+r1 <- RSA(z.sq~x*y, df)
+demoRSA(r1)
+demoRSA(r1, points=TRUE, model="sqdiff")
+}
+}
+\seealso{
+  \code{\link{plotRSA}}, \code{\link{RSA}}
+}
+

@@ -1,0 +1,108 @@
+\name{RSA.ST}
+\alias{RSA.ST}
+\title{Surface tests}
+\usage{
+  RSA.ST(x, y = 0, x2 = 0, xy = 0, y2 = 0, b0 = 0,
+    SE = NULL, COV = NULL, df = NULL, model = "full")
+}
+\arguments{
+  \item{x}{Either an RSA object (returned by the \code{RSA}
+  function), or the coefficient for the X predictor}
+
+  \item{y}{Y coefficient}
+
+  \item{x2}{X^2 coefficient}
+
+  \item{y2}{Y^2 coefficient}
+
+  \item{xy}{XY interaction coefficient}
+
+  \item{b0}{The intercept}
+
+  \item{SE}{In case that the coefficients are provided
+  directly (as parameters x, y, x2, y2, xy), SE can provide
+  the standard errors of these estimates. SE has to be a
+  named vector, e.g.: \code{SE=c(x=.1, y=.2, x2=.1, y2=.5,
+  xy=.3)}. SEs of all parameters have to provided,
+  otherwise the function will print an error. In case
+  standard errors \emph{and} the covariances (see below)
+  \emph{and} df (see below) are provided, parametric
+  confidence intervals for a1 to a4 are calculated.}
+
+  \item{COV}{Covariances between parameters. COV has to be
+  a named vector, e.g.: \code{COV=c(x_y=.1, x2_y2 = .2,
+  x2_xy = .3, y2_xy = .4)}, where x_y is the covariance
+  between x and y, and so on. All these covariances have to
+  provided with exactly these names, otherwise the function
+  will print an error.}
+
+  \item{df}{Degrees of freedom for the calculation of a1 to
+  a4 confidence intervals. The df are the residual dfs of
+  the model (df = n - estimated parameters). For the full
+  polynomial model, this is n - 6 (folllowing parameters
+  are estimated: Intercept, x, y, xy, x2, y2).}
+
+  \item{model}{If x is an RSA object, this parameter
+  specifies the model from which to extract the
+  coefficients}
+}
+\value{
+  Returns surface parameters a1 to a4. If an RSA object or
+  SE, COV and df are provided, also significance test and
+  standard errors of a1 to a4 are reported. The stationary
+  point (X0, Y0, and Z0). First principal axis (PA)
+  relative to the X-Y plane (p10 = intercept, p11 = slope),
+  second PA (p20 = intercept, p21 = slope). M =
+  eigenvectors, l = eigenvalues, L = lambda matrix as1X to
+  as4X: surface parameters of the PA, relative to X values
+  as1Y to as4Y: surface parameters of the PA, relative to Y
+  values PA1.curvature: quadratic component of the first PA
+  (equivalent to the first eigenvalue) PA2.curvature:
+  quadratic component of the second PA (equivalent to the
+  second eigenvalue)
+}
+\description{
+  Calculates surface parameters a1 to a4, the stationary
+  point, the principal axes, the eigenvectors and -values
+}
+\details{
+  No details so far.
+}
+\examples{
+# get surface parameters from known parameters
+# example from Shanock et al. (2010), p. 548, Table 2
+RSA.ST(x=-.23, y=.77, x2=-.07, y2=-.10, xy=.27)
+
+# Get surface parameters from a computed RSA object
+set.seed(0xBEEF)
+n <- 300
+err <- 2
+x <- rnorm(n, 0, 5)
+y <- rnorm(n, 0, 5)
+df <- data.frame(x, y)
+df <- within(df, {
+	diff <- x-y
+	absdiff <- abs(x-y)
+	sqdiff <- (x-y)^2
+	z.diff <- diff + rnorm(n, 0, err)
+	z.abs <- absdiff + rnorm(n, 0, err)
+	z.sq <- sqdiff + rnorm(n, 0, err)
+	z.add <- diff + 0.4*x + rnorm(n, 0, err)
+	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
+})
+
+r1 <- RSA(z.sq~x*y, df)
+RSA.ST(r1)
+}
+\references{
+  Shanock, L. R., Baran, B. E., Gentry, W. A., Pattison, S.
+  C., & Heggestad, E. D. (2010). Polynomial Regression with
+  Response Surface Analysis: A Powerful Approach for
+  Examining Moderation and Overcoming Limitations of
+  Difference Scores. \emph{Journal of Business and
+  Psychology, 25}, 543-554. doi:10.1007/s10869-010-9183-4
+}
+\seealso{
+  \code{\link{RSA}}
+}
+
