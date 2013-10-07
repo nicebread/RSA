@@ -23,10 +23,13 @@
 #' \dontrun{
 #'movieRSA(name="Sqdiff0",
 #' 		frames <- list(
-#'		 	step1 = list(b0=0, xy=-.40, x2=.20, y2=.20, rotation=list(x=-63, y=32, z=15),
-#'						  legend=FALSE, zlim=c(0, 4), param=FALSE),
-#'		 	step2 = list(b0=0, xy=-.10, x2=.05, y2=.05, rotation=list(x=-54, y=39, z=25)),
-#'			step3 = list(b0=0, xy=-.40, x2=.20, y2=.20, rotation=list(x=-45, y=45, z=35))
+#'		 	step1 = list(b0=0, xy=-.40, x2=.20, y2=.20, 
+#'				rotation=list(x=-63, y=32, z=15),
+#'				legend=FALSE, zlim=c(0, 4), param=FALSE),
+#'		 	step2 = list(b0=0, xy=-.10, x2=.05, y2=.05, 
+#'				rotation=list(x=-54, y=39, z=25)),
+#'			step3 = list(b0=0, xy=-.40, x2=.20, y2=.20, 
+#'				rotation=list(x=-45, y=45, z=35))
 #'		 ),
 #'		 mirror=TRUE, fps=30, dur=5000)
 #' }

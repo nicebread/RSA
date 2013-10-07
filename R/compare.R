@@ -13,7 +13,6 @@
 
 
 compare <- function(x, verbose=TRUE, plot=FALSE) {
-	library(plyr)
 	
 	## internal helper function: compare models
 	# mL = model list
@@ -21,7 +20,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE) {
 		aL1 <- anovaList(mL)
 		if (aL1$n.mods > 1 & "full" %in% names(mL)) {
 			n <- nobs(aL1$models[["full"]])
-			a1 <- cbind(aL1$ANOVA, ldply(aL1$models, function(X) {
+			a1 <- cbind(aL1$ANOVA, plyr::ldply(aL1$models, function(X) {
 				F <- fitmeasures(X)
 				R <- inspect(X, "r2")
 				names(R) <- "R2"
@@ -87,7 +86,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE) {
 			print(round(res4[, 1:16], 3))
 		}
 		reslist <- list(res1, res2, res3, res4)
-		res <- rbind.fill(reslist[!sapply(reslist, is.null)])
+		res <- plyr::rbind.fill(reslist[!sapply(reslist, is.null)])
 	}
 		
 		
@@ -100,7 +99,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE) {
 			cat("-------------------------------------------------------------------------\n")
 		}
 		free.max2 <- getFreeParameters(absunc)
-		a3 <- cbind(aL3$ANOVA, ldply(aL3$models, function(X) {
+		a3 <- cbind(aL3$ANOVA, plyr::ldply(aL3$models, function(X) {
 			F <- fitmeasures(X)
 			R <- inspect(X, "r2")
 			names(R) <- "R2"

@@ -56,7 +56,7 @@
 #' 	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
 #' })
 #' 
-#' r1 <- RSA(z.sq~x*y, df)
+#' r1 <- RSA(z.sq~x*y, df, models="full")
 #' RSA.ST(r1)
 
 

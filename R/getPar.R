@@ -37,12 +37,15 @@
 
 getPar <- function(x, type="coef", model="full", ...) {
 	type <- tolower(type)
+	type <- match.arg(type, c("syntax", "coef", "r2", "rsquared", "r.squared", "r2.p", "rsquared.p", "r.squared.p", "r2.adj", "rsquared.adj", "r.squared.adj", "npar", "free", "summary"))
 	if (type=="syntax") {
 		return(x$models[[model]]@Options$model)
 	}
 	if (type=="coef") {
 		p1 <- parameterEstimates(x$models[[model]], ...)
-		return(p1[p1$label != "", -c(1:3)])
+		p1 <- data.frame(p1[p1$label != "", -c(1:3)])
+		rownames(p1) <- p1$label
+		return(p1)
 	}
 	if (type %in% c("r2", "rsquared", "r.squared")) {
 		return(inspect(x$models[[model]], "R2", ...))

@@ -2,8 +2,8 @@ Encoding: UTF-8
 Package: RSA
 Type: Package
 Title: Response surface analysis
-Version: 0.7.4
-Date: 2013-09-19
+Version: 0.7.5
+Date: 2013-09-30
 Author: Felix Schönbrodt
 Maintainer: Felix Schönbrodt <felix@nicebread.de>
 Description: Advanced response surface analysis. The main function RSA compares
@@ -24,10 +24,10 @@ Depends:
     R (>= 2.15.0),
     lavaan (>= 0.5.11),
     ggplot2,
-    lattice
+    lattice,
+    gridExtra
 Imports:
     plyr,
-    gridExtra,
     RColorBrewer
 License: GPL (>= 2)
 Collate:
@@ -39,8 +39,7 @@ Collate:
     'compare.R'
     'print.RSA.R'
     'getPar.R'
-    'bootRSA.R'
     'motcon-data.R'
-    'CI.boot.R'
     'movieRSA.R'
     'modeltree.R'
+    'confint.R'

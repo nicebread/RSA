@@ -93,7 +93,7 @@ modeltree <- function(x, digits=3, ...) {
 		}
 	}
 	
-	
+	dev.new(width=7.5, height=7.5)
 	qgraph(eL, 
 		edgeList	= TRUE,
 		nNodes		= 17,

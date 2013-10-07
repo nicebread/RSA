@@ -1,11 +1,31 @@
 # ---------------------------------------------------------------------
+# version 0.7.5
+
+NEW FEATURES
+
+- replaced bootRSA and boot.CI functions by a unified interface: confint(). This is now standard R behavior. Confidence intervals can be extracted directly fromt he lavaan model, or bootstrapped. See ?confint.RSA
+- New sanity check: false/implausible convergence of constrained models is detected and a warning is printed.
+
+USER VISIBLE CHANGES
+
+- changed parameters for points in plotRSA: points now is a list with subelements, e.g.: points=list(show=TRUE, color="red", jitter=.2)
+- changed default for `points` in plotRSA to TRUE
+- 
+
+IMPROVEMENTS
+
+- General R 3.0.2 compatibility
+- Improved non-linear constraints; now false convergences are more uncommon
+
+# ---------------------------------------------------------------------
 # version 0.7.4
 
 New features:
 
 - new parameter in plotRSA: `contour.highlight`. Provide a vector of values, which indicate contour lines that should be plotted in bold.
 
-Improvements
+Improvements:
+
 - Suppressed another (uncritical) lavaan warning: NaN in sqrt(b3 * b5).
 - Improved modeltree plot: non-significant models (with R2.p > .05) are printed in gray
 

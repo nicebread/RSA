@@ -2,8 +2,7 @@
 \alias{RSA}
 \title{Performs several RSA model tests on a data set with two predictors}
 \usage{
-  RSA(formula, data = NULL, sample.cor = NULL,
-    sample.nobs = NULL, center = FALSE, scale = FALSE,
+  RSA(formula, data = NULL, center = FALSE, scale = FALSE,
     na.rm = FALSE, out.rm = TRUE, breakline = FALSE,
     models = "default", cubic = FALSE, verbose = TRUE,
     control.variables = c(), ...)
@@ -15,13 +14,6 @@
   are the names of the predictor variables.}
 
   \item{data}{A data frame with the variables}
-
-  \item{sample.cor}{A matrix with the sample correlation
-  matrix - you have to provide either raw data in the data
-  argument, or a sample.cor and a sample.nobs}
-
-  \item{sample.nobs}{Number of observations in the sample
-  (goes along with sample.cor)}
 
   \item{center}{Should predictor variables be centered on
   the sample mean before analyses?}
@@ -96,7 +88,7 @@ df <- within(df, {
 	z.add <- diff + 0.4*x + rnorm(n, 0, err)
 	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
 })
-
+\dontrun{
 r1 <- RSA(z.sq~x*y, df)
 print(r1)
 compare(r1)
@@ -108,20 +100,19 @@ RSA.ST(r1)	# get surface parameters
 
 # Motive congruency example
 data(motcon)
-r.m <- RSA(negAct~EM*IM, motcon)
+r.m <- RSA(postVA~ePow*iPow, motcon)
 
-# Get a parameter list of 10 bootstrap samples (usually this should be set to 5000 or higher),
+# Get boostrapped CIs with 10 bootstrap samples (usually this should be set to 5000 or higher),
 # only from the SSD model
-b1 <- bootRSA(r.m, model="SSD", R=10)
-# Get a table of percentile confidence intervals and p-values from these bootstrap replications
-CI.boot(b1)
+c1 <- confint(r.m, model="SSD", method="boot", R=10)
 
 # Plot the final model
-plot(r.m, model="SSD", xlab="Explicit intimacy motive",
-		ylab="Implicit affiliation motive", zlab="Negative activation")
+plot(r.m, model="RR", xlab="Explicit power motive",
+		ylab="Implicit power motive", zlab="Affective valence")
+}
 }
 \seealso{
   \code{\link{demoRSA}}, \code{\link{plotRSA}},
-  \code{\link{RSA.ST}}
+  \code{\link{RSA.ST}}, \code{\link{confint.RSA}}
 }
 
