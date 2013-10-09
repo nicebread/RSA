@@ -454,7 +454,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 								warning("The bag is partly outside the plotting region. Bag is not displayed, please adjust xlim and ylim to include the full range of raw data.")
 							} else {
 		  					  bag.rescale <- RESCALE(bag)
-		  		              panel.3dscatter(x = bag.rescale$X, y = bag.rescale$Y, z = bag.rescale$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, type="l", col.line="grey50", lty="dashed", lwd=2, ...)
+		  		              panel.3dscatter(x = bag.rescale$X, y = bag.rescale$Y, z = bag.rescale$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, type="l", col.line="grey30", lty="dashed", lwd=2, ...)
 							
 							}
 							
@@ -463,7 +463,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 								warning("The loop is partly outside the plotting region. Loop is not displayed, please adjust xlim and ylim to include the full range of raw data.")
 							} else {
 		  					  loop.rescale <- RESCALE(loop)
-		  		              panel.3dscatter(x = loop.rescale$X, y = loop.rescale$Y, z = loop.rescale$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, type="l", col.line="grey20", lty="dashed", lwd=2, ...)
+		  		              panel.3dscatter(x = loop.rescale$X, y = loop.rescale$Y, z = loop.rescale$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, type="l", col.line="black", lty="dashed", lwd=2, ...)
 							
 							}
 						}	  	
@@ -666,8 +666,8 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
 				p1 <- p1+ geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted")
 			}
-		
-			if (param==TRUE & !any(is.na(SP[c("X0", "Y0")]))) {
+			
+			if (param==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "sqdiff", "SSD", "SRSD", "SRR", "SRRR")) {
 				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
 			}
 				

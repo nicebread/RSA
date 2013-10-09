@@ -1,16 +1,16 @@
 # ---------------------------------------------------------------------
-# version 0.7.5
+# version 0.8
 
 NEW FEATURES
 
-- replaced bootRSA and boot.CI functions by a unified interface: confint(). This is now standard R behavior. Confidence intervals can be extracted directly fromt he lavaan model, or bootstrapped. See ?confint.RSA
+- replaced bootRSA and boot.CI functions by a unified interface: confint(). This is now standard R behavior. Confidence intervals can be extracted directly from the lavaan model, or bootstrapped. See ?confint
 - New sanity check: false/implausible convergence of constrained models is detected and a warning is printed.
 
 USER VISIBLE CHANGES
 
-- changed parameters for points in plotRSA: points now is a list with subelements, e.g.: points=list(show=TRUE, color="red", jitter=.2)
+- changed parameters for points and contours in plotRSA: now is a list with subelements, e.g.: points=list(show=TRUE, color="red", jitter=.2)
 - changed default for `points` in plotRSA to TRUE
-- 
+- Changed demo data set - this now better serves it's didactic purpose.
 
 IMPROVEMENTS
 
