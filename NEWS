@@ -1,4 +1,9 @@
 # ---------------------------------------------------------------------
+# version 0.8.1
+
+- minor changes in the demo data set (the outcome variable now is not standardized, but in the original metric)
+
+# ---------------------------------------------------------------------
 # version 0.8
 
 NEW FEATURES
