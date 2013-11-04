@@ -24,7 +24,7 @@
 #' @param ylim Limits of the y axis
 #' @param zlim Limits of the z axis
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot. Shortcuts (i.e., first letter of string) are sufficient; be careful: "contour" is very slow at the moment
-#' @param points Should the original data points be overplotted?
+#' @param points A list of parameters which define the appearance of the raw scatter points: show = TRUE: Should the original data points be overplotted? value="raw": Plot the original z value, "predicted": plot the predicted z value. jitter=0: Amount of jitter for the raw data points. cex = .5: multiplication factor for point size.
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param extended Show additional controls (not implemented yet)
 #' @param ... Other parameters passed through to plot.RSA (e.g., xlab, ylab, zlab, cex, legend)
@@ -64,7 +64,7 @@
 #' demoRSA(r1, points=TRUE, model="sqdiff")
 #' }
 
-demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), points=FALSE, model="full", extended=FALSE, ...) {
+demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), points = list(show=TRUE, value="raw", jitter=0, color="black", cex=.5), model="full", extended=FALSE, ...) {
 
 	type <- match.arg(type, c("interactive", "3d", "contour"))
 	type2 <- type

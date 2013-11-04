@@ -5,8 +5,9 @@
   demoRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0,
     wx = 0, wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0,
     b0 = 0, type = "3d", zlim = c(-2, 2), xlim = c(-2, 2),
-    ylim = c(-2, 2), points = FALSE, model = "full",
-    extended = FALSE, ...)
+    ylim = c(-2, 2),
+    points = list(show = TRUE, value = "raw", jitter = 0, color = "black", cex = 0.5),
+    model = "full", extended = FALSE, ...)
 }
 \arguments{
   \item{x}{Either an RSA object (returned by the \code{RSA}
@@ -50,8 +51,13 @@
   string) are sufficient; be careful: "contour" is very
   slow at the moment}
 
-  \item{points}{Should the original data points be
-  overplotted?}
+  \item{points}{A list of parameters which define the
+  appearance of the raw scatter points: show = TRUE: Should
+  the original data points be overplotted? value="raw":
+  Plot the original z value, "predicted": plot the
+  predicted z value. jitter=0: Amount of jitter for the raw
+  data points. cex = .5: multiplication factor for point
+  size.}
 
   \item{model}{If x is an RSA object: from which model
   should the response surface be computed?}
