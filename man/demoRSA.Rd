@@ -2,12 +2,11 @@
 \alias{demoRSA}
 \title{Plots a response surface of a polynomial equation of second degree with interactive controls}
 \usage{
-  demoRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0,
-    wx = 0, wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0,
-    b0 = 0, type = "3d", zlim = c(-2, 2), xlim = c(-2, 2),
-    ylim = c(-2, 2),
-    points = list(show = TRUE, value = "raw", jitter = 0, color = "black", cex = 0.5),
-    model = "full", extended = FALSE, ...)
+demoRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
+  wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0, type = "3d",
+  zlim = c(-2, 2), xlim = c(-2, 2), ylim = c(-2, 2), points = list(show
+  = TRUE, value = "raw", jitter = 0, color = "black", cex = 0.5),
+  model = "full", extended = FALSE, ...)
 }
 \arguments{
   \item{x}{Either an RSA object (returned by the \code{RSA}
@@ -69,11 +68,11 @@
   (e.g., xlab, ylab, zlab, cex, legend)}
 }
 \description{
-  Plots an RSA object, or a response surface with specified
-  parameters, with interactive controls for coefficients.
+Plots an RSA object, or a response surface with specified
+parameters, with interactive controls for coefficients.
 }
 \details{
-  No details so far. Just play around with the interface!
+No details so far. Just play around with the interface!
 }
 \examples{
 # Plot response surfaces from known parameters
@@ -108,6 +107,6 @@ demoRSA(r1, points=TRUE, model="sqdiff")
 }
 }
 \seealso{
-  \code{\link{plotRSA}}, \code{\link{RSA}}
+\code{\link{plotRSA}}, \code{\link{RSA}}
 }
 

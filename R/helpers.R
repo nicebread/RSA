@@ -119,6 +119,11 @@ getIntersect <- function(b0=0, x=0, y=0, x2=0, xy=0, y2=0, p0, p1, xlim=c(-2, 2)
 
 model <- function(x, model="full") x$models[[model]]
 
+syntax <- function(x, model="full") cat(x$models[[model]]@Options$model)
+
+
+
+
 # transforms p-values to colors
 pRamp <- function(p, sig=.05, borderline=.10, bias=.8) {
 	# calculate bias that the color transition is at the borderline value

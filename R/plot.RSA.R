@@ -42,7 +42,22 @@
 #' @param legend Print color legend for z values?
 #' @param cex Font size factor for axes labels
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot, "interactive" for interactive rotatable plot. Shortcuts (i.e., first letter of string) are sufficient
-#' @param points A list of parameters which define the appearance of the raw scatter points: show = TRUE: Should the original data points be overplotted? value="raw": Plot the original z value, "predicted": plot the predicted z value. jitter=0: Amount of jitter for the raw data points. cex = .5: multiplication factor for point size.
+#' @param points A list of parameters which define the appearance of the raw scatter points: 
+#'	\itemize{
+#'		\item{show = TRUE: Should the original data points be overplotted?}
+#' 		\item{value="raw": Plot the original z value, "predicted": plot the predicted z value}
+#'		\item{jitter = 0: Amount of jitter for the raw data points}
+#'		\item{cex = .5: multiplication factor for point size}
+#' 		\item{out.mark = FALSE: If set to TRUE, outliers according to Bollen & Jackman (1980) are printed as red X symbols. This option works regardless of whether the RSA function has set out.rm to TRUE or FALSE: 
+#'			\itemize{
+#'				\item{If out.rm == TRUE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is removed from the model and *not plotted* in plotRSA.}
+#'				\item{If out.rm == TRUE (in RSA()) and out.mark == TRUE (in plotRSA()), the outlier is removed from the model but plotted and marked in plotRSA.}
+#'				\item{If out.rm == FALSE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is not removed from the model and plotted as a normal point in plotRSA (but not marked as outlier).}
+#'				\item{If out.rm == FALSE (in RSA()) and out.mark == TRUE (in plotRSA()), the outlier is not removed from the model, but plotted and marked in plotRSA.}
+#'				\item{Example syntax: \code{plotRSA(r1, points=list(show=TRUE, out.mark=TRUE))}}
+#'		}}
+#'	}
+
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param demo Do not change that parameter (internal use only)
 #' @param fit Do not change that parameter (internal use only)
@@ -60,7 +75,7 @@
 #' @param pal A palette for shading
 #' @param pal.range Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.
 #' @param pad Pad controls the margin around the figure (positive numbers: larger margin, negative numbers: smaller margin)
-#' @param ... Additional parameters passed to the plotting function (e.g., main="Title"). A useful title might be the R squared of the plotted model: main = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))
+#'#' @param ... Additional parameters passed to the plotting function (e.g., main="Title"). A useful title might be the R squared of the plotted model: main = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))
 #'
 #' @references
 #' Rousseeuw, P. J., Ruts, I., & Tukey, J. W. (1999). The Bagplot: A Bivariate Boxplot. The American Statistician, 53(4), 382-387. doi:10.1080/00031305.1999.10474494
@@ -69,8 +84,12 @@
 #' @examples
 #' # Plot response surfaces from known parameters
 #' # example of Edwards (2002), Figure 3
+#' # Default: 3d plot:
 #' plotRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628)
+#' # Contour plot:
 #' plotRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628, type="c")
+#' # Interactive plot (try the mouse!):
+#' plotRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628, type="i")
 #'
 #' # Plot response surface from an RSA object
 #' set.seed(0xBEEF)
@@ -111,7 +130,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
 	axes=c("LOC", "LOIC", "PA1", "PA2"), project=FALSE, maxlines=FALSE,
 	cex=1.2,
-	points = list(show=TRUE, value="raw", jitter=0, color="black", cex=.5),
+	points = list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=TRUE),
 	demo=FALSE, fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=TRUE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
@@ -127,6 +146,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	if (is.null(points$color)) points$color <- "black"
 	if (is.null(points$jitter)) points$jitter <- 0
 	if (is.null(points$cex)) points$cex <- 0.5
+	if (is.null(points$out.mark)) points$out.mark <- TRUE
 		
 	if (is.null(contour$show)) contour$show <- TRUE
 	if (is.null(contour$color)) contour$color <- "grey40"
@@ -328,7 +348,15 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 		 }
 		
 		if (points$show == TRUE & !is.null(fit)) {
-			points3d(fit$data[, c(fit$IV1, fit$IV2, fit$DV)], col=points$color)
+			if (points$out.mark == FALSE) {
+				points3d(fit$data[, c(fit$IV1, fit$IV2, fit$DV)], col=points$color)
+			}
+			if (points$out.mark == TRUE) {
+				colvec <- rep(points$color, nrow(fit$data.original))
+				colvec[fit$outliers] <- "red"
+				points3d(fit$data.original[, c(fit$IV1, fit$IV2, fit$DV)], col=colvec)
+				text3d(fit$data.original[fit$outliers, c(fit$IV1, fit$IV2, fit$DV)], col="red", texts="X")
+			}
 		}
 		
 		p1 <- NULL	# no plot object is returned	
@@ -482,6 +510,13 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	  			              panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
 	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
 	  										  pch=20, col=points$color, cex=points$cex, ...)
+							  # plot outliers
+							  if (points$out.mark==TRUE) {
+	  			              	panel.3dscatter(x = x2[fit$outliers], y = y2[fit$outliers], z = z2[fit$outliers], xlim = xlim, ylim = ylim, zlim = zlim,
+	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+	  										  pch=4, col="red", cex=points$cex, ...)
+							  }
+								
 					  		}	
 						
 					# ---------------------------------------------------------------------
@@ -599,6 +634,13 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 					
 					#C <- c(x, y, x2, y2, xy, w, wx, wy,x3, xy2, x2y, y3)
 				}
+				if (points$out.mark == FALSE) {
+					xpoints <- fit$data[, fit$IV1]
+					ypoints <- fit$data[, fit$IV2]
+				} else {
+					xpoints <- fit$data.original[, fit$IV1]
+					ypoints <- fit$data.original[, fit$IV2]					
+				}
 				
 				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
 					scales 	= list(arrows = FALSE, cex=cex, col = "black", font = 1, tck=tck, distance=distance), 
@@ -614,7 +656,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 					axes	= axesList, 
 					SPs		= SP.text, 
 					panel.3d.wireframe = mypanel2,
-					x.points=fit$data[, fit$IV1], y.points=fit$data[, fit$IV2], z.points=zpoints, ...)
+					x.points=xpoints, y.points=ypoints, z.points=zpoints, ...)
 			}
 				
 	}  # of type == "3d"
@@ -673,7 +715,16 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 				
 				
 			if (points$show == TRUE & !is.null(fit)) {
-				p1 <- p1 + annotate("point", x=fit$data[, fit$IV1], y=fit$data[, fit$IV2], color=points$color, size=3*points$cex)
+				if (points$out.mark==FALSE) {
+					p1 <- p1 + annotate("point", x=fit$data[, fit$IV1], y=fit$data[, fit$IV2], color=points$color, size=3*points$cex)
+				}
+				if (points$out.mark==TRUE) {
+					colvec <- rep(points$color, nrow(fit$data.original))
+					colvec[fit$outliers] <- "red"
+					shapevec <- rep(19, nrow(fit$data.original))
+					shapevec[fit$outliers] <- 4
+					p1 <- p1 + annotate("point", x=fit$data.original[, fit$IV1], y=fit$data.original[, fit$IV2], color=colvec, size=3*points$cex, shape=shapevec)
+				}
 			}
 			
 			if (hull==TRUE & !is.null(fit)) {

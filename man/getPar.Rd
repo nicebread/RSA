@@ -2,7 +2,7 @@
 \alias{getPar}
 \title{Retrieves several variables from an RSA object}
 \usage{
-  getPar(x, type = "coef", model = "full", ...)
+getPar(x, type = "coef", model = "full", ...)
 }
 \arguments{
   \item{x}{RSA object}
@@ -17,10 +17,10 @@
   function}
 }
 \description{
-  Retrieves several variables from an RSA object
+Retrieves several variables from an RSA object
 }
 \details{
-  None so far.
+None so far.
 }
 \examples{
 set.seed(0xBEEF)
@@ -42,6 +42,6 @@ getPar(r1, "R2")
 getPar(r1, "coef")
 }
 \seealso{
-  \code{\link{RSA}}
+\code{\link{RSA}}
 }
 

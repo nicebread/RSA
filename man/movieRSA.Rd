@@ -2,9 +2,8 @@
 \alias{movieRSA}
 \title{Create a movie of plotRSA plots, with changing surface and/or rotation}
 \usage{
-  movieRSA(name, frames, dur = 2000, fps = 30, width = 800,
-    height = 600, mirror = TRUE, savetodisk = TRUE,
-    clean = TRUE)
+movieRSA(name, frames, dur = 2000, fps = 30, width = 800, height = 600,
+  mirror = TRUE, savetodisk = TRUE, clean = TRUE)
 }
 \arguments{
   \item{name}{Name for the subfolder containing all still
@@ -32,20 +31,19 @@
   \item{clean}{Should the still images be deleted?}
 }
 \description{
-  Create a movie of plotRSA plots, with changing surface
-  and/or rotation
+Create a movie of plotRSA plots, with changing surface
+and/or rotation
 }
 \details{
-  \code{frames} is a list of the first, intermediate, and
-  the final parameters of the surface. Each scalar
-  parameter defined in \code{frames} is interpolated
-  between steps in order to create a smooth sequence of
-  plots. Logical and character parameters are inherited
-  from the first frame. Plots are saved as individual still
-  pictures in a subfolder called \code{name} and finally
-  glued together using ffmpeg. Hence, a ffmpeg installation
-  is needed to create the movie (the still pictures can be
-  produced without ffmpeg).
+\code{frames} is a list of the first, intermediate, and the
+final parameters of the surface. Each scalar parameter
+defined in \code{frames} is interpolated between steps in
+order to create a smooth sequence of plots. Logical and
+character parameters are inherited from the first frame.
+Plots are saved as individual still pictures in a subfolder
+called \code{name} and finally glued together using ffmpeg.
+Hence, a ffmpeg installation is needed to create the movie
+(the still pictures can be produced without ffmpeg).
 }
 \examples{
 \dontrun{
@@ -63,6 +61,6 @@ movieRSA(name="Sqdiff0",
 }
 }
 \seealso{
-  \code{\link{plotRSA}}
+\code{\link{plotRSA}}
 }
 

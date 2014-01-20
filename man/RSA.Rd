@@ -2,10 +2,9 @@
 \alias{RSA}
 \title{Performs several RSA model tests on a data set with two predictors}
 \usage{
-  RSA(formula, data = NULL, center = FALSE, scale = FALSE,
-    na.rm = FALSE, out.rm = TRUE, breakline = FALSE,
-    models = "default", cubic = FALSE, verbose = TRUE,
-    control.variables = c(), ...)
+RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
+  out.rm = TRUE, breakline = FALSE, models = "default", cubic = FALSE,
+  verbose = TRUE, control.variables = c(), ...)
 }
 \arguments{
   \item{formula}{A formula in the form \code{z ~ x*y},
@@ -54,21 +53,21 @@
   function. For example: \code{se="boot"}}
 }
 \description{
-  Performs several RSA model tests on a data set with two
-  predictors
+Performs several RSA model tests on a data set with two
+predictors
 }
 \details{
-  You can also fit binary outcome variables with a probit
-  link function. For that purpose, the response variable
-  has to be defined as "ordered": \code{r1 <- RSA(Z.binary
-  ~ X*Y, dat, ordered="Z.binary")} (for more details see
-  the help file of the \code{sem} function in the
-  \code{lavaan} package.). The results can also be plotted
-  with probabilities on the z axis using the probit link
-  function: \code{plot(r1, link="probit", zlim=c(0, 1),
-  zlab="Probability")}. \code{lavaan} at the moment only
-  supports a probit link function for binary outcomes, not
-  a logit link.
+You can also fit binary outcome variables with a probit
+link function. For that purpose, the response variable has
+to be defined as "ordered": \code{r1 <- RSA(Z.binary ~ X*Y,
+dat, ordered="Z.binary")} (for more details see the help
+file of the \code{sem} function in the \code{lavaan}
+package.). The results can also be plotted with
+probabilities on the z axis using the probit link function:
+\code{plot(r1, link="probit", zlim=c(0, 1),
+zlab="Probability")}. \code{lavaan} at the moment only
+supports a probit link function for binary outcomes, not a
+logit link.
 }
 \examples{
 # Compute response surface from a fake data set
@@ -112,7 +111,7 @@ plot(r.m, model="RR", xlab="Explicit power motive",
 }
 }
 \seealso{
-  \code{\link{demoRSA}}, \code{\link{plotRSA}},
-  \code{\link{RSA.ST}}, \code{\link{confint.RSA}}
+\code{\link{demoRSA}}, \code{\link{plotRSA}},
+\code{\link{RSA.ST}}, \code{\link{confint.RSA}}
 }
 

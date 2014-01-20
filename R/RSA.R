@@ -122,16 +122,15 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	f <- paste0(paste0(DV, " ~ ", paste(IV1, IV2, IV12, IV_IA, IV22, sep=" + ")), CV)
 	rs <- lm(f, df)
 	
-	
+	# Mark outliers and influential cases according to Bollen & Jackman, 1980
+	df0 <- df	# df0 keeps the original data frame, before outliers are removed (we need this in plotRSA, if we want to show the outliers)
+	outs <- c()	# keeps the row numbers of the outliers
+	inf <- influence.measures(rs)
+	outs <- which(apply(inf$is.inf[, c("dffit", "cook.d", "hat")], 1, sum) == 3)
+	names(outs) <- NULL
 	if (out.rm == TRUE) {
-		# get outliers and influential cases according to Bollen & Jackman, 1980
-	
-		inf <- influence.measures(rs)
-		outs <- which(apply(inf$is.inf[, c("dffit", "cook.d", "hat")], 1, sum) == 3)
-		if (verbose==TRUE) {
-			print(paste("Removed", length(outs), "case(s) according to Bollen & Jackman (1980) criteria."))
-		}
-		if (length(outs)>0) {
+		if (verbose==TRUE & length(outs)>0) {
+			warning(paste("Removed", length(outs), "case(s) according to Bollen & Jackman (1980) criteria."))
 			df <- df[-outs, ]
 		}
 	}
@@ -572,7 +571,7 @@ withCallingHandlers({
 	res <- list(
 		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, absdiff=s.absdiff, additive=s.additive, sqdiff=s.sqdiff, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSD=s.SSD, SRSD=s.SRSD, absunc=s.absunc, cubic=s.cubic), 
 		SRSD.rot = SRSD.rot, SRRR.rot = SRRR.rot, LM=rs, formula=formula, 
-		data=df, DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
+		data=df, data.original=df0, out.rm = out.rm, outliers = outs, DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
 		r.squared = summary(rs)$r.squared)
 	
 	attr(res, "class") <- "RSA"

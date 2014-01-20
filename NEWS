@@ -1,4 +1,15 @@
 # ---------------------------------------------------------------------
+# version 0.8.2
+
+- If outliers are removed, this is now printed as a warning (more salient)
+- added parameter "out.mark" in the points parameter of plotRSA: If set to TRUE, outliers according to Bollen & Jackman (1980) are printed as a red X symbol. This option works regardless of whether the RSA function has set out.rm to TRUE or FALSE: 
+	- If out.rm == TRUE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is removed from the model and *not plotted* in plotRSA. 
+	- If out.rm == TRUE (in RSA()) and out.mark == TRUE (in plotRSA()), the outlier is removed from the model but plotted and marked in plotRSA.
+	- If out.rm == FALSE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is not removed from the model and plotted as a normal point in plotRSA (but not marked as outlier). 
+	- If out.rm == FALSE (in RSA()) and out.mark == TRUE (in plotRSA()), the outlier is not removed from the model, but plotted and marked in plotRSA.
+	- Example syntax: plotRSA(r1, points=list(show=TRUE, out.mark=TRUE))
+
+# ---------------------------------------------------------------------
 # version 0.8.1
 
 - minor changes in the demo data set (the outcome variable now is not standardized, but in the original metric)

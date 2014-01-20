@@ -3,8 +3,8 @@
 \alias{confint.RSA}
 \title{Computes confidence intervals for RSA parameters, standard or bootstrapped}
 \usage{
-  \method{confint}{RSA} (object, parm, level = 0.95, ...,
-    model = "full", method = "standard", R = 5000)
+\method{confint}{RSA}(object, parm, level = 0.95, ..., model = "full",
+  method = "standard", R = 5000)
 }
 \arguments{
   \item{object}{An RSA object}
@@ -28,11 +28,11 @@
   \code{parallel="multicore", ncpus=2}.}
 }
 \description{
-  Computes confidence intervals for RSA parameters,
-  standard or bootstrapped
+Computes confidence intervals for RSA parameters, standard
+or bootstrapped
 }
 \details{
-  None so far.
+None so far.
 }
 \examples{
 set.seed(0xBEEF)
@@ -59,6 +59,6 @@ confint(r1, model="SSD", R=5000, parallel="multicore", ncpus=2)
 }
 }
 \seealso{
-  \code{\link{RSA}}
+\code{\link{RSA}}
 }
 

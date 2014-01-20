@@ -2,8 +2,8 @@
 \alias{RSA.ST}
 \title{Surface tests}
 \usage{
-  RSA.ST(x, y = 0, x2 = 0, xy = 0, y2 = 0, b0 = 0,
-    SE = NULL, COV = NULL, df = NULL, model = "full")
+RSA.ST(x, y = 0, x2 = 0, xy = 0, y2 = 0, b0 = 0, SE = NULL,
+  COV = NULL, df = NULL, model = "full")
 }
 \arguments{
   \item{x}{Either an RSA object (returned by the \code{RSA}
@@ -47,26 +47,26 @@
   coefficients}
 }
 \value{
-  Returns surface parameters a1 to a4. If an RSA object or
-  SE, COV and df are provided, also significance test and
-  standard errors of a1 to a4 are reported. The stationary
-  point (X0, Y0, and Z0). First principal axis (PA)
-  relative to the X-Y plane (p10 = intercept, p11 = slope),
-  second PA (p20 = intercept, p21 = slope). M =
-  eigenvectors, l = eigenvalues, L = lambda matrix as1X to
-  as4X: surface parameters of the PA, relative to X values
-  as1Y to as4Y: surface parameters of the PA, relative to Y
-  values PA1.curvature: quadratic component of the first PA
-  (equivalent to the first eigenvalue) PA2.curvature:
-  quadratic component of the second PA (equivalent to the
-  second eigenvalue)
+Returns surface parameters a1 to a4. If an RSA object or
+SE, COV and df are provided, also significance test and
+standard errors of a1 to a4 are reported. The stationary
+point (X0, Y0, and Z0). First principal axis (PA) relative
+to the X-Y plane (p10 = intercept, p11 = slope), second PA
+(p20 = intercept, p21 = slope). M = eigenvectors, l =
+eigenvalues, L = lambda matrix as1X to as4X: surface
+parameters of the PA, relative to X values as1Y to as4Y:
+surface parameters of the PA, relative to Y values
+PA1.curvature: quadratic component of the first PA
+(equivalent to the first eigenvalue) PA2.curvature:
+quadratic component of the second PA (equivalent to the
+second eigenvalue)
 }
 \description{
-  Calculates surface parameters a1 to a4, the stationary
-  point, the principal axes, the eigenvectors and -values
+Calculates surface parameters a1 to a4, the stationary
+point, the principal axes, the eigenvectors and -values
 }
 \details{
-  No details so far.
+No details so far.
 }
 \examples{
 # get surface parameters from known parameters
@@ -95,14 +95,14 @@ r1 <- RSA(z.sq~x*y, df, models="full")
 RSA.ST(r1)
 }
 \references{
-  Shanock, L. R., Baran, B. E., Gentry, W. A., Pattison, S.
-  C., & Heggestad, E. D. (2010). Polynomial Regression with
-  Response Surface Analysis: A Powerful Approach for
-  Examining Moderation and Overcoming Limitations of
-  Difference Scores. \emph{Journal of Business and
-  Psychology, 25}, 543-554. doi:10.1007/s10869-010-9183-4
+Shanock, L. R., Baran, B. E., Gentry, W. A., Pattison, S.
+C., & Heggestad, E. D. (2010). Polynomial Regression with
+Response Surface Analysis: A Powerful Approach for
+Examining Moderation and Overcoming Limitations of
+Difference Scores. \emph{Journal of Business and
+Psychology, 25}, 543-554. doi:10.1007/s10869-010-9183-4
 }
 \seealso{
-  \code{\link{RSA}}
+\code{\link{RSA}}
 }
 
