@@ -613,11 +613,18 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 				#p1
 			} else {
 				
+				if (points$out.mark == FALSE) {
+					data.used <- fit$data
+				}
+				else {
+					data.used <- fit$data.original
+				}
+				
 				if (points$value == "raw") {
-					zpoints <- fit$data[, fit$DV]
+					zpoints <- data.used[, fit$DV]
 				} else if (points$value == "predicted") {
 					# calculate predicted values
-					zpoints <- b0 + colSums(C*t(fit$data[, c(
+					zpoints <- b0 + colSums(C*t(data.used[, c(
 						fit$IV1,
 						fit$IV2,
 						paste0(fit$IV1, "2"),
@@ -634,13 +641,10 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 					
 					#C <- c(x, y, x2, y2, xy, w, wx, wy,x3, xy2, x2y, y3)
 				}
-				if (points$out.mark == FALSE) {
-					xpoints <- fit$data[, fit$IV1]
-					ypoints <- fit$data[, fit$IV2]
-				} else {
-					xpoints <- fit$data.original[, fit$IV1]
-					ypoints <- fit$data.original[, fit$IV2]					
-				}
+
+				xpoints <- data.used[, fit$IV1]
+				ypoints <- data.used[, fit$IV2]
+
 				
 				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
 					scales 	= list(arrows = FALSE, cex=cex, col = "black", font = 1, tck=tck, distance=distance), 
