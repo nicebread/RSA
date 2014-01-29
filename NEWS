@@ -1,4 +1,18 @@
 # ---------------------------------------------------------------------
+# version 0.8.3
+
+NEW FEATURES
+
+- Arbitrary data points can be plotted in plotRSA - i.e., you can plot a fit with existing regression weights, and still plot raw data points. See plotRSA() --> points(data=???)
+- plotRSA --> points(value="predict") now also works in interactive plots (type="i")
+- The hull in plotRSA now is much smoother and lies on the surface (before, long connection lines cut through the surface)
+
+
+IMPROVEMENTS
+
+- Refactored plotRSA and plot.RSA - much cleaner now
+
+# ---------------------------------------------------------------------
 # version 0.8.2
 
 - If outliers are removed, this is now printed as a warning (more salient)

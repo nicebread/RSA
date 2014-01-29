@@ -195,3 +195,35 @@ predictRSA <- function(object, X, Y, model="full") {
 	Z <- b0 + colSums(C*t(cbind(X, Y, X^2, Y^2, X*Y, 0, 0, 0, X^3, X*Y^2, X^2*Y, Y^3)))
 	return(Z)
 }
+
+
+
+interpolatePolyon <- function(x, y, minDist, plot=FALSE) {
+	minDist <- minDist^2	# compare with squared x^2 + y^2 (faster)
+	interp <- data.frame()
+	pol <- data.frame(x, y)
+	colnames(pol) <- c("x", "y")
+	for (i in 1:(nrow(pol)-1)) {
+		# get distance
+		D <- (pol[i, 1] - pol[i+1, 1])^2 + (pol[i, 2] - pol[i+1, 2])^2
+		if (D > minDist) {
+			N <- ceiling(sqrt(D)/sqrt(minDist)) # number of interpolations
+			APPROX <- data.frame(
+				x = seq(pol[i, 1], pol[i+1, 1], length.out=N),
+				y = seq(pol[i, 2], pol[i+1, 2], length.out=N)
+			)
+			interp <- rbind(interp, APPROX)
+		} else if (D>0 & D <= minDist){
+			interp <- rbind(interp, pol[i, ])
+			if (i==1) colnames(interp) <- c("x", "y")
+		}
+	}
+	interp <- rbind(interp, pol[nrow(pol), ])
+	if (plot==TRUE) {
+		plot(pol, col="red")
+		points(interp[, 1], interp[, 2], col="green", pch=20)
+		lines(interp[, 1], interp[, 2], col="darkgreen")
+		text(pol, label=1:nrow(pol))
+	}
+	return(interp)
+}

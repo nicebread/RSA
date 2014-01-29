@@ -44,6 +44,7 @@
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot, "interactive" for interactive rotatable plot. Shortcuts (i.e., first letter of string) are sufficient
 #' @param points A list of parameters which define the appearance of the raw scatter points: 
 #'	\itemize{
+#'		\item{data: Data frame which contains the coordinates of the raw data points. FIrst column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object}
 #'		\item{show = TRUE: Should the original data points be overplotted?}
 #' 		\item{value="raw": Plot the original z value, "predicted": plot the predicted z value}
 #'		\item{jitter = 0: Amount of jitter for the raw data points}
@@ -75,7 +76,7 @@
 #' @param pal A palette for shading
 #' @param pal.range Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.
 #' @param pad Pad controls the margin around the figure (positive numbers: larger margin, negative numbers: smaller margin)
-#'#' @param ... Additional parameters passed to the plotting function (e.g., main="Title"). A useful title might be the R squared of the plotted model: main = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))
+#'#' @param ... Additional parameters passed to the plotting function (e.g., sub="Title"). A useful title might be the R squared of the plotted model: sub = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))
 #'
 #' @references
 #' Rousseeuw, P. J., Ruts, I., & Tukey, J. W. (1999). The Bagplot: A Bivariate Boxplot. The American Statistician, 53(4), 382-387. doi:10.1080/00031305.1999.10474494
@@ -123,14 +124,14 @@
 # rotation=list(x=-45, y=45, z=35), label.rotation=list(x=45, y=-25, z=94)
 # distance=c(1, 1, 1), tck=c(1, 1, 1)
 
-plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", model="full", 
+plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", model="full", 
 	xlim=NULL, ylim=NULL, zlim=NULL, xlab=NULL, ylab=NULL, zlab=NULL, 
 	surface="predict", lambda=NULL, 
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
 	axes=c("LOC", "LOIC", "PA1", "PA2"), project=FALSE, maxlines=FALSE,
 	cex=1.2,
-	points = list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=TRUE),
+	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
 	demo=FALSE, fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=TRUE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
@@ -142,11 +143,22 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	
 	# define the defaults
 	if (is.null(points$show)) points$show <- TRUE
+	if (is.na(points$show)) {
+		if (is.null(points$data)) {
+			points$show <- FALSE	
+		} else {
+			points$show <- TRUE
+		}
+	}
 	if (is.null(points$value)) points$value <- "raw"
 	if (is.null(points$color)) points$color <- "black"
 	if (is.null(points$jitter)) points$jitter <- 0
 	if (is.null(points$cex)) points$cex <- 0.5
-	if (is.null(points$out.mark)) points$out.mark <- TRUE
+	if (is.null(points$out.mark)) points$out.mark <- FALSE
+	if (points$show==TRUE & is.null(points$data)) {
+		warning("You must provide a data frame with the coordinates of the raw data points (points = list(show = TRUE, data = ???)). Points are not plotted.")
+		points$show <- FALSE
+	}
 		
 	if (is.null(contour$show)) contour$show <- TRUE
 	if (is.null(contour$color)) contour$color <- "grey40"
@@ -156,84 +168,18 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	surface <- match.arg(surface, c("predict", "smooth"))
 	points[["value"]] <- match.arg(points[["value"]], c("raw", "predicted"))
 
-	# take parameters from function parameters, or from model object
 	if (demo == FALSE) {
-		if (is.null(x)) {
-			x <- 0
-			fit <- NULL
 			if (is.null(xlab)) xlab <- "X"
 			if (is.null(ylab)) ylab <- "Y"
 			if (is.null(zlab)) zlab <- "Z"
 			
 			if (is.null(xlim)) {xlim <- c(-2.1, 2.1)}
 			if (is.null(ylim)) {ylim <- c(-2.1, 2.1)}
-			
-			hull <- FALSE
-		} else	if (!is.null(x) & !is.null(attr(x, "class"))) {
-			if (attr(x, "class") == "RSA" & demo==FALSE) {
-				fit <- x
-				C <- coef(fit$models[[model]])
-				if (fit$models[[model]]@Options$estimator != "DWLS") {
-					b0 <- as.numeric(ifelse(is.na(C[paste0(fit$DV, "~1")]), b0, C[paste0(fit$DV, "~1")]))
-					} else {
-						# the threshold is the negative of the intercept ...
-						b0 <- -as.numeric(ifelse(is.na(C[paste0(fit$DV, "|t1")]), b0, C[paste0(fit$DV, "|t1")]))
-					}
-				x <- as.numeric(ifelse(is.na(C["b1"]), 0, C["b1"]))
-				y <- as.numeric(ifelse(is.na(C["b2"]), y, C["b2"]))
-				x2 <- as.numeric(ifelse(is.na(C["b3"]), x2, C["b3"]))
-				y2 <- as.numeric(ifelse(is.na(C["b5"]), y2, C["b5"]))
-				xy <- as.numeric(ifelse(is.na(C["b4"]), xy, C["b4"]))
-				w <- as.numeric(ifelse(is.na(C["b6"]), w, C["b6"]))
-				wx <- as.numeric(ifelse(is.na(C["b7"]), wx, C["b7"]))
-				wy <- as.numeric(ifelse(is.na(C["b8"]), wy, C["b8"]))
-				
-				# cubic parameters
-				x3 <- as.numeric(ifelse(is.na(C["b9"]), x3, C["b9"]))
-				xy2 <- as.numeric(ifelse(is.na(C["b10"]), xy2, C["b10"]))
-				x2y <- as.numeric(ifelse(is.na(C["b11"]), x2y, C["b11"]))
-				y3 <- as.numeric(ifelse(is.na(C["b12"]), y3, C["b12"]))
-		
-				if (is.null(xlim)) {
-					xlim <- c(min(fit$data[, fit$IV1], na.rm=TRUE), max(fit$data[, fit$IV1], na.rm=TRUE))
-					# expand range by 20% at each end
-					xlim[1] <- xlim[1]*ifelse(xlim[1]<0, 1.1, 0.9)
-					xlim[2] <- xlim[2]*ifelse(xlim[2]<0, 0.9, 1.1)
-				}
-				
-				if (is.null(ylim)) {
-					ylim <- c(min(fit$data[, fit$IV2], na.rm=TRUE), max(fit$data[, fit$IV2], na.rm=TRUE))
-					ylim[1] <- ylim[1]*ifelse(ylim[1]<0, 1.1, 0.9)
-					ylim[2] <- ylim[2]*ifelse(ylim[2]<0, 0.9, 1.1)
-				}
-								
-				# for the correct visual diagonal: same range for X and Y
-				xlim[1] <- ylim[1] <- min(xlim[1], ylim[1])
-				xlim[2] <- ylim[2] <- max(xlim[2], ylim[2])
-			} else {
-				stop("Unknown object provided.")
-				fit <- NULL
-			}
-		} else {
-			fit <- NULL
-			hull <- FALSE
-			if (is.null(xlab)) xlab <- "X"
-			if (is.null(ylab)) ylab <- "Y"
-			if (is.null(zlab)) zlab <- "Z"
-			
-			if (is.null(xlim)) {xlim <- c(-2.1, 2.1)}
-			if (is.null(ylim)) {ylim <- c(-2.1, 2.1)}
-		}
 	}
 	
-	if (!is.null(fit)) {
-		if (is.null(xlab)) xlab <- fit$IV1
-		if (is.null(ylab)) ylab <- fit$IV2
-		if (is.null(zlab)) zlab <- fit$DV
-	}
 	
-	if (is.null(fit) & surface == "smooth") {
-		warning("Smoothing only works if an RSA object is provided! Reverting to surface = 'predict'")
+	if (is.null(points$data) & surface == "smooth") {
+		warning("Smoothing only works if data points are provided (points=list(data=???))! Reverting to surface = 'predict'")
 		surface <- "predict"
 	}
 	
@@ -263,7 +209,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	}
 	if (surface == "smooth") {
 		library(fields)
-		tpsfit <- Tps(fit$data[, c(fit$IV1, fit$IV2)], fit$data[, fit$DV], scale.type="unscaled", lambda=lambda)
+		tpsfit <- Tps(points$data[, 1:2], points$data[, 3], scale.type="unscaled", lambda=lambda)
 		new2$z <- predict(tpsfit, new[, c("x", "y")])
 	}
 	
@@ -280,8 +226,8 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	}
 
 	# determine zlim
-	if (!is.null(fit) & demo==FALSE & is.null(zlim)) {
-		zlim <- c(min(min(new2$z, na.rm=TRUE), min(fit$data[, fit$DV], na.rm=TRUE)), max(max(new2$z, na.rm=TRUE), max(fit$data[, fit$DV], na.rm=TRUE)))
+	if (!is.null(points$data) & demo==FALSE & is.null(zlim)) {
+		zlim <- c(min(min(new2$z, na.rm=TRUE), min(points$data[, 3], na.rm=TRUE)), max(max(new2$z, na.rm=TRUE), max(points$data[, 3], na.rm=TRUE)))
 	} else {
 		if (is.null(zlim)) zlim <- c(min(new2$z), max(new2$z))
 	}
@@ -305,21 +251,75 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	}
 	if (length(pal) < 2) {legend <- FALSE}
 		
-		
-	# calculate bag plot
+	
+	# ---------------------------------------------------------------------
+	# Calculate positions of raw points
+	
+	if (points$out.mark == TRUE & is.null(fit)) {
+		warning("Outliers can only be marked if an RSA-object is provided. Points are not plotted.")
+		points$show <- FALSE
+	}
+	if (points$show == TRUE) {
+		if (points$out.mark == FALSE) {
+			data.used <- points$data
+		}
+		if (points$out.mark == TRUE & !is.null(fit)) {
+			data.used <- fit$data.original
+		}
+	
+		if (points$value == "raw") {
+			zpoints <- data.used[, 3]
+		} else if (points$value == "predicted") {
+			N <- colnames(data.used)
+			data.used2 <- add.variables(formula(paste0(N[3], " ~ ", N[1], "*", N[2])), data.used)
+			
+			# calculate predicted values
+			zpoints <- b0 + colSums(C*t(data.used2[, c(
+				N[1],
+				N[2],
+				paste0(N[1], "2"),
+				paste0(N[2], "2"),
+				paste0(N[1], "_", N[2]),
+				"W",
+				paste0("W_", N[1]),
+				paste0("W_", N[2]),
+				paste0(N[1], "3"),
+				paste0(N[1], "_", N[2], "2"),
+				paste0(N[1], "2", "_", N[2]),
+				paste0(N[2], "3")
+			)]))
+		}
+
+		xpoints <- data.used[, 1]
+		ypoints <- data.used[, 2]
+	}
+	
+	# ---------------------------------------------------------------------
+	#  calculate bag plot: bag = outer, loop = inner
+	
 	if (hull==TRUE) {
 		library(aplpack)
-		BAG <- compute.bagplot(fit$data[, fit$IV1], fit$data[, fit$IV2])
 		
-		bagpoints <- add.variables(z~x+y, data.frame(x=BAG$hull.bag[, 1], y=BAG$hull.bag[, 2]))
+		BAG <- compute.bagplot(xpoints, ypoints)
+		
+		# close the polygon
+		h1 <- rbind(BAG$hull.bag, BAG$hull.bag[1, ])
+		h2 <- rbind(BAG$hull.loop, BAG$hull.loop[1, ])
+
+		# approx: interpolate the points of the bag (in order to get a more smooth fitting line on the z-axis)
+		minDist <- min(diff(xlim)/gridsize, diff(ylim)/gridsize)/2
+
+		h1 <- interpolatePolyon(h1[, 1], h1[, 2], minDist=minDist)	
+		h2 <- interpolatePolyon(h2[, 1], h2[, 2], minDist=minDist)	
+		
+		# calculate predicted values
+		bagpoints <- add.variables(z~x+y, data.frame(x=h1$x, y=h1$y))
 		bagpoints$z <- b0 + colSums(C*t(bagpoints[, c(1:5, 9:11, 15:18)]))
 		bag <- data.frame(X  = bagpoints$x, Y  = bagpoints$y, Z = bagpoints$z)
-		bag <- rbind(bag, bag[1, ])
 		
-		looppoints <- add.variables(z~x+y, data.frame(x=BAG$hull.loop[, 1], y=BAG$hull.loop[, 2]))
+		looppoints <- add.variables(z~x+y, data.frame(x=h2$x, y=h2$y))
 		looppoints$z <- b0 + colSums(C*t(looppoints[, c(1:5, 9:11, 15:18)]))
 		loop <- data.frame(X  = looppoints$x, Y  = looppoints$y, Z = looppoints$z)			
-		loop <- rbind(loop, loop[1, ])
 	}
 	
 		
@@ -347,15 +347,17 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			 }
 		 }
 		
-		if (points$show == TRUE & !is.null(fit)) {
+		if (points$show == TRUE) {
 			if (points$out.mark == FALSE) {
-				points3d(fit$data[, c(fit$IV1, fit$IV2, fit$DV)], col=points$color)
+				points3d(data.frame(xpoints, ypoints, zpoints), col=points$color)
 			}
-			if (points$out.mark == TRUE) {
+			if (points$out.mark == TRUE & !is.null(fit)) {
 				colvec <- rep(points$color, nrow(fit$data.original))
 				colvec[fit$outliers] <- "red"
 				points3d(fit$data.original[, c(fit$IV1, fit$IV2, fit$DV)], col=colvec)
 				text3d(fit$data.original[fit$outliers, c(fit$IV1, fit$IV2, fit$DV)], col="red", texts="X")
+			} else {
+				warning("Please provide an RSA-object to mark outliers.")
 			}
 		}
 		
@@ -499,7 +501,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 						
 						# ---------------------------------------------------------------------
 						# 6b. Raw data points scatter plot	  
-					  		if (points$show == TRUE & !is.null(fit)) {
+					  		if (points$show == TRUE) {
 							
 	  			              x2 <- xlim.scaled[1] + diff(xlim.scaled) * (x.points - xlim[1]) / diff(xlim)
 							  if (points$jitter > 0) x2 <- x2 + rnorm(length(x2), 0, points$jitter)
@@ -594,7 +596,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 				}
 				
 				
-			if (points$show == FALSE | is.null(fit)) {
+			if (points$show == FALSE) {
 				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
 					scales 	= list(arrows = FALSE, cex=cex, col = "black", font = 1, tck=tck, distance=distance), 
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
@@ -612,40 +614,6 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 								
 				#p1
 			} else {
-				
-				if (points$out.mark == FALSE) {
-					data.used <- fit$data
-				}
-				else {
-					data.used <- fit$data.original
-				}
-				
-				if (points$value == "raw") {
-					zpoints <- data.used[, fit$DV]
-				} else if (points$value == "predicted") {
-					# calculate predicted values
-					zpoints <- b0 + colSums(C*t(data.used[, c(
-						fit$IV1,
-						fit$IV2,
-						paste0(fit$IV1, "2"),
-						paste0(fit$IV2, "2"),
-						paste0(fit$IV1, "_", fit$IV2),
-						"W",
-						paste0("W_", fit$IV1),
-						paste0("W_", fit$IV2),
-						paste0(fit$IV1, "3"),
-						paste0(fit$IV1, "_", fit$IV2, "2"),
-						paste0(fit$IV1, "2", "_", fit$IV2),
-						paste0(fit$IV2, "3")
-					)]))
-					
-					#C <- c(x, y, x2, y2, xy, w, wx, wy,x3, xy2, x2y, y3)
-				}
-
-				xpoints <- data.used[, fit$IV1]
-				ypoints <- data.used[, fit$IV2]
-
-				
 				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
 					scales 	= list(arrows = FALSE, cex=cex, col = "black", font = 1, tck=tck, distance=distance), 
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
@@ -718,9 +686,9 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			}
 				
 				
-			if (points$show == TRUE & !is.null(fit)) {
+			if (points$show == TRUE) {
 				if (points$out.mark==FALSE) {
-					p1 <- p1 + annotate("point", x=fit$data[, fit$IV1], y=fit$data[, fit$IV2], color=points$color, size=3*points$cex)
+					p1 <- p1 + annotate("point", x=xpoints, y=ypoints, color=points$color, size=3*points$cex)
 				}
 				if (points$out.mark==TRUE) {
 					colvec <- rep(points$color, nrow(fit$data.original))
@@ -731,7 +699,7 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 				}
 			}
 			
-			if (hull==TRUE & !is.null(fit)) {
+			if (hull==TRUE & !is.null(points$data)) {
 				p1 <- p1 + annotate("path", x=bag$X, y=bag$Y, linetype="dashed", color="grey10")
 				p1 <- p1 + annotate("path", x=loop$X, y=loop$Y, linetype="dotted", color="grey10")
 			}
@@ -752,11 +720,76 @@ plotRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 
 
 #' @S3method plot RSA
+
+# Purpose: Extract the model parameters, xlim, xlab, etc. from the fitted object and give it to the plotRSA function
 plot.RSA <- function(x, ...) {
-	plotRSA(x, ...)
+	fit <- x
+	
+	extras <- match.call(expand.dots = FALSE)$...
+	if (is.null(extras)) extras <- list()
+	if (is.null(extras$model)) extras$model <- "full"
+	
+	C <- coef(fit$models[[extras$model]])
+	if (fit$models[[extras$model]]@Options$estimator != "DWLS") {
+		extras$b0 <- as.numeric(ifelse(is.na(C[paste0(fit$DV, "~1")]), 0, C[paste0(fit$DV, "~1")]))
+	} else {			
+		# the threshold is the negative of the intercept ...
+		extras$b0 <- -as.numeric(ifelse(is.na(C[paste0(fit$DV, "|t1")]), 0, C[paste0(fit$DV, "|t1")]))
+	}
+	extras$x <- as.numeric(ifelse(is.na(C["b1"]), 0, C["b1"]))
+	extras$y <- as.numeric(ifelse(is.na(C["b2"]), 0, C["b2"]))
+	extras$x2 <- as.numeric(ifelse(is.na(C["b3"]), 0, C["b3"]))
+	extras$y2 <- as.numeric(ifelse(is.na(C["b5"]), 0, C["b5"]))
+	extras$xy <- as.numeric(ifelse(is.na(C["b4"]), 0, C["b4"]))
+	extras$w <- as.numeric(ifelse(is.na(C["b6"]), 0, C["b6"]))
+	extras$wx <- as.numeric(ifelse(is.na(C["b7"]), 0, C["b7"]))
+	extras$wy <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
+	
+	# cubic parameters
+	extras$x3 <- as.numeric(ifelse(is.na(C["b9"]), 0, C["b9"]))
+	extras$xy2 <- as.numeric(ifelse(is.na(C["b10"]), 0, C["b10"]))
+	extras$x2y <- as.numeric(ifelse(is.na(C["b11"]), 0, C["b11"]))
+	extras$y3 <- as.numeric(ifelse(is.na(C["b12"]), 0, C["b12"]))
+
+	if (is.null(extras$xlim)) {
+		extras$xlim <- c(min(fit$data[, fit$IV1], na.rm=TRUE), max(fit$data[, fit$IV1], na.rm=TRUE))
+		# expand range by 20% at each end
+		extras$xlim[1] <- extras$xlim[1]*ifelse(extras$xlim[1]<0, 1.1, 0.9)
+		extras$xlim[2] <- extras$xlim[2]*ifelse(extras$xlim[2]<0, 0.9, 1.1)
+	}
+	
+	if (is.null(extras$ylim)) {
+		extras$ylim <- c(min(fit$data[, fit$IV2], na.rm=TRUE), max(fit$data[, fit$IV2], na.rm=TRUE))
+		extras$ylim[1] <- extras$ylim[1]*ifelse(extras$ylim[1]<0, 1.1, 0.9)
+		extras$ylim[2] <- extras$ylim[2]*ifelse(extras$ylim[2]<0, 0.9, 1.1)
+	}
+					
+	# for the correct visual diagonal: same range for X and Y
+	extras$xlim[1] <- extras$ylim[1] <- min(extras$xlim[1], extras$ylim[1])
+	extras$xlim[2] <- extras$ylim[2] <- max(extras$xlim[2], extras$ylim[2])
+	
+	
+	if (is.null(extras$xlab)) extras$xlab <- fit$IV1
+	if (is.null(extras$ylab)) extras$ylab <- fit$IV2
+	if (is.null(extras$zlab)) extras$zlab <- fit$DV
+		
+	if (is.null(extras$points)) {
+		extras$points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
+	}
+	extras$points$data <- fit$data[, c(fit$IV1, fit$IV2, fit$DV, colnames(fit$data)[which(!colnames(fit$data) %in% c(fit$IV1, fit$IV2, fit$DV))])]
+	
+	extras$fit <- fit
+	
+	do.call(plotRSA, as.list(extras))
 }
 
-#plotRSA(r1, type="i")
+
+#plot(r1, type="3d", points=list(show=TRUE, cex=2))
+
+#plotRSA(x=.05, x2=.1, xy=.20, rotation=list(x=-50, y=58, z=36), legend=FALSE, points=list(data=data.frame(x=-1:3, y=-1:3, z=0), show=TRUE))
+
+#plot(r1)
+#plot(r1, points=list(show=TRUE))
 #plotRSA(x=.05, x2=.1, xy=.20, type="3", gridsize=21)
 
 #demoRSA(x=.625, y=.519, x2=-.196, xy=.285, y2=-.167)
@@ -770,7 +803,7 @@ plot.RSA <- function(x, ...) {
 #p1 <- plotRSA(b0=5.628, x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, legend=FALSE, type="3d")
 #plotRSA(b0=5.628, x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, legend=FALSE, type="c")
 
-#RSA.ST(coef=c(x=.314, y=-.118, x2=-.145, xy=.299, y2=-.102))
+#RSA.ST(x=.314, y=-.118, x2=-.145, xy=.299, y2=-.102)
 
 
 ## Minimal example

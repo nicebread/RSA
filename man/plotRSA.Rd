@@ -2,16 +2,16 @@
 \alias{plotRSA}
 \title{Plots a response surface of a polynomial equation of second degree}
 \usage{
-plotRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
+plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0, type = "3d",
   model = "full", xlim = NULL, ylim = NULL, zlim = NULL, xlab = NULL,
   ylab = NULL, zlab = NULL, surface = "predict", lambda = NULL,
   rotation = list(x = -63, y = 32, z = 15), label.rotation = list(x = 19, y
   = -40, z = 92), gridsize = 21, bw = FALSE, legend = TRUE,
   param = TRUE, axes = c("LOC", "LOIC", "PA1", "PA2"), project = FALSE,
-  maxlines = FALSE, cex = 1.2, points = list(show = TRUE, value = "raw",
-  jitter = 0, color = "black", cex = 0.5, out.mark = TRUE), demo = FALSE,
-  fit = NULL, link = "identity", tck = c(1.5, 1.5, 1.5),
+  maxlines = FALSE, cex = 1.2, points = list(data = NULL, show = NA, value
+  = "raw", jitter = 0, color = "black", cex = 0.5, out.mark = FALSE),
+  demo = FALSE, fit = NULL, link = "identity", tck = c(1.5, 1.5, 1.5),
   distance = c(1.3, 1.3, 1.4), border = TRUE, contour = list(show = FALSE,
   color = "grey40", highlight = c()), hull = FALSE, SP.CI = FALSE,
   pal = NULL, pal.range = "box", pad = 0, ...)
@@ -92,28 +92,31 @@ plotRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 
   \item{points}{A list of parameters which define the
   appearance of the raw scatter points: \itemize{
-  \item{show = TRUE: Should the original data points be
-  overplotted?} \item{value="raw": Plot the original z
-  value, "predicted": plot the predicted z value}
-  \item{jitter = 0: Amount of jitter for the raw data
-  points} \item{cex = .5: multiplication factor for point
-  size} \item{out.mark = FALSE: If set to TRUE, outliers
-  according to Bollen & Jackman (1980) are printed as red X
-  symbols. This option works regardless of whether the RSA
-  function has set out.rm to TRUE or FALSE: \itemize{
-  \item{If out.rm == TRUE (in RSA()) and out.mark == FALSE
-  (in plotRSA()), the outlier is removed from the model and
-  *not plotted* in plotRSA.} \item{If out.rm == TRUE (in
-  RSA()) and out.mark == TRUE (in plotRSA()), the outlier
-  is removed from the model but plotted and marked in
-  plotRSA.} \item{If out.rm == FALSE (in RSA()) and
-  out.mark == FALSE (in plotRSA()), the outlier is not
-  removed from the model and plotted as a normal point in
-  plotRSA (but not marked as outlier).} \item{If out.rm ==
-  FALSE (in RSA()) and out.mark == TRUE (in plotRSA()), the
-  outlier is not removed from the model, but plotted and
-  marked in plotRSA.} \item{Example syntax:
-  \code{plotRSA(r1, points=list(show=TRUE,
+  \item{data: Data frame which contains the coordinates of
+  the raw data points. FIrst column = x, second = y, third
+  = z. This data frame is automatically generated when the
+  plot is based on a fitted RSA-object} \item{show = TRUE:
+  Should the original data points be overplotted?}
+  \item{value="raw": Plot the original z value,
+  "predicted": plot the predicted z value} \item{jitter =
+  0: Amount of jitter for the raw data points} \item{cex =
+  .5: multiplication factor for point size} \item{out.mark
+  = FALSE: If set to TRUE, outliers according to Bollen &
+  Jackman (1980) are printed as red X symbols. This option
+  works regardless of whether the RSA function has set
+  out.rm to TRUE or FALSE: \itemize{ \item{If out.rm ==
+  TRUE (in RSA()) and out.mark == FALSE (in plotRSA()), the
+  outlier is removed from the model and *not plotted* in
+  plotRSA.} \item{If out.rm == TRUE (in RSA()) and out.mark
+  == TRUE (in plotRSA()), the outlier is removed from the
+  model but plotted and marked in plotRSA.} \item{If out.rm
+  == FALSE (in RSA()) and out.mark == FALSE (in plotRSA()),
+  the outlier is not removed from the model and plotted as
+  a normal point in plotRSA (but not marked as outlier).}
+  \item{If out.rm == FALSE (in RSA()) and out.mark == TRUE
+  (in plotRSA()), the outlier is not removed from the
+  model, but plotted and marked in plotRSA.} \item{Example
+  syntax: \code{plotRSA(r1, points=list(show=TRUE,
   out.mark=TRUE))}} }} }}
 
   \item{model}{If x is an RSA object: from which model
