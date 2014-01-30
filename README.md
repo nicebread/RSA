@@ -17,7 +17,9 @@ The current development version can be installed by:
 	
 ## Information
 
-Some information on RSA will be collected on this website: http://www.nicebread.de/software/RSA
+* Some information on RSA will be collected on this website: http://www.nicebread.de/software/RSA
+* More information will be added in the Github Wiki: https://github.com/nicebread/RSA/wiki
+* An email list for asking questions related to the RSA-package has been created at Google groups: https://groups.google.com/forum/?fromgroups&hl=en#!forum/rsa-in-r
 
 
 ## Demo script (with built-in data set)
