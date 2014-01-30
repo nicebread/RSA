@@ -15,7 +15,7 @@
 #' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from analyses?
 #' @param breakline Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...)
 #' @param verbose Should additional information during the computation process be printed?
-#' @param models A vector with names of all models that should be computed. Should be any from c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "RR", "SSD", "SRSD", "full", "null"). For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
+#' @param models A vector with names of all models that should be computed. Should be any from c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy"). For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
 #' @param ... Additional parameters passed to the lavaan sem function. For example: \code{se="boot"}
@@ -68,14 +68,14 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
 	verbose=TRUE, control.variables=c(), ...) {
 
-	validmodels <- c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null")
+	validmodels <- c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy")
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
-	if (length(models)==1 & models[1]=="default") {models <- c("diff", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null")}
+	if (length(models)==1 & models[1]=="default") {models <- c("diff", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy")}
 	if (any(!models %in% validmodels))
 		stop("Unknown model name provided in parameter 'models'.")
 	
 	# set all result objects to NULL as default
-	s.NULL <- s.full <- s.IA <- s.diff <- s.absdiff <- s.additive <- s.sqdiff <- s.SSD <- s.SRSD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- NULL
+	s.NULL <- s.full <- s.IA <- s.diff <- s.absdiff <- s.additive <- s.sqdiff <- s.SSD <- s.SRSD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- NULL
 	SRSD.rot <- ""
 	SRRR.rot <- ""
 	
@@ -160,6 +160,34 @@ withCallingHandlers({
 			"a4 := b3-b4+b5",
 		sep="\n")
 		s.additive <- sem(m.additive, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+	}
+	
+	if ("onlyx" %in% models) {
+		if (verbose==TRUE) print("Computing x + x^2 model (onlyx) ...")
+		m.onlyx <-  paste(poly,
+			"b2==0",
+			"b4==0",
+			"b5==0",
+			"a1 := b1+b2",
+			"a2 := b3+b4+b5",
+			"a3 := b1-b2",
+			"a4 := b3-b4+b5",
+		sep="\n")
+		s.onlyx <- sem(m.onlyx, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+	}
+	
+	if ("onlyy" %in% models) {
+		if (verbose==TRUE) print("Computing y + y^2 model (onlyy) ...")
+		m.onlyy <-  paste(poly,
+			"b1==0",
+			"b3==0",
+			"b4==0",
+			"a1 := b1+b2",
+			"a2 := b3+b4+b5",
+			"a3 := b1-b2",
+			"a4 := b3-b4+b5",
+		sep="\n")
+		s.onlyy <- sem(m.onlyy, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 
 	if ("diff" %in% models) {
@@ -569,7 +597,7 @@ withCallingHandlers({
 	# ---------------------------------------------------------------------
 	# Build results object
 	res <- list(
-		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, absdiff=s.absdiff, additive=s.additive, sqdiff=s.sqdiff, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSD=s.SSD, SRSD=s.SRSD, absunc=s.absunc, cubic=s.cubic), 
+		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, absdiff=s.absdiff, additive=s.additive, sqdiff=s.sqdiff, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSD=s.SSD, SRSD=s.SRSD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy), 
 		SRSD.rot = SRSD.rot, SRRR.rot = SRRR.rot, LM=rs, formula=formula, 
 		data=df, data.original=df0, out.rm = out.rm, outliers = outs, DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
 		r.squared = summary(rs)$r.squared)

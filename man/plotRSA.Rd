@@ -99,9 +99,10 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   Should the original data points be overplotted?}
   \item{value="raw": Plot the original z value,
   "predicted": plot the predicted z value} \item{jitter =
-  0: Amount of jitter for the raw data points} \item{cex =
-  .5: multiplication factor for point size} \item{out.mark
-  = FALSE: If set to TRUE, outliers according to Bollen &
+  0: Amount of jitter for the raw data points. For z
+  values, a value of 0.005 is reasonable} \item{cex = .5:
+  multiplication factor for point size} \item{out.mark =
+  FALSE: If set to TRUE, outliers according to Bollen &
   Jackman (1980) are printed as red X symbols. This option
   works regardless of whether the RSA function has set
   out.rm to TRUE or FALSE: \itemize{ \item{If out.rm ==
@@ -194,8 +195,8 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   smaller margin) #'}
 
   \item{...}{Additional parameters passed to the plotting
-  function (e.g., main="Title"). A useful title might be
-  the R squared of the plotted model: main =
+  function (e.g., sub="Title"). A useful title might be the
+  R squared of the plotted model: sub =
   as.expression(bquote(R^2==.(round(getPar(x, "r2",
   model="full"), 3))))}
 }

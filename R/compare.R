@@ -42,7 +42,9 @@ compare <- function(x, verbose=TRUE, plot=FALSE) {
 		}
 	}
 	
-	
+	if (table(sapply(x$models, is.null))["FALSE"] <= 1) {
+		stop("You need more than one models for comparison!")
+	}
 	
 	with(x$models, {
 	
@@ -85,7 +87,23 @@ compare <- function(x, verbose=TRUE, plot=FALSE) {
 			cat("-------------------------------------------------------------------------\n")
 			print(round(res4[, 1:16], 3))
 		}
-		reslist <- list(res1, res2, res3, res4)
+		
+		## single variable models (only x + x2, or y + y2)
+		res5 <- cModels(list(full=full, onlyx=onlyx), set="onlyx", free.max)
+		if (verbose==TRUE & !is.null(res5)) {
+			cat("\n\nSingle variable models (only x + x^2):\n")
+			cat("-------------------------------------------------------------------------\n")
+			print(round(res5[, 1:16], 3))
+		}
+		res6 <- cModels(list(full=full, onlyy=onlyy), set="onlyy", free.max)
+		if (verbose==TRUE & !is.null(res6)) {
+			cat("\n\nSingle variable models (only y + y^2):\n")
+			cat("-------------------------------------------------------------------------\n")
+			print(round(res6[, 1:16], 3))
+		}
+		
+		
+		reslist <- list(res1, res2, res3, res4, res5, res6)
 		res <- plyr::rbind.fill(reslist[!sapply(reslist, is.null)])
 	}
 		

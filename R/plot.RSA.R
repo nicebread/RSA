@@ -47,7 +47,7 @@
 #'		\item{data: Data frame which contains the coordinates of the raw data points. FIrst column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object}
 #'		\item{show = TRUE: Should the original data points be overplotted?}
 #' 		\item{value="raw": Plot the original z value, "predicted": plot the predicted z value}
-#'		\item{jitter = 0: Amount of jitter for the raw data points}
+#'		\item{jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable}
 #'		\item{cex = .5: multiplication factor for point size}
 #' 		\item{out.mark = FALSE: If set to TRUE, outliers according to Bollen & Jackman (1980) are printed as red X symbols. This option works regardless of whether the RSA function has set out.rm to TRUE or FALSE: 
 #'			\itemize{
@@ -169,9 +169,27 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	points[["value"]] <- match.arg(points[["value"]], c("raw", "predicted"))
 
 	if (demo == FALSE) {
-			if (is.null(xlab)) xlab <- "X"
-			if (is.null(ylab)) ylab <- "Y"
-			if (is.null(zlab)) zlab <- "Z"
+			if (is.null(xlab)) {
+				if (!is.null(points$data)) {
+					xlab <- colnames(points$data)[1]
+				} else {
+					xlab <- "X"
+				}
+			}
+			if (is.null(ylab)) {
+				if (!is.null(points$data)) {
+					ylab <- colnames(points$data)[2]
+				} else {
+					ylab <- "Y"
+				}
+			}
+			if (is.null(zlab)) {
+				if (!is.null(points$data)) {
+					zlab <- colnames(points$data)[3]
+				} else {
+					zlab <- "Z"
+				}
+			}
 			
 			if (is.null(xlim)) {xlim <- c(-2.1, 2.1)}
 			if (is.null(ylim)) {ylim <- c(-2.1, 2.1)}
@@ -211,6 +229,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		library(fields)
 		tpsfit <- Tps(points$data[, 1:2], points$data[, 3], scale.type="unscaled", lambda=lambda)
 		new2$z <- predict(tpsfit, new[, c("x", "y")])
+		param <- FALSE
+		axes <- ""
 	}
 	
 	# impose link functions
@@ -254,7 +274,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	
 	# ---------------------------------------------------------------------
 	# Calculate positions of raw points
-	
+
 	if (points$out.mark == TRUE & is.null(fit)) {
 		warning("Outliers can only be marked if an RSA-object is provided. Points are not plotted.")
 		points$show <- FALSE
@@ -268,7 +288,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		}
 	
 		if (points$value == "raw") {
-			zpoints <- data.used[, 3]
+			zpoints <- as.vector(data.used[, 3])
 		} else if (points$value == "predicted") {
 			N <- colnames(data.used)
 			data.used2 <- add.variables(formula(paste0(N[3], " ~ ", N[1], "*", N[2])), data.used)
@@ -288,10 +308,18 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				paste0(N[1], "2", "_", N[2]),
 				paste0(N[2], "3")
 			)]))
+			
+			zpoints <- as.vector(zpoints)
 		}
 
-		xpoints <- data.used[, 1]
-		ypoints <- data.used[, 2]
+		xpoints <- as.vector(data.used[, 1])
+		ypoints <- as.vector(data.used[, 2])
+		
+		if (points$jitter > 0) {
+			xpoints <- xpoints + rnorm(length(xpoints), 0, points$jitter)
+			ypoints <- ypoints + rnorm(length(ypoints), 0, points$jitter)
+			zpoints <- zpoints + rnorm(length(zpoints), 0, points$jitter)
+		}
 	}
 	
 	# ---------------------------------------------------------------------
@@ -504,9 +532,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					  		if (points$show == TRUE) {
 							
 	  			              x2 <- xlim.scaled[1] + diff(xlim.scaled) * (x.points - xlim[1]) / diff(xlim)
-							  if (points$jitter > 0) x2 <- x2 + rnorm(length(x2), 0, points$jitter)
 	  			              y2 <- ylim.scaled[1] + diff(ylim.scaled) * (y.points - ylim[1]) / diff(ylim)
-							  if (points$jitter > 0) y2 <- y2 + rnorm(length(y2), 0, points$jitter)
 							  z2 <- zlim.scaled[1] + diff(zlim.scaled) * (z.points - zlim[1]) / diff(zlim)
 							
 	  			              panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
@@ -751,23 +777,26 @@ plot.RSA <- function(x, ...) {
 	extras$x2y <- as.numeric(ifelse(is.na(C["b11"]), 0, C["b11"]))
 	extras$y3 <- as.numeric(ifelse(is.na(C["b12"]), 0, C["b12"]))
 
+	adjust <- FALSE
 	if (is.null(extras$xlim)) {
 		extras$xlim <- c(min(fit$data[, fit$IV1], na.rm=TRUE), max(fit$data[, fit$IV1], na.rm=TRUE))
 		# expand range by 20% at each end
 		extras$xlim[1] <- extras$xlim[1]*ifelse(extras$xlim[1]<0, 1.1, 0.9)
 		extras$xlim[2] <- extras$xlim[2]*ifelse(extras$xlim[2]<0, 0.9, 1.1)
+		adjust <- TRUE
 	}
 	
 	if (is.null(extras$ylim)) {
 		extras$ylim <- c(min(fit$data[, fit$IV2], na.rm=TRUE), max(fit$data[, fit$IV2], na.rm=TRUE))
 		extras$ylim[1] <- extras$ylim[1]*ifelse(extras$ylim[1]<0, 1.1, 0.9)
 		extras$ylim[2] <- extras$ylim[2]*ifelse(extras$ylim[2]<0, 0.9, 1.1)
+		adjust <- TRUE
 	}
-					
-	# for the correct visual diagonal: same range for X and Y
-	extras$xlim[1] <- extras$ylim[1] <- min(extras$xlim[1], extras$ylim[1])
-	extras$xlim[2] <- extras$ylim[2] <- max(extras$xlim[2], extras$ylim[2])
 	
+	if (adjust == TRUE) {
+		extras$xlim[1] <- extras$ylim[1] <- min(extras$xlim[1], extras$ylim[1])
+		extras$xlim[2] <- extras$ylim[2] <- max(extras$xlim[2], extras$ylim[2])
+	}
 	
 	if (is.null(extras$xlab)) extras$xlab <- fit$IV1
 	if (is.null(extras$ylab)) extras$ylab <- fit$IV2

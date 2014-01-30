@@ -3,9 +3,11 @@
 
 NEW FEATURES
 
+- Two new models: onlyx (x + x^2) and onlyy (y + y^2). Also included in compare() and in compare(... , plot=TRUE)
 - Arbitrary data points can be plotted in plotRSA - i.e., you can plot a fit with existing regression weights, and still plot raw data points. See plotRSA() --> points(data=???)
 - plotRSA --> points(value="predict") now also works in interactive plots (type="i")
 - The hull in plotRSA now is much smoother and lies on the surface (before, long connection lines cut through the surface)
+- print.RSA now prints the regression coefficients including standardized beta weights, and can print summaries for a submodel: print(r1, model="RR")
 
 
 IMPROVEMENTS
