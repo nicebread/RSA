@@ -1,6 +1,7 @@
 
 # helpers.R
 
+# compute interaction, squared, cubic, dummy variables, etc. for RSA
 add.variables <- function(formula, df) {
 	IV1 <- all.vars(formula)[2]
 	IV2 <- all.vars(formula)[3]
@@ -43,7 +44,20 @@ add.variables <- function(formula, df) {
 }
 
 
-sig2star <- function(val) {
+# simple wrapper: formats a number in f.2 format
+f2 <- function(x, digits=2, prepoint=0, skipZero=FALSE) {
+	
+	if (skipZero == TRUE) {zero <- "."} else {zero <- "0."}
+	
+	if (length(dim(x)) == 2) {
+		apply(x, 2, function(x2) {gsub("0.", zero, sprintf(paste("%",prepoint,".",digits,"f",sep=""), x2) , fixed=TRUE)})
+	} else {
+		gsub("0.", zero, sprintf(paste("%",prepoint,".",digits,"f",sep=""), x) , fixed=TRUE)
+	}
+}
+
+# converts p values in stars
+p2star <- function(val) {
 	
 	res <- val
 	
@@ -59,6 +73,12 @@ sig2star <- function(val) {
 	return(res)
 }
 
+# nicely formats a p-value
+p0 <- function(x) {
+	if (x >= .001) return(paste0("p = ", f2(x, 3, skipZero=TRUE)))
+	if (x <  .001) return("p < .001")	
+}
+p <- Vectorize(p0)
 
 # returns number of maximum free parameters of a regression model
 getFreeParameters <- function(model) {
@@ -142,21 +162,6 @@ pRamp <- function(p, sig=.05, borderline=.10, bias=.8) {
 }
 
 
-
-# simple wrapper: formats a number in f.2 format
-f2 <- function(x, digits=2, prepoint=0, skipZero=FALSE) {
-	
-	if (skipZero == TRUE) {zero <- "."} else {zero <- "0."}
-	
-	if (length(dim(x)) == 2) {
-		apply(x, 2, function(x2) {gsub("0.", zero, sprintf(paste("%",prepoint,".",digits,"f",sep=""), x2) , fixed=TRUE)})
-	} else {
-		gsub("0.", zero, sprintf(paste("%",prepoint,".",digits,"f",sep=""), x) , fixed=TRUE)
-	}
-}
-
-
-
 # helper function: find closest value in vector
 f0 <- function (vec, target, unique = TRUE) {
     ret <- vec[sapply(target, function(x) which.min(abs(x - vec)))]
@@ -197,8 +202,11 @@ predictRSA <- function(object, X, Y, model="full") {
 }
 
 
-
-interpolatePolyon <- function(x, y, minDist, plot=FALSE) {
+# fills up the long edges of a polygon with intermediate points
+# If an edge is longer than minDist, new points re inserted.
+# @param x Vector of x values
+# @param y Vector of y values
+interpolatePolygon <- function(x, y, minDist, plot=FALSE) {
 	minDist <- minDist^2	# compare with squared x^2 + y^2 (faster)
 	interp <- data.frame()
 	pol <- data.frame(x, y)

@@ -24,7 +24,21 @@ modeltree <- function(x, digits=3, ...) {
 	c1$fromto <- c("", paste0(c1$model[1:(nrow(c1)-1)], "_", c1$model[2:(nrow(c1))]))
 	
 	# define labels of boxes
-	m <- c("full", "SRRR", "IA", "additive", "diff", "SRR", "RR", "sqdiff", "SRSD", "SSD", "onlyx", "onlyy", "null")
+	m <- c(
+		"full", 	# 1
+		"SRRR", 	# 2
+		"IA", 		# 3
+		"additive", # 4
+		"diff", 	# 5
+		"SRR", 		# 6
+		"RR", 		# 7	
+		"sqdiff", 	# 8
+		"SRSD", 	# 9
+		"SSD", 		#10
+		"onlyx", 	#11
+		"onlyy", 	#12
+		"null"		#13
+		)
 
 	# get values from compare-object
 	R2.adj <- c()
@@ -40,8 +54,8 @@ modeltree <- function(x, digits=3, ...) {
 	14,  0,  0,  0,  1,  0,  0,  0,
 	15,  0,  0,  0,  2,  0,  0,  0,	
 	16,  0,  0,  3,  6,  9,  0,  0,
-	17,  0,  0,  4,  7, 10,  0,  0,
-	18, 11,  0,  5,  0,  8,  0,  12,
+	17, 11,  0,  4,  7, 10,  0, 12,
+	18,  0,  0,  5,  0,  8,  0,  0,
 	19,  0,  0,  0, 13,  0,  0,  0
 	))
 
@@ -77,7 +91,7 @@ modeltree <- function(x, digits=3, ...) {
 	w <- c()
 	# 17 = number of edges defined in eL (upper block)
 	for (i in 1:17) {
-		print(paste0(m[eL[i, 1]], "_", m[eL[i, 2]]))
+		#print(paste0(m[eL[i, 1]], "_", m[eL[i, 2]]))
 	    w <- c(w, c1[c1$fromto == paste0(m[eL[i, 1]], "_", m[eL[i, 2]]), "Pr(>Chisq)"][1])
 	}
 	w[is.na(w)] <- 0
@@ -99,7 +113,7 @@ modeltree <- function(x, digits=3, ...) {
 		}
 	}
 	
-	dev.new(width=13, height=7.5)
+	dev.new(width=11.5, height=6.5)
 	qgraph(eL, 
 		edgeList	= TRUE,
 		nNodes		= length(lab),

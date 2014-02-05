@@ -19,7 +19,7 @@ standardized valence rating after the speech (`How did you
 feel during the speech'). Consists of two bipolar items
 from the PANAVA questionnaire (Schallberger, 2005):
 `zufrieden ... unzufrieden' (satisfied ... unsatisfied) and
-`unglücklich ... glücklich' (unhappy ... happy). }
+`ungluecklich ... gluecklich' (unhappy ... happy). }
 }
 \references{
 Schallberger, U. (2005). \emph{Kurzskala zur Erfassung der
@@ -32,7 +32,7 @@ Zurich.
 Schönbrodt, F. D., & Gerstenberg, F. X. R. (2012). An IRT
 analysis of motive questionnaires: The Unified Motive
 Scales. \emph{Journal of Research in Personality, 46},
-725–742. doi:10.1016/j.jrp.2012.08.010
+725-742. doi:10.1016/j.jrp.2012.08.010
 }
 \keyword{datasets}
 

@@ -7,18 +7,23 @@
 #' You can also fit binary outcome variables with a probit link function. For that purpose, the response variable has to be defined as "ordered": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary")} (for more details see the help file of the \code{sem} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
 #'
 #' @export
+#' @import lavaan
+#' @import ggplot2
+#' @import gridExtra
+#' @import lattice
+#' @import RColorBrewer
 #' @param formula A formula in the form \code{z ~ x*y}, specifying the variable names used from the data frame, where z is the name of the response variable, and x and y are the names of the predictor variables.
 #' @param data A data frame with the variables
-#' @param center Should predictor variables be centered on the sample mean before analyses?
-#' @param scale Should predictor variables be scaled to SD = 1 before analyses?
+#' @param center Should predictor variables be centered on \emph{each variable's} sample mean before analyses? You should think carefully about this option, as different centering of the predictor variables can affect the commensurability of the predictor scales.
+#' @param scale Should predictor variables be scales on the SD of \emph{each variable} before analyses? You should think carefully about this option, as different scaling of the predictor variables can affect the commensurability of the predictor scales.
 #' @param na.rm Remove missings before proceeding?
 #' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from analyses?
-#' @param breakline Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...)
+#' @param breakline Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...). Defaults to \code{FALSE}
 #' @param verbose Should additional information during the computation process be printed?
-#' @param models A vector with names of all models that should be computed. Should be any from c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy"). For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
+#' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
-#' @param ... Additional parameters passed to the lavaan sem function. For example: \code{se="boot"}
+#' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function. For example, you can obtained bootstrapped standard errors by setting \code{se="boot"}.
 #'
 #'
 #' @seealso \code{\link{demoRSA}}, \code{\link{plotRSA}}, \code{\link{RSA.ST}}, \code{\link{confint.RSA}}
@@ -539,7 +544,7 @@ withCallingHandlers({
 		if (verbose==TRUE) print("Computing unconstrained absolute difference model ...")
 		m.absunc <-  paste(
 			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b6*W + b7*W_", IV1, " + b8*W_", IV2),
-			ifelse(breakline==TRUE, "b6==0", ""),
+			ifelse(breakline==FALSE, "b6==0", ""),
 			sep="\n")
 			
 			s.absunc <- sem(m.absunc, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)

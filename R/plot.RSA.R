@@ -209,7 +209,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		} else {
 			SP <- RSA.ST(x=x, y=y, xy=xy, x2=x2, y2=y2)
 		}
-		SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), sig2star(SP$SP$p.value), collapse="    ")
+		SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")
 	} else {
 		SP <- NULL
 		param <- FALSE
@@ -287,6 +287,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			data.used <- fit$data.original
 		}
 	
+		if (points$jitter > 0) {
+			data.used[, 1] <- data.used[, 1] + rnorm(length(data.used[, 1]), 0, points$jitter)
+			data.used[, 2] <- data.used[, 2] + rnorm(length(data.used[, 2]), 0, points$jitter)
+		}
+	
 		if (points$value == "raw") {
 			zpoints <- as.vector(data.used[, 3])
 		} else if (points$value == "predicted") {
@@ -313,13 +318,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		}
 
 		xpoints <- as.vector(data.used[, 1])
-		ypoints <- as.vector(data.used[, 2])
-		
-		if (points$jitter > 0) {
-			xpoints <- xpoints + rnorm(length(xpoints), 0, points$jitter)
-			ypoints <- ypoints + rnorm(length(ypoints), 0, points$jitter)
-			zpoints <- zpoints + rnorm(length(zpoints), 0, points$jitter)
-		}
+		ypoints <- as.vector(data.used[, 2])		
 	}
 	
 	# ---------------------------------------------------------------------
@@ -337,8 +336,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		# approx: interpolate the points of the bag (in order to get a more smooth fitting line on the z-axis)
 		minDist <- min(diff(xlim)/gridsize, diff(ylim)/gridsize)/2
 
-		h1 <- interpolatePolyon(h1[, 1], h1[, 2], minDist=minDist)	
-		h2 <- interpolatePolyon(h2[, 1], h2[, 2], minDist=minDist)	
+		h1 <- interpolatePolygon(h1[, 1], h1[, 2], minDist=minDist)	
+		h2 <- interpolatePolygon(h2[, 1], h2[, 2], minDist=minDist)	
 		
 		# calculate predicted values
 		bagpoints <- add.variables(z~x+y, data.frame(x=h1$x, y=h1$y))

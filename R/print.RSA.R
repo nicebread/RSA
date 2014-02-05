@@ -18,47 +18,61 @@ print.RSA <- function(x, ..., model="full", digits=3) {
 	
 	F <- summary(LM)$fstatistic
 	p.model <- 1-pf(F[1], F[2], F[3])
-	cat(paste0("Test on model significance: R2 = ", round(r2.model, 3), " (p = ", round(p.model, 3), ")\n"))
+	cat(paste0("Test on model significance: R2 = ", round(r2.model, 3), ", ", p(p.model), "\n"))
 		
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
-	RC <- getPar(x, model=model, standardized=TRUE)[paste0("b", 1:5), 1:8]
+	
+	eff <- getPar(x, model=model, standardized=TRUE)
+	RC <- eff[paste0("b", 1:5), c(1:3, 6:7)]
 	rownames(RC) <- NULL
-	colnames(RC)[8] <- "beta"
-	RC[, 2:8] <- round(RC[, 2:8], digits)
-	RC$sig <- sig2star(RC$pvalue)
-	print(RC)
+	RC[, 2:5] <- round(RC[, 2:5], digits)
+	RC$beta <- round(eff[paste0("b", 1:5), 8], digits)
+	RC$pvalue <- p(eff[paste0("b", 1:5), "pvalue"])
+	RC$sig <- p2star(eff[paste0("b", 1:5), "pvalue"])
+	print(RC)	
 	
 	
 	cat(paste0("\n\nEigenvalues and shape of surface for model <", model, ">\n----------------------------\n"))
 	
 	ST <- RSA.ST(x, model=model)
 	cat("Eigenvalues:\n")
-	cat("lambda_1: ", round(ST$l[1], 3), "\n")
-	cat("lambda_2: ", round(ST$l[2], 3), "\n")
+	EV <- eff[c("l1", "l2"), c(1:3, 6:7)]
+	EV[, 2:5] <- round(EV[, 2:5], digits)
+	EV$pvalue <- p(eff[c("l1", "l2"), "pvalue"])
+	EV$sig <- p2star(eff[c("l1", "l2"), "pvalue"])
+	rownames(EV) <- NULL
+	EV$label[1:2] <- c("lambda_1", "lambda_2")
+	print(EV)
 	shape <- "undefined"
-	if (all(ST$l < 0)) shape <- "Dome shaped (stationary point = maximum response)"
-	if (all(ST$l > 0)) shape <- "Bowl shaped (stationary point = minimum response)"
-	if ((ST$l[1] > 0 & ST$l[2] < 0) | (ST$l[2] > 0 & ST$l[1] < 0)) shape <- "Saddle shaped"
+	if (all(EV$est < 0)) shape <- "Dome shaped (stationary point = maximum response)"
+	if (all(EV$est > 0)) shape <- "Bowl shaped (stationary point = minimum response)"
+	if ((EV$est[1] > 0 & EV$est[2] < 0) | (EV$est[2] > 0 & EV$est[1] < 0)) shape <- "Saddle shaped"
 	cat(paste0("--> ", shape))
 	
 	
 		
 	cat(paste0("\n\n\nSurface tests (a1 to a4) for model <", model, ">\n----------------------------\n"))
-	print(round(ST$SP, 3))
+	as <- eff[paste0("a", 1:4), c(1:3, 6:7)]
+	as[, 2:5] <- round(as[, 2:5], digits)
+	as$pvalue <- p(eff[paste0("a", 1:4), "pvalue"])
+	as$sig <- p2star(eff[paste0("a", 1:4), "pvalue"])
+	rownames(as) <- NULL
+	print(as)
+	
 	# print interpretations:
-	cat(paste0("\na1: Linear additive effect on line of congruence? ", ifelse(ST$SP$p.value[1] <= .05, "YES", "NO"), "\n"))
+	cat(paste0("\na1: Linear additive effect on line of congruence? ", ifelse(eff["a1", "pvalue"] <= .05, "YES", "NO"), "\n"))
 
-	cat(paste0("a2: Is there curvature on the line of congruence? ", ifelse(ST$SP$p.value[2] <= .05, 
+	cat(paste0("a2: Is there curvature on the line of congruence? ", ifelse(eff["a2", "pvalue"] <= .05, 
 	"YES", "NO"), "\n"))
 
-	cat(paste0("a3: Is the ridge shifted away from the LOC? ", ifelse(ST$SP$p.value[3] <= .05, "YES", "NO"), "\n"))	
+	cat(paste0("a3: Is the ridge shifted away from the LOC? ", ifelse(eff["a3", "pvalue"] <= .05, "YES", "NO"), "\n"))	
 	
-	cat(paste0("a4: Is there a general effect of incongruence? ", ifelse(ST$SP$p.value[4] <= .05, "YES", "NO"), "\n"))
+	cat(paste0("a4: Is there a general effect of incongruence? ", ifelse(eff["a4", "pvalue"] <= .05, "YES", "NO"), "\n"))
 
 	
 	
 	cat(paste0("\n\nLocation of stationary point (minimum, maximum, or saddle point response) for model <", model, ">\n----------------------------\n"))
-	cat(paste0(IV1, " = ", round(ST$X0, 3), "; ", IV2, " = ", round(ST$Y0, 3), "; predicted ", DV, " = ", round(ST$Z0, 3), "\n\n"))
+	cat(paste0(IV1, " = ", round(eff["X0", "est"], 3), "; ", IV2, " = ", round(eff["Y0", "est"], 3), "; predicted ", DV, " = ", round(ST$Z0, 3), "\n\n"))
 	
 	cat(paste0("\nPrincipal axes for model <", model, ">\n----------------------------\n"))
 	C <- coef(models[["full"]], "all")

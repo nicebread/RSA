@@ -15,10 +15,16 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   \item{data}{A data frame with the variables}
 
   \item{center}{Should predictor variables be centered on
-  the sample mean before analyses?}
+  \emph{each variable's} sample mean before analyses? You
+  should think carefully about this option, as different
+  centering of the predictor variables can affect the
+  commensurability of the predictor scales.}
 
-  \item{scale}{Should predictor variables be scaled to SD =
-  1 before analyses?}
+  \item{scale}{Should predictor variables be scales on the
+  SD of \emph{each variable} before analyses? You should
+  think carefully about this option, as different scaling
+  of the predictor variables can affect the
+  commensurability of the predictor scales.}
 
   \item{na.rm}{Remove missings before proceeding?}
 
@@ -28,15 +34,16 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   \item{breakline}{Should the breakline in the
   unconstrained absolute difference model be allowed (the
   breakline is possible from the model formulation, but
-  empirically rather unrealistic ...)}
+  empirically rather unrealistic ...). Defaults to
+  \code{FALSE}}
 
   \item{verbose}{Should additional information during the
   computation process be printed?}
 
   \item{models}{A vector with names of all models that
-  should be computed. Should be any from c("absdiff",
+  should be computed. Should be any from \code{c("absdiff",
   "absunc", "diff", "additive", "IA", "sqdiff", "RR",
-  "SSD", "SRSD", "full", "null", "onlyx", "onlyy"). For
+  "SSD", "SRSD", "full", "null", "onlyx", "onlyy")}. For
   \code{models="all"}, all models are computed, for
   \code{models="default"} all models besides absolute
   difference models are computed.}
@@ -50,8 +57,10 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   them"). No interactions with the other variables are
   modeled.}
 
-  \item{...}{Additional parameters passed to the lavaan sem
-  function. For example: \code{se="boot"}}
+  \item{...}{Additional parameters passed to the
+  \code{lavaan} \code{\link{sem}} function. For example,
+  you can obtained bootstrapped standard errors by setting
+  \code{se="boot"}.}
 }
 \description{
 Performs several RSA model tests on a data set with two
