@@ -1,12 +1,15 @@
 #' @S3method print RSA
 print.RSA <- function(x, ..., model="full", digits=3) {
 	with(x, {
+		
+		eff <- getPar(x, model=model, standardized=TRUE)
+		ST <- RSA.ST(x, model=model)
+		
 	## Step 1: Examine amount of discrepancy
 	#--------------------------------------------------
 	# Before conducting the polynomial regression analyses, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrep- ancies in your sample.
 	
 	cat("Are there discrepancies in the predictors (with respect to numerical congruence)?\n----------------------------\n")
-
 	D <- data[, IV2] - data[, IV1]
 	Congruence <- cut(D, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "Congruence", paste0(IV2, " > ", IV1)))
 	print(round(prop.table(table(Congruence)), 3)*100)
@@ -20,9 +23,8 @@ print.RSA <- function(x, ..., model="full", digits=3) {
 	p.model <- 1-pf(F[1], F[2], F[3])
 	cat(paste0("Test on model significance: R2 = ", round(r2.model, 3), ", ", p(p.model), "\n"))
 		
+
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
-	
-	eff <- getPar(x, model=model, standardized=TRUE)
 	RC <- eff[paste0("b", 1:5), c(1:3, 6:7)]
 	rownames(RC) <- NULL
 	RC[, 2:5] <- round(RC[, 2:5], digits)
@@ -31,24 +33,22 @@ print.RSA <- function(x, ..., model="full", digits=3) {
 	RC$sig <- p2star(eff[paste0("b", 1:5), "pvalue"])
 	print(RC)	
 	
-	
-	cat(paste0("\n\nEigenvalues and shape of surface for model <", model, ">\n----------------------------\n"))
-	
-	ST <- RSA.ST(x, model=model)
-	cat("Eigenvalues:\n")
-	EV <- eff[c("l1", "l2"), c(1:3, 6:7)]
-	EV[, 2:5] <- round(EV[, 2:5], digits)
-	EV$pvalue <- p(eff[c("l1", "l2"), "pvalue"])
-	EV$sig <- p2star(eff[c("l1", "l2"), "pvalue"])
-	rownames(EV) <- NULL
-	EV$label[1:2] <- c("lambda_1", "lambda_2")
-	print(EV)
-	shape <- "undefined"
-	if (all(EV$est < 0)) shape <- "Dome shaped (stationary point = maximum response)"
-	if (all(EV$est > 0)) shape <- "Bowl shaped (stationary point = minimum response)"
-	if ((EV$est[1] > 0 & EV$est[2] < 0) | (EV$est[2] > 0 & EV$est[1] < 0)) shape <- "Saddle shaped"
-	cat(paste0("--> ", shape))
-	
+	if (!model %in% c("onlyx", "onlyy")) {
+		cat(paste0("\n\nEigenvalues and shape of surface for model <", model, ">\n----------------------------\n"))
+		cat("Eigenvalues:\n")
+		EV <- eff[c("l1", "l2"), c(1:3, 6:7)]
+		EV[, 2:5] <- round(EV[, 2:5], digits)
+		EV$pvalue <- p(eff[c("l1", "l2"), "pvalue"])
+		EV$sig <- p2star(eff[c("l1", "l2"), "pvalue"])
+		rownames(EV) <- NULL
+		EV$label[1:2] <- c("lambda_1", "lambda_2")
+		print(EV)
+		shape <- "undefined"
+		if (all(EV$est < 0)) shape <- "Dome shaped (stationary point = maximum response)"
+		if (all(EV$est > 0)) shape <- "Bowl shaped (stationary point = minimum response)"
+		if ((EV$est[1] > 0 & EV$est[2] < 0) | (EV$est[2] > 0 & EV$est[1] < 0)) shape <- "Saddle shaped"
+		cat(paste0("--> ", shape))
+	}
 	
 		
 	cat(paste0("\n\n\nSurface tests (a1 to a4) for model <", model, ">\n----------------------------\n"))

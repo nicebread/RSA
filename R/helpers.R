@@ -75,6 +75,7 @@ p2star <- function(val) {
 
 # nicely formats a p-value
 p0 <- function(x) {
+	if (is.na(x)) return("NA")
 	if (x >= .001) return(paste0("p = ", f2(x, 3, skipZero=TRUE)))
 	if (x <  .001) return("p < .001")	
 }
