@@ -6,7 +6,7 @@ An R package for Response Surface Analysis
 ## Installation
 The stable CRAN version can be installed by:
 
-    install.packages("RSA")
+    install.packages("RSA", dependencies=TRUE)
 
 The current development version can be installed by:
 
