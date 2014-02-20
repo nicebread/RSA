@@ -43,8 +43,9 @@ getPar <- function(x, type="coef", model="full", ...) {
 	}
 	if (type=="coef") {
 		p1 <- parameterEstimates(x$models[[model]], ...)
-		p1 <- data.frame(p1[p1$label != "", -c(1:3)])
-		rownames(p1) <- p1$label
+		p1 <- data.frame(p1[p1$label != "", ])
+		rownames(p1) <- p1$rhs
+		p1 <- p1[, -c(1:3)]
 		return(p1)
 	}
 	if (type %in% c("r2", "rsquared", "r.squared")) {

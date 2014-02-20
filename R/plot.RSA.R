@@ -201,7 +201,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		surface <- "predict"
 	}
 	
-	C <- c(x, y, x2, y2, xy, w, wx, wy,x3, xy2, x2y, y3)
+	C <- c(x, y, x2, y2, xy, w, wx, wy, x3, xy2, x2y, y3)
 	
 	if (!model %in% c("absunc", "absdiff")) {
 		if (!is.null(fit) & model != "cubic" & model != "null") {

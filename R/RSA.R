@@ -17,6 +17,7 @@
 #' @param center Should predictor variables be centered on \emph{each variable's} sample mean before analyses? You should think carefully about this option, as different centering of the predictor variables can affect the commensurability of the predictor scales.
 #' @param scale Should predictor variables be scales on the SD of \emph{each variable} before analyses? You should think carefully about this option, as different scaling of the predictor variables can affect the commensurability of the predictor scales.
 #' @param na.rm Remove missings before proceeding?
+#' @param add Additional syntax that is added to the lavaan model. Can contain, for example, additional constraints, like "p01 == 0; p11 == 0"
 #' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from analyses?
 #' @param breakline Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...). Defaults to \code{FALSE}
 #' @param verbose Should additional information during the computation process be printed?
@@ -71,7 +72,8 @@
 
 RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE, 
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
-	verbose=TRUE, control.variables=c(), ...) {
+	verbose=TRUE, add = "", 
+	control.variables=c(), ...) {
 
 	validmodels <- c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy")
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
@@ -83,6 +85,8 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	s.NULL <- s.full <- s.IA <- s.diff <- s.absdiff <- s.additive <- s.sqdiff <- s.SSD <- s.SRSD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- NULL
 	SRSD.rot <- ""
 	SRRR.rot <- ""
+	
+	add <- paste0("\n# User defined syntax:\n", add)
 	
 	DV <- all.vars(formula)[1]
 	IV1 <- all.vars(formula)[2]
@@ -97,18 +101,13 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	
 	# give warnings if the zero point is outside of data range
 	if (0 < min(df[, IV1], na.rm=TRUE) | 0 > max(df[, IV1], na.rm=TRUE)) 
-		warning(paste("The numerical zero point is outside of the range of variable", IV1, ". Please consider re-centering of the variable."))
+		warning(paste("The numerical zero point is outside of the range of variable", IV1, ". Please consider re-centering the variable."))
 	if (0 < min(df[, IV2], na.rm=TRUE) | 0 > max(df[, IV2], na.rm=TRUE)) 
-		warning(paste("The numerical zero point is outside of the range of variable", IV2, ". Please consider re-centering of the variable."))
+		warning(paste("The numerical zero point is outside of the range of variable", IV2, ". Please consider re-centering the variable."))
 		
 	# give warning if one variable has a much higher range than the other variable
 	if ((max(df[, IV1], na.rm=TRUE) - min(df[, IV1], na.rm=TRUE)) / (max(df[, IV2], na.rm=TRUE) - min(df[, IV2], na.rm=TRUE)) > 2)
 		warning("Predictor variables have a very different range (by factor 2)- please check scaling of variables.")
-	
-	# We need the overall maximum (minimum) for an additional constraint for the SRSD and SRRR models:
-	# The shifting constant C should not be greater (smaller) than the maximum (minimum) data point
-	overall.max <- max(max(df[, IV1], na.rm=TRUE), max(df[, IV2], na.rm=TRUE))
-	overall.min <- min(min(df[, IV1], na.rm=TRUE), min(df[, IV2], na.rm=TRUE))
 	
 	IV12 <- paste0(IV1, "2")
 	IV22 <- paste0(IV2, "2")
@@ -163,7 +162,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
-		sep="\n")
+		add, sep="\n")
 		s.additive <- sem(m.additive, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
@@ -177,7 +176,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
-		sep="\n")
+		add, sep="\n")
 		s.onlyx <- sem(m.onlyx, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
@@ -191,7 +190,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
-		sep="\n")
+		add, sep="\n")
 		s.onlyy <- sem(m.onlyy, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 
@@ -206,7 +205,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
-			sep="\n")
+			add, sep="\n")
 			s.diff <- sem(m.diff, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 		#summary(s.diff, fit.measures=TRUE)
 	}
@@ -237,7 +236,7 @@ withCallingHandlers({
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
-		sep="\n")
+		add, sep="\n")
 		
 			s.IA <- sem(m.IA, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
@@ -256,7 +255,7 @@ withCallingHandlers({
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
-			sep="\n")			
+			add, sep="\n")			
 			s.sqdiff <- sem(m.sqdiff, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
@@ -271,12 +270,10 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 			"C := b1 / (2*b3)",
-			# paste0("C > ",overall.min),
-			# paste0("C < ",overall.max),
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
-			sep="\n")			
+			add, sep="\n")			
 			s.SSD <- sem(m.SSD, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
@@ -295,7 +292,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
-			sep="\n")
+			add, sep="\n")
 			s.RR <- sem(m.RR, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
@@ -310,13 +307,11 @@ withCallingHandlers({
 			"a4 := b3-b4+b5",
 			"meaneffect := b1+b2",
 			"C := (b2-b1) / (4*b3)",
-			#paste0("C > ",overall.min),
-			#paste0("C < ",overall.max),
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
-			sep="\n")
+			add, sep="\n")
 			s.SRR <- sem(m.SRR, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
@@ -338,7 +333,7 @@ withCallingHandlers({
 				"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		
-				sep="\n")
+				add, sep="\n")
 				s.SRRR.up <- sem(m.SRRR.up, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)	
 				
 			if (verbose==TRUE) print("Computing rotated and shifted rising ridge model (SRRR), down ...")
@@ -358,7 +353,7 @@ withCallingHandlers({
 				"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 	
-				sep="\n")
+				add, sep="\n")
 				s.SRRR.down <- sem(m.SRRR.down, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)	
 				
 			if (inspect(s.SRRR.up, "converged") == FALSE & inspect(s.SRRR.down, "converged") == TRUE) {
@@ -413,7 +408,7 @@ withCallingHandlers({
 			"as4Y := b3/p21^2 + b4/p21 + b5",
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
-			sep="\n")
+			add, sep="\n")
 			s.SRSD.up <- sem(m.SRSD.up, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 			
 			
@@ -446,7 +441,7 @@ withCallingHandlers({
 			"as4Y := b3/p21^2 + b4/p21 + b5",
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
-			sep="\n")
+			add, sep="\n")
 			s.SRSD.down <- sem(m.SRSD.down, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	
 			if (inspect(s.SRSD.up, "converged") == FALSE & inspect(s.SRSD.down, "converged") == TRUE) {
@@ -496,6 +491,7 @@ withCallingHandlers({
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
+			add,
 			sep="\n"
 		)
 		s.full <- sem(m.full, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
@@ -504,8 +500,17 @@ withCallingHandlers({
 	
 	if (cubic==TRUE) {
 		if (verbose==TRUE) print("Computing full cubic model ...")
-		m.cubic <-  paste0(poly, " + b9*", IV13, " + b10*", IV_IA2, " + b11*", IV_IA3, " + b12*", IV23)
-		# print(m.cubic)
+		m.cubic <-  paste(paste0(poly, " + b9*", IV13, " + b10*", IV_IA2, " + b11*", IV_IA3, " + b12*", IV23),
+			"u1 := b1 + b2",				# linear part of LOC
+			"u2 := b3 + b4 + b5",			# quadratic part of LOC
+			"u3 := b9 + b10 + b11 + b12",	# cubic part of LOC
+			"v1 := b1 - b2",				# linear part of LOIC
+			"v2 := b3 - b4 + b5",			# quadratic part of LOIC
+			"v3 := b9 + b10 - b11 - b12",	# cubic part of LOIC: If v3 != 0, then there is an enhancement effect (i.e., the slope is different on both sides of the optimum)
+			add,
+			sep="\n"
+		)
+		#print(m.cubic)
 		s.cubic <- sem(m.cubic, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)		
 	}
 	
@@ -514,14 +519,14 @@ withCallingHandlers({
 	#	"b1 == -b2",
 	#	"b7 == -b8",
 	#	"b7 == -2*b1",
-	#	sep="\n")
+	#	add, sep="\n")
 	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	#summary(s.absdiff.JRE, fit.measures=TRUE)
 	
 	# the unconstrained absolute difference model - Edwards (2002) formula
 	#m.absunc.JRE <-  paste(
 	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + b6*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
-	#	sep="\n")
+	#	add, sep="\n")
 	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	#summary(s.absunc.JRE, fit.measures=TRUE)
 	
@@ -534,7 +539,7 @@ withCallingHandlers({
 			"b2 == 0",
 			"b6 == 0",
 			"b7 == -b8",
-			sep="\n")
+			add, sep="\n")
 			
 			s.absdiff <- sem(m.absdiff, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
@@ -545,7 +550,7 @@ withCallingHandlers({
 		m.absunc <-  paste(
 			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b6*W + b7*W_", IV1, " + b8*W_", IV2),
 			ifelse(breakline==FALSE, "b6==0", ""),
-			sep="\n")
+			add, sep="\n")
 			
 			s.absunc <- sem(m.absunc, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 	}

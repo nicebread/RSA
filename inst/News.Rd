@@ -3,6 +3,25 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.1}{
+
+
+\subsection{New features}{
+	\itemize{
+		\item New parameter \code{add} in \code{RSA} function: The user can pass additional lavaan syntax that is added at the end of the generated syntax. For example: \code{RSA(z ~ x*y, data=df, add="abs(a4) > abs(a2); a1==0")}
+	}
+}
+
+\subsection{Improvements}{
+	\itemize{
+		\item RSA(..., cubic=TRUE) now works more reliable. getPar(x, model="cubic") now returns the cubic parameters x^3, y^3, xy^2, and x^2y.
+		\item New function \code{summary}. Same as \code{print}
+	}
+}
+}
+
+
+
 \section{Version 0.9}{
 
 \subsection{New Features}{
