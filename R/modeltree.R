@@ -114,7 +114,7 @@ modeltree <- function(x, digits=3, ...) {
 	}
 	
 	dev.new(width=11.5, height=6.5)
-	qgraph(eL, 
+	p1 <- qgraph(eL, 
 		edgeList	= TRUE,
 		nNodes		= length(lab),
 		layout 		= pos, 
@@ -138,6 +138,7 @@ modeltree <- function(x, digits=3, ...) {
 		vsize2 		= 7,		# vertical size of boxes
 		border.width = R2.adj
 	)
+	invisible(p1)
 }
 
 #' @S3method plot cRSA

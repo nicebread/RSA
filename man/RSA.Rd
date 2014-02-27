@@ -4,7 +4,7 @@
 \usage{
 RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   out.rm = TRUE, breakline = FALSE, models = "default", cubic = FALSE,
-  verbose = TRUE, control.variables = c(), ...)
+  verbose = TRUE, add = "", control.variables = c(), ...)
 }
 \arguments{
   \item{formula}{A formula in the form \code{z ~ x*y},
@@ -27,6 +27,10 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   commensurability of the predictor scales.}
 
   \item{na.rm}{Remove missings before proceeding?}
+
+  \item{add}{Additional syntax that is added to the lavaan
+  model. Can contain, for example, additional constraints,
+  like "p01 == 0; p11 == 0"}
 
   \item{out.rm}{Should outliers according to Bollen &
   Jackman (1980) criteria be excluded from analyses?}

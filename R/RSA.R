@@ -123,7 +123,9 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	CV <- ifelse(length(control.variables > 0), paste0(" + ", paste(control.variables, collapse=" + ")), "")
 
 	## Run polynomial regression as a OLS linear model
-	f <- paste0(paste0(DV, " ~ ", paste(IV1, IV2, IV12, IV_IA, IV22, sep=" + ")), CV)
+	addcubic <- ""
+	if (cubic==TRUE) addcubic <- paste0(" + ", paste(IV13, IV23, IV_IA2, IV_IA3, sep=" + "))
+	f <- paste0(paste0(DV, " ~ ", paste(IV1, IV2, IV12, IV_IA, IV22, sep=" + ")), addcubic, CV)
 	rs <- lm(f, df)
 	
 	# Mark outliers and influential cases according to Bollen & Jackman, 1980
@@ -134,11 +136,10 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	names(outs) <- NULL
 	if (out.rm == TRUE) {
 		if (verbose==TRUE & length(outs)>0) {
-			warning(paste("Removed", length(outs), "case(s) according to Bollen & Jackman (1980) criteria."))
+			warning(paste("Removed", length(outs), "multivariate outlier(s) according to Bollen & Jackman (1980) criteria."))
 			df <- df[-outs, ]
 		}
 	}
-	
 
 	## Test all models
 	
