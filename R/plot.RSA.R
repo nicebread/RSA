@@ -33,6 +33,7 @@
 #' @param xlab Label for x axis
 #' @param ylab Label for y axis
 #' @param zlab Label for z axis
+#' @param main the main title of the plot
 #' @param surface Method for the calculation of the surface z values. "predict" takes the predicted values from the model, "smooth" uses a thin plate smoother (function \code{Tps} from the \code{fields} package) of the raw data
 #' @param lambda lambda parameter for the smoother. Default (NULL) means that it is estimated by the smoother function. Small lambdas around 1 lead to rugged surfaces, big lambdas to very smooth surfaces.
 #' @param rotation Rotation of the 3d surface plot (when type == "3d")
@@ -40,12 +41,13 @@
 #' @param gridsize Number of grid nodes in each dimension
 #' @param bw Print surface in black and white instead of colors?
 #' @param legend Print color legend for z values?
-#' @param cex Font size factor for axes labels
+#' @param cex Font size factor for axes labels, axes titles, and the main title
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot, "interactive" for interactive rotatable plot. Shortcuts (i.e., first letter of string) are sufficient
 #' @param points A list of parameters which define the appearance of the raw scatter points: 
 #'	\itemize{
 #'		\item{data: Data frame which contains the coordinates of the raw data points. FIrst column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object}
 #'		\item{show = TRUE: Should the original data points be overplotted?}
+#'		\item{color = "black": Color of the points}
 #' 		\item{value="raw": Plot the original z value, "predicted": plot the predicted z value}
 #'		\item{jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable}
 #'		\item{cex = .5: multiplication factor for point size}
@@ -73,7 +75,7 @@
 #' @param SP.CI Plot the CI of the stationary point (only relevant for \code{type="contour"})
 #' @param distance A vector of three values defining the distance of labels to the axes
 #' @param tck A vector of three values defining the position of labels to the axes (see ?wireframe)
-#' @param pal A palette for shading
+#' @param pal A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}
 #' @param pal.range Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.
 #' @param pad Pad controls the margin around the figure (positive numbers: larger margin, negative numbers: smaller margin)
 #'#' @param ... Additional parameters passed to the plotting function (e.g., sub="Title"). A useful title might be the R squared of the plotted model: sub = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))
@@ -125,12 +127,13 @@
 # distance=c(1, 1, 1), tck=c(1, 1, 1)
 
 plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", model="full", 
-	xlim=NULL, ylim=NULL, zlim=NULL, xlab=NULL, ylab=NULL, zlab=NULL, 
+	xlim=NULL, ylim=NULL, zlim=NULL, 
+	xlab=NULL, ylab=NULL, zlab=NULL, main = "",
 	surface="predict", lambda=NULL, 
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
 	axes=c("LOC", "LOIC", "PA1", "PA2"), project=FALSE, maxlines=FALSE,
-	cex=1.2,
+	cex=1,
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
 	demo=FALSE, fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=TRUE, 
@@ -215,6 +218,58 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		param <- FALSE
 		SP.text <- ""
 	}
+	
+	
+	# ---------------------------------------------------------------------
+	# Calculate positions of raw points
+
+	if (points$out.mark == TRUE & is.null(fit)) {
+		warning("Outliers can only be marked if an RSA-object is provided. Points are not plotted.")
+		points$show <- FALSE
+	}
+	if (points$show == TRUE) {
+		if (points$out.mark == FALSE) {
+			data.used <- points$data
+		}
+		if (points$out.mark == TRUE & !is.null(fit)) {
+			data.used <- fit$data.original
+		}
+	
+		if (points$jitter > 0) {
+			data.used[, 1] <- data.used[, 1] + rnorm(length(data.used[, 1]), 0, points$jitter)
+			data.used[, 2] <- data.used[, 2] + rnorm(length(data.used[, 2]), 0, points$jitter)
+		}
+	
+		if (points$value == "raw") {
+			zpoints <- as.vector(data.used[, 3])
+		} else if (points$value == "predicted") {
+			N <- colnames(data.used)
+			data.used2 <- add.variables(formula(paste0(N[3], " ~ ", N[1], "*", N[2])), data.used)
+			
+			# calculate predicted values
+			zpoints <- b0 + colSums(C*t(data.used2[, c(
+				N[1],
+				N[2],
+				paste0(N[1], "2"),
+				paste0(N[2], "2"),
+				paste0(N[1], "_", N[2]),
+				"W",
+				paste0("W_", N[1]),
+				paste0("W_", N[2]),
+				paste0(N[1], "3"),
+				paste0(N[1], "_", N[2], "2"),
+				paste0(N[1], "2", "_", N[2]),
+				paste0(N[2], "3")
+			)]))
+			
+			zpoints <- as.vector(zpoints)
+		}
+
+		xpoints <- as.vector(data.used[, 1])
+		ypoints <- as.vector(data.used[, 2])		
+	}
+	
+	
 		
 	# build data set
 	grid <- gridsize
@@ -272,54 +327,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	if (length(pal) < 2) {legend <- FALSE}
 		
 	
-	# ---------------------------------------------------------------------
-	# Calculate positions of raw points
-
-	if (points$out.mark == TRUE & is.null(fit)) {
-		warning("Outliers can only be marked if an RSA-object is provided. Points are not plotted.")
-		points$show <- FALSE
-	}
-	if (points$show == TRUE) {
-		if (points$out.mark == FALSE) {
-			data.used <- points$data
-		}
-		if (points$out.mark == TRUE & !is.null(fit)) {
-			data.used <- fit$data.original
-		}
 	
-		if (points$jitter > 0) {
-			data.used[, 1] <- data.used[, 1] + rnorm(length(data.used[, 1]), 0, points$jitter)
-			data.used[, 2] <- data.used[, 2] + rnorm(length(data.used[, 2]), 0, points$jitter)
-		}
-	
-		if (points$value == "raw") {
-			zpoints <- as.vector(data.used[, 3])
-		} else if (points$value == "predicted") {
-			N <- colnames(data.used)
-			data.used2 <- add.variables(formula(paste0(N[3], " ~ ", N[1], "*", N[2])), data.used)
-			
-			# calculate predicted values
-			zpoints <- b0 + colSums(C*t(data.used2[, c(
-				N[1],
-				N[2],
-				paste0(N[1], "2"),
-				paste0(N[2], "2"),
-				paste0(N[1], "_", N[2]),
-				"W",
-				paste0("W_", N[1]),
-				paste0("W_", N[2]),
-				paste0(N[1], "3"),
-				paste0(N[1], "_", N[2], "2"),
-				paste0(N[1], "2", "_", N[2]),
-				paste0(N[2], "3")
-			)]))
-			
-			zpoints <- as.vector(zpoints)
-		}
-
-		xpoints <- as.vector(data.used[, 1])
-		ypoints <- as.vector(data.used[, 2])		
-	}
 	
 	# ---------------------------------------------------------------------
 	#  calculate bag plot: bag = outer, loop = inner
@@ -362,10 +370,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		R <- range(DV2)
 		col2 <- as.character(cut(1:(R[2] - R[1] + 1), breaks=length(pal), labels=pal))
 		
-		open3d()
+		open3d(cex=cex)
 		rgl.viewpoint(-30, -90)
 		rgl.light(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
-		persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1])
+		persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main)
 
 		if (contour$show == TRUE) {
 		    contours <- contourLines(P, z=DV2)
@@ -495,7 +503,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					   }
 										  
 						  if (param == TRUE) {
-							  grid.text(SPs, .02, .95, just="left")
+							  grid.text(SPs, .02, .95, just="left", gp=gpar(cex=cex))
 						  }  
 						  
 						  
@@ -620,6 +628,12 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					at <- seq(min(new2$z), max(new2$z), length.out=length(pal)-1)
 				}
 				
+				# define the appearance of the color legend
+				CK <- FALSE
+				if (legend == TRUE) {
+					CK <- list(labels=list(cex=cex))
+				}
+				
 				
 			if (points$show == FALSE) {
 				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
@@ -627,8 +641,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
+					main	= list(cex=cex, label=main),
 					screen	= rotation, 
-					at		= at, col.regions=pal, colorkey=legend, 
+					at		= at, col.regions=pal, colorkey=CK, 
 					par.settings = list(
 						axis.line = list(col = "transparent"), 
 						layout.heights = list(top.padding=pad, bottom.padding=pad), 
@@ -644,8 +659,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
+					main	= list(cex=cex, label=main),
 					screen	= rotation,
-					at		= at, col.regions=pal, colorkey=legend, 
+					at		= at, col.regions=pal, colorkey=CK, 
 					par.settings = list(
 						axis.line = list(col = "transparent"), 
 						layout.heights = list(top.padding=pad, bottom.padding=pad), 
@@ -736,6 +752,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				p1 <- p1 + annotate("errorbarh", x=SP$X0, y=SP$Y0, xmin=PAR[PAR$label=="X0", "ci.lower"], xmax=PAR[PAR$label=="X0", "ci.upper"], z=max(new2$z), height=.3)
 			}
 			
+			# Title
+			if (main != "") p1 <- p1 + ggtitle(main)
+			
 		}
 	}
 	
@@ -775,10 +794,30 @@ plot.RSA <- function(x, ...) {
 	extras$xy2 <- as.numeric(ifelse(is.na(C["b10"]), 0, C["b10"]))
 	extras$x2y <- as.numeric(ifelse(is.na(C["b11"]), 0, C["b11"]))
 	extras$y3 <- as.numeric(ifelse(is.na(C["b12"]), 0, C["b12"]))
+	
+	if (is.null(extras$xlab)) extras$xlab <- fit$IV1
+	if (is.null(extras$ylab)) extras$ylab <- fit$IV2
+	if (is.null(extras$zlab)) extras$zlab <- fit$DV
+		
+	extras$fit <- fit
+
+	if (is.null(extras$points)) {
+		extras$points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
+	}
+	if (is.null(extras$points$out.mark)) extras$points$out.mark <- FALSE
+
+	if (extras$points$out.mark == FALSE) {
+		data.used <- fit$data
+	}
+	if (extras$points$out.mark == TRUE) {
+		data.used <- fit$data.original
+	}
+	
+	extras$points$data <- data.used[, c(fit$IV1, fit$IV2, fit$DV, colnames(fit$data)[which(!colnames(fit$data) %in% c(fit$IV1, fit$IV2, fit$DV))])]
 
 	adjust <- FALSE
 	if (is.null(extras$xlim)) {
-		extras$xlim <- c(min(fit$data[, fit$IV1], na.rm=TRUE), max(fit$data[, fit$IV1], na.rm=TRUE))
+		extras$xlim <- c(min(data.used[, fit$IV1], na.rm=TRUE), max(data.used[, fit$IV1], na.rm=TRUE))
 		# expand range by 20% at each end
 		extras$xlim[1] <- extras$xlim[1]*ifelse(extras$xlim[1]<0, 1.1, 0.9)
 		extras$xlim[2] <- extras$xlim[2]*ifelse(extras$xlim[2]<0, 0.9, 1.1)
@@ -786,7 +825,7 @@ plot.RSA <- function(x, ...) {
 	}
 	
 	if (is.null(extras$ylim)) {
-		extras$ylim <- c(min(fit$data[, fit$IV2], na.rm=TRUE), max(fit$data[, fit$IV2], na.rm=TRUE))
+		extras$ylim <- c(min(data.used[, fit$IV2], na.rm=TRUE), max(data.used[, fit$IV2], na.rm=TRUE))
 		extras$ylim[1] <- extras$ylim[1]*ifelse(extras$ylim[1]<0, 1.1, 0.9)
 		extras$ylim[2] <- extras$ylim[2]*ifelse(extras$ylim[2]<0, 0.9, 1.1)
 		adjust <- TRUE
@@ -797,16 +836,7 @@ plot.RSA <- function(x, ...) {
 		extras$xlim[2] <- extras$ylim[2] <- max(extras$xlim[2], extras$ylim[2])
 	}
 	
-	if (is.null(extras$xlab)) extras$xlab <- fit$IV1
-	if (is.null(extras$ylab)) extras$ylab <- fit$IV2
-	if (is.null(extras$zlab)) extras$zlab <- fit$DV
-		
-	if (is.null(extras$points)) {
-		extras$points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
-	}
-	extras$points$data <- fit$data[, c(fit$IV1, fit$IV2, fit$DV, colnames(fit$data)[which(!colnames(fit$data) %in% c(fit$IV1, fit$IV2, fit$DV))])]
 	
-	extras$fit <- fit
 	
 	do.call(plotRSA, as.list(extras))
 }

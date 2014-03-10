@@ -9,13 +9,17 @@
 \subsection{New features}{
 	\itemize{
 		\item New parameter \code{add} in \code{RSA} function: The user can pass additional lavaan syntax that is added at the end of the generated syntax. For example: \code{RSA(z ~ x*y, data=df, add="abs(a4) > abs(a2); a1==0")}
+		\item plotRSA gained a \code{main} parameter: The main title of the plot.
 	}
 }
 
 \subsection{Improvements}{
 	\itemize{
 		\item RSA(..., cubic=TRUE) now works more reliable. getPar(x, model="cubic") now returns the cubic parameters x^3, y^3, xy^2, and x^2y.
-		\item New function \code{summary}. Same as \code{print}
+		\item New function \code{summary}. Currently, it is simply an alias to \code{print}
+		\item \code{cex} parameter now applies to all text output of plotRSA.
+		\item If outliers are removed automatically, the \code{RSA} function prints the row numbers of the outliers.
+		\item Plotting of outliers (with \code{points=list(out.mark=TRUE)}) is more reliable.
 	}
 }
 }

@@ -136,7 +136,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	names(outs) <- NULL
 	if (out.rm == TRUE) {
 		if (verbose==TRUE & length(outs)>0) {
-			warning(paste("Removed", length(outs), "multivariate outlier(s) according to Bollen & Jackman (1980) criteria."))
+			warning(paste("Removed", length(outs), "multivariate outlier(s) according to Bollen & Jackman (1980) criteria. Outliers are in row(s):", paste(outs , collapse=", ")))
 			df <- df[-outs, ]
 		}
 	}
