@@ -13,11 +13,13 @@
 #' @export
 #' @param x A cRSA object (= output from the \code{\link{compare}} function)
 #' @param digits The number of digits to which numbers are rounded
+#' @param sig Threshold for models to be marked as "not significant"
+#' @param borderline Threshold for models to be marked as "borderline significant" (used for color of arrows)
 #' @param ... Additional parameters (not used yet)
 #'
 #' @seealso \code{\link{RSA}}, \code{\link{compare}}
 #'
-modeltree <- function(x, digits=3, ...) {
+modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 	library(qgraph)
 
 	c1 <- x
@@ -35,9 +37,11 @@ modeltree <- function(x, digits=3, ...) {
 		"sqdiff", 	# 8
 		"SRSD", 	# 9
 		"SSD", 		#10
-		"onlyx", 	#11
-		"onlyy", 	#12
-		"null"		#13
+		"onlyx2", 	#11
+		"onlyy2", 	#12
+		"onlyx", 	#13
+		"onlyy", 	#14
+		"null"		#15
 		)
 
 	# get values from compare-object
@@ -51,12 +55,12 @@ modeltree <- function(x, digits=3, ...) {
 	}
 
 	pos <- matrix(ncol=8, byrow=TRUE, c(
-	14,  0,  0,  0,  1,  0,  0,  0,
-	15,  0,  0,  0,  2,  0,  0,  0,	
-	16,  0,  0,  3,  6,  9,  0,  0,
-	17, 11,  0,  4,  7, 10,  0, 12,
-	18,  0,  0,  5,  0,  8,  0,  0,
-	19,  0,  0,  0, 13,  0,  0,  0
+	16,  0,  0,  0,  1,  0,  0,  0,
+	17,  0,  0,  0,  2,  0,  0,  0,	
+	18,  0,  0,  3,  6,  9,  0,  0,
+	19, 11,  0,  4,  7, 10,  0, 12,
+	20, 13,  0,  5,  0,  8,  0, 14,
+	21,  0,  0,  0, 15,  0,  0,  0
 	))
 
 	# define edgelist, without weight
@@ -67,37 +71,39 @@ modeltree <- function(x, digits=3, ...) {
 	1,12,
 	3,4,
 	4,5,
-	5,13,
+	5,15,
 	2,6,
 	6,7,
 	7,8,
-	8,13,
+	8,15,
 	2,9,
 	9,10,
 	10,8,
 	6,10,
 	11,13,
-	12,13,
+	12,14,
+	13,15,
+	14,15,
 	
-	14,14,
-	15,15,
 	16,16,
 	17,17,
 	18,18,
-	19,19
+	19,19,
+	20,20,
+	21,21
 	))
 
 	# define weights of edges: will be translated to color
 	w <- c()
-	# 17 = number of edges defined in eL (upper block)
-	for (i in 1:17) {
+	# 19 = number of edges defined in eL (upper block)
+	for (i in 1:19) {
 		#print(paste0(m[eL[i, 1]], "_", m[eL[i, 2]]))
 	    w <- c(w, c1[c1$fromto == paste0(m[eL[i, 1]], "_", m[eL[i, 2]]), "Pr(>Chisq)"][1])
 	}
 	w[is.na(w)] <- 0
 
 	# compute box labels
-	lab <- c("full", "SRRR", "Interaction", "Additive", "Difference", "SRR", "RR", "Squared difference", "SRSD", "SSD", "x + x^2", "y + y^2", "Intercept only", "k = 5", "k = 4", "k = 3", "k = 2", "k = 1", "k = 0")	
+	lab <- c("full", "SRRR", "Interaction", "Additive", "Difference", "SRR", "RR", "Squared difference", "SRSD", "SSD", "x + x^2", "y + y^2", "x", "y", "Intercept only", "k = 5", "k = 4", "k = 3", "k = 2", "k = 1", "k = 0")	
 	lab2 <- list()
 	lab.color <- c()
 	
@@ -106,7 +112,7 @@ modeltree <- function(x, digits=3, ...) {
 			lab2[[i]] <- paste(lab[i],
 				paste("CFI = ", f2(CFI[i], digits)),
 				paste("R^2[adj] = ", f2(R2.adj[i], digits)), sep="\n")
-			lab.color <- c(lab.color, ifelse(R2.p < .05, "black", "grey"))	
+			lab.color <- c(lab.color, ifelse(R2.p < sig, "black", "grey"))	
 		} else {
 			lab2[[i]] <- lab[i]
 			lab.color <- c(lab.color, "black")
@@ -121,10 +127,10 @@ modeltree <- function(x, digits=3, ...) {
 	
 		# define edges
 		edge.labels = paste0("p = ", f2(w, digits)), 
-		edge.color	= c(pRamp(w), rep("#FFFFFF", 6)), 
+		edge.color	= c(pRamp(w, sig=sig, borderline=borderline), rep("#FFFFFF", 6)), 
 		edge.label.cex = 0.6,
 		edge.label.position = 0.5,
-		curve = c(0, -0.5, -1, 1, 0, 0, 0, 0,0,-0.5,0,0.5,0,0,0,-0.5,0.5, rep(0, 6)),	# hand-crafted edge curvature ...
+		curve = c(0, -0.5, -1, 1, 0, 0, 0, 0,0,-0.5,0,0.5,0,0,0,0,0,-0.5,0.5, rep(0, 6)),	# hand-crafted edge curvature ...
 		curveAll = TRUE,
 	
 		# define boxes

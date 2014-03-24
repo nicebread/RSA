@@ -102,45 +102,55 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 	## compute stationary point and principal axes
 
 	# Calculate stationary point (either minimum, maximum, or saddle point)
-	X0 <- as.numeric((y*xy - 2*x*y2) / (4*x2*y2 - xy^2))
-	Y0 <- as.numeric((x*xy - 2*y*x2) / (4*x2*y2 - xy^2))
-	Z0 <- b0 + sum(c(x*X0, y*Y0, x2*X0^2, xy*X0*Y0, y2*Y0^2))
 	
-	# Calculate principal axes:
-	p11 <- as.numeric((y2 - x2 + sqrt(((x2 - y2)^2) + (xy^2))) / xy)
-	p10 <- as.numeric(Y0 - p11*X0)
+	# Calculate stationary point, matrix-style
+	SP0 <- NULL
+	try({
+		SP0 <- -.5*solve(B)%*%b
+		}, silent=TRUE)
 	
-	p21 <- as.numeric((y2 - x2 - sqrt(((x2 - y2)^2) + (xy^2))) / xy)
-	p20 <- as.numeric(Y0 - p21*X0)
+	if (!is.null(SP0)) {
+		
+		X0 <- SP0[1]
+		Y0 <- SP0[2]
+		
+		X0 <- as.numeric((y*xy - 2*x*y2) / (4*x2*y2 - xy^2))
+		Y0 <- as.numeric((x*xy - 2*y*x2) / (4*x2*y2 - xy^2))
+		Z0 <- b0 + sum(c(x*X0, y*Y0, x2*X0^2, xy*X0*Y0, y2*Y0^2))
+	
+		# Calculate principal axes:
+		p11 <- as.numeric((y2 - x2 + sqrt(((x2 - y2)^2) + (xy^2))) / xy)
+		p10 <- as.numeric(Y0 - p11*X0)
+	
+		p21 <- as.numeric((y2 - x2 - sqrt(((x2 - y2)^2) + (xy^2))) / xy)
+		p20 <- as.numeric(Y0 - p21*X0)
+		
+		C1 <- -p10/(p11+1)
+		C2 <- -p20/(p21+1)
+		
+		# a*: linear and quadratic slope of the principal axes
+		as1X <- x + p11*y + xy*p10 + 2*y2*p10*p11
+		as2X <- x2 + xy*p11 + (p11^2)*y2
+		as1Y <- x/p11 + y - (2*x2*p10)/p11^2 - (xy*p10)/p11
+		as2Y <- x2/p11^2 + xy/p11 + y2
+	
+		# second principal axis
+		as3X <- x + p21*y + xy*p20 + 2*y2*p20*p21
+		as4X <- x2 + xy*p21 + (p21^2)*y2
+		as3Y <- x/p21 + y - (2*x2*p20)/p21^2 - (xy*p20)/p21
+		as4Y <- x2/p21^2 + xy/p21 + y2
+	} else {
+		X0 <- Y0 <- Z0 <- p11 <- p10 <- p20 <- p21 <- C1 <- C2 <- as1X <- as2X <- as3X <- as4X <- as1Y <- as2Y <- as3Y <- as4Y <- NA
+	}
 		
 	a1 <- as.numeric(x+y)
 	a2 <- as.numeric(x2+y2+xy)
 	a3 <- as.numeric(x-y)
 	a4 <- as.numeric(x2-xy+y2)
 	
-	C1 <- -p10/(p11+1)
-	C2 <- -p20/(p21+1)
-	
-	# a*: linear and quadratic slope of the principal axes
-	as1X <- x + p11*y + xy*p10 + 2*y2*p10*p11
-	as2X <- x2 + xy*p11 + (p11^2)*y2
-	as1Y <- x/p11 + y - (2*x2*p10)/p11^2 - (xy*p10)/p11
-	as2Y <- x2/p11^2 + xy/p11 + y2
-	
-	# second principal axis
-	as3X <- x + p21*y + xy*p20 + 2*y2*p20*p21
-	as4X <- x2 + xy*p21 + (p21^2)*y2
-	as3Y <- x/p21 + y - (2*x2*p20)/p21^2 - (xy*p20)/p21
-	as4Y <- x2/p21^2 + xy/p21 + y2
-
 	# calculate eigenvectors
 	b <- c(x, y)	# linear terms
 	B <- matrix(c(x2, xy, xy, y2), ncol=2, nrow=2) * matrix(c(1, .5, .5, 1), ncol=2)	# matrix of higher order terms
-	
-	# Calculate stationary point, matrix-style
-	#SP0 <- -.5*solve(B)%*%b
-	#X0 <- SP0[1]
-	#Y0 <- SP0[2]
 
 	M <- eigen(B)$vectors	# normalized eigenvectors
 	l <- eigen(B)$values	# eigenvalues

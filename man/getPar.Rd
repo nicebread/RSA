@@ -2,7 +2,7 @@
 \alias{getPar}
 \title{Retrieves several variables from an RSA object}
 \usage{
-getPar(x, type = "coef", model = "full", ...)
+getPar(x, type = "coef", model = "full", digits = NA, ...)
 }
 \arguments{
   \item{x}{RSA object}
@@ -12,6 +12,9 @@ getPar(x, type = "coef", model = "full", ...)
 
   \item{model}{A string specifying the model; defaults to
   "full"}
+
+  \item{digits}{Number of digits the output is rounded to;
+  if NA, digits are unconstrained}
 
   \item{...}{Additional parameters passed to the extraction
   function}

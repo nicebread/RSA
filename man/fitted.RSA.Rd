@@ -1,0 +1,17 @@
+\name{fitted.RSA}
+\alias{fitted.RSA}
+\title{Return fitted values of a RSA model}
+\usage{
+\method{fitted}{RSA}(object, ..., model = "full")
+}
+\arguments{
+  \item{object}{An RSA object.}
+
+  \item{...}{Other parameters (currently not used)}
+
+  \item{model}{Model on which the fitted values are based}
+}
+\description{
+Return fitted values of a RSA model
+}
+

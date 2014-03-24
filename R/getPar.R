@@ -10,6 +10,7 @@
 #' @param x RSA object
 #' @param type One of: "syntax", "coef", "R2", "R2.adj", "free", "summary"
 #' @param model A string specifying the model; defaults to "full"
+#' @param digits Number of digits the output is rounded to; if NA, digits are unconstrained
 #' @param ... Additional parameters passed to the extraction function
 #'
 #' @seealso \code{\link{RSA}}
@@ -35,7 +36,7 @@
 #' getPar(r1, "coef")
 
 
-getPar <- function(x, type="coef", model="full", ...) {
+getPar <- function(x, type="coef", model="full", digits=NA, ...) {
 	type <- tolower(type)
 	type <- match.arg(type, c("syntax", "coef", "r2", "rsquared", "r.squared", "r2.p", "rsquared.p", "r.squared.p", "r2.adj", "rsquared.adj", "r.squared.adj", "npar", "free", "summary"))
 	if (type=="syntax") {
@@ -46,6 +47,7 @@ getPar <- function(x, type="coef", model="full", ...) {
 		p1 <- data.frame(p1[p1$label != "", ])
 		rownames(p1) <- p1$rhs
 		p1 <- p1[, -c(1:3)]
+		if (!is.na(digits))	p1[, -1] <- round(p1[, -1], digits)
 		return(p1)
 	}
 	if (type %in% c("r2", "rsquared", "r.squared")) {
@@ -70,5 +72,4 @@ getPar <- function(x, type="coef", model="full", ...) {
 	if (type %in% c("summary")) {
 		return(summary(x$models[[model]], ...))
 	}
-	warning(paste0("Type '", type, "' not recognized!"))
 }

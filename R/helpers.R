@@ -44,6 +44,37 @@ add.variables <- function(formula, df) {
 }
 
 
+
+## internal helper function: compare models
+# mL = model list
+# set = label that is attached to the results
+cModels <- function(mL, set, free.max) {
+	aL1 <- anovaList(mL)
+	if (aL1$n.mods > 1 & "full" %in% names(mL)) {
+		n <- nobs(aL1$models[["full"]])
+		a1 <- cbind(aL1$ANOVA, plyr::ldply(aL1$models, function(X) {
+			F <- fitmeasures(X)
+			R <- inspect(X, "r2")
+			names(R) <- "R2"
+			k <- free.max - F["df"]				
+			R2.p <- ifelse(k==0,
+				NA,
+				pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
+			names(R2.p) <- "R2.p"
+			return(c(F[c("cfi", "tli", "rmsea", "srmr")], R, R2.p))
+
+		}))
+		a1 <- a1[, !grepl(".id", colnames(a1))]
+		a1$k <- free.max - a1$Df
+		a1$R2.adj <- 1 - ((1-a1$R2))*((n-1)/(n-a1$k-1))
+		a1$delta.R2 <- c(NA, a1$R2[1:(nrow(a1)-1)] - a1$R2[2:(nrow(a1))])			
+		a1$model <- rownames(a1)
+		a1$set <- set
+		return(a1)
+	}
+}
+
+
 # simple wrapper: formats a number in f.2 format
 f2 <- function(x, digits=2, prepoint=0, skipZero=FALSE) {
 	

@@ -59,11 +59,14 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		rownames(EV) <- NULL
 		EV$label[1:2] <- c("lambda_1", "lambda_2")
 		print(EV)
-		shape <- "undefined"
-		if (all(EV$est < 0)) shape <- "Dome shaped (stationary point = maximum response)"
-		if (all(EV$est > 0)) shape <- "Bowl shaped (stationary point = minimum response)"
-		if ((EV$est[1] > 0 & EV$est[2] < 0) | (EV$est[2] > 0 & EV$est[1] < 0)) shape <- "Saddle shaped"
-		cat(paste0("--> ", shape))
+		
+		if (!any(EV$est == 0)) {
+			shape <- "undefined"
+			if (all(EV$est < 0)) shape <- "Dome shaped (stationary point = maximum response)"
+			if (all(EV$est > 0)) shape <- "Bowl shaped (stationary point = minimum response)"
+			if ((EV$est[1] > 0 & EV$est[2] < 0) | (EV$est[2] > 0 & EV$est[1] < 0)) shape <- "Saddle shaped"
+			cat(paste0("--> ", shape))
+		}
 	}
 	
 		
@@ -87,28 +90,28 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		cat(paste0("a4: Is there a general effect of incongruence? ", ifelse(eff[eff$label %in% "a4", "pvalue"] <= .05, "YES", "NO"), "\n"))
 
 	
-		cat(paste0("\n\nLocation of stationary point: ", shape, " for model <", model, ">\n----------------------------\n"))
-		cat(paste0(IV1, " = ", round(eff[eff$label %in% "X0", "est"], 3), "; ", IV2, " = ", round(eff[eff$label %in% "Y0", "est"], 3), "; predicted ", DV, " = ", round(ST$Z0, 3), "\n\n"))
-	
-		
-		
-		cat(paste0("\nPrincipal axes for model <", model, ">\n----------------------------\n"))
-		
 		PA <- eff[eff$label %in% c("p10", "p11", "p20", "p21"), c(1:3, 6:7)]
-		PA[, 2:5] <- round(PA[, 2:5], digits)
-		PA$pvalue <- p(eff[eff$label %in% c("p10", "p11", "p20", "p21"), "pvalue"])
-		PA$sig <- p2star(eff[eff$label %in% c("p10", "p11", "p20", "p21"), "pvalue"])
-		rownames(PA) <- NULL
-		rownames(PA)[PA$label == "p10"] <- "Intercept of 1. PA"
-		rownames(PA)[PA$label == "p11"] <- "Slope of 1. PA"
-		rownames(PA)[PA$label == "p20"] <- "Intercept of 2. PA"
-		rownames(PA)[PA$label == "p21"] <- "Slope of 2. PA"
-		print(PA)
+		if (nrow(PA) > 0) {
+			
+			cat(paste0("\n\nLocation of stationary point: ", shape, " for model <", model, ">\n----------------------------\n"))
+			cat(paste0(IV1, " = ", round(eff[eff$label %in% "X0", "est"], 3), "; ", IV2, " = ", round(eff[eff$label %in% "Y0", "est"], 3), "; predicted ", DV, " = ", round(ST$Z0, 3), "\n\n"))
 		
-		C <- coef(models[["full"]], "all")
+			cat(paste0("\nPrincipal axes for model <", model, ">\n----------------------------\n"))
+			PA[, 2:5] <- round(PA[, 2:5], digits)
+			PA$pvalue <- p(eff[eff$label %in% c("p10", "p11", "p20", "p21"), "pvalue"])
+			PA$sig <- p2star(eff[eff$label %in% c("p10", "p11", "p20", "p21"), "pvalue"])
+			rownames(PA) <- NULL
+			rownames(PA)[PA$label == "p10"] <- "Intercept of 1. PA"
+			rownames(PA)[PA$label == "p11"] <- "Slope of 1. PA"
+			rownames(PA)[PA$label == "p20"] <- "Intercept of 2. PA"
+			rownames(PA)[PA$label == "p21"] <- "Slope of 2. PA"
+			print(PA)
 		
-		cat("  --> Lateral shift of first PA from LOC at point (0; 0): C1 = ", round((-C["p10"])/(C["p11"] + 1), 3), "\n")
-		cat("  --> Lateral shift of second PA from LOC at point (0; 0): C2 = ", round((-C["p20"])/(C["p21"] + 1), 3), "\n")
+			C <- coef(models[["full"]], "all")
+		
+			cat("  --> Lateral shift of first PA from LOC at point (0; 0): C1 = ", round((-C["p10"])/(C["p11"] + 1), 3), "\n")
+			cat("  --> Lateral shift of second PA from LOC at point (0; 0): C2 = ", round((-C["p20"])/(C["p21"] + 1), 3), "\n")
+		}
 	}
 	
 	})

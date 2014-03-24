@@ -8,8 +8,15 @@
 
 \subsection{New features}{
 	\itemize{
+		\item New models: onlyx and onlyx2, resp. onlyy and onlyy2, test whether one of both predictors can be dropped altogether
 		\item New parameter \code{add} in \code{RSA} function: The user can pass additional lavaan syntax that is added at the end of the generated syntax. For example: \code{RSA(z ~ x*y, data=df, add="abs(a4) > abs(a2); a1==0")}
+		\item Added the \code{compare2} function which compares two specific models, e.g. \code{compare2(r1, m1="SRR", m2="full")}. Attention: You must take care yourself that the compared models are nested! There is no automatic check, so you could, in principle, compare non-nested models. This is valid for AIC, BIC, CFI, TLI, and R2 indices, but *not* for the chi2-LR test!
 		\item plotRSA gained a \code{main} parameter: The main title of the plot.
+		\item New generic functions:
+		\itemize{
+			\item \code{fitted}: Return fitted values of a model, e.g.: \code{fitted(r1, model="RR")}
+			\item \code{residuals} (or \code{resid}): Return residuals of a fitted model, e.g.: \code{resid(r1, model="RR")}. For example, use the \code{qqPlot} function from the \code{car} package to display a qq-plot for regression diagnostics: qqPlot(resid(r2))
+		}
 	}
 }
 

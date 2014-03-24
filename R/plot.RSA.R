@@ -603,18 +603,20 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				if ("LOIC" %in% axes) {axesList[["LOIC"]] <- list(p0=0, p1=-1, lty="dotted", col="grey")}
 				if ("PA1" %in% axes) {
 					if (x2 == y2) {
+						# PA not defined: suppress
 						# print("Adjusting x2 to print PA1")
-						SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2 + .001, y2=y2)
-						axesList[["PA1"]] <- list(p0=SP2$p10, p1=SP2$p11, lty="solid", col="black")
+						SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2*1.001, y2=y2)
+						#axesList[["PA1"]] <- list(p0=SP2$p10, p1=SP2$p11, lty="solid", col="black")
 						} else {
 							axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, lty="solid", col="black")
 						}					
 				}
 				if ("PA2" %in% axes) {
 					if (x2 == y2) {
+						# PA not defined: suppress
 						# print("Adjusting x2 to print PA2")
-						SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2 + .001, y2=y2)
-						axesList[["PA2"]] <- list(p0=SP2$p20, p1=SP2$p21, lty="dotted", col="black")
+						SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2*1.001, y2=y2)
+						#axesList[["PA2"]] <- list(p0=SP2$p20, p1=SP2$p21, lty="dotted", col="black")
 					} else {
 						axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, lty="dotted", col="black")	
 					}
@@ -841,33 +843,3 @@ plot.RSA <- function(x, ...) {
 	do.call(plotRSA, as.list(extras))
 }
 
-
-#plot(r1, type="3d", points=list(show=TRUE, cex=2))
-
-#plotRSA(x=.05, x2=.1, xy=.20, rotation=list(x=-50, y=58, z=36), legend=FALSE, points=list(data=data.frame(x=-1:3, y=-1:3, z=0), show=TRUE))
-
-#plot(r1)
-#plot(r1, points=list(show=TRUE))
-#plotRSA(x=.05, x2=.1, xy=.20, type="3", gridsize=21)
-
-#demoRSA(x=.625, y=.519, x2=-.196, xy=.285, y2=-.167)
-#demoRSA(x=.625, y=.519, x2=-.196, xy=.285, y2=-.167, type="c")
-#
-#plotRSA(fit=r1, type="3d", points=list(show=TRUE), rotation=list(x=-58, y=50, z=26))
-#plotRSA(x=.05, x2=.1, xy=.20, rotation=list(x=-50, y=58, z=36), legend=FALSE, type="c")
-#plotRSA(x=.05, x2=.1, xy=.20, rotation=list(x=-50, y=58, z=36), legend=FALSE, type="3d")
-#
-## exampe of Edwards, 2002, Figure 3
-#p1 <- plotRSA(b0=5.628, x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, legend=FALSE, type="3d")
-#plotRSA(b0=5.628, x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, legend=FALSE, type="c")
-
-#RSA.ST(x=.314, y=-.118, x2=-.145, xy=.299, y2=-.102)
-
-
-## Minimal example
-#x <- y <- z <- c(1,2,3)
-#df <- data.frame(x, y, z)
-#wireframe(z ~ x*y, df,  scales = list(arrows = FALSE, col = "black", font = 1, tck = c(1, 1, 1), distance =c(1, 1, 1)))
-#
-#
-#xyplot(z ~ x, df,  scales = list(arrows = FALSE, cex=cex, col = "black", font = 1, tck=tck), par.settings=list(axis.components=list(left=list(pad1=2))))

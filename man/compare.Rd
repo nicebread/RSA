@@ -1,8 +1,8 @@
 \name{compare}
 \alias{compare}
-\title{Compare RSA models}
+\title{Compare a full list of RSA models}
 \usage{
-compare(x, verbose = TRUE, plot = FALSE)
+compare(x, verbose = TRUE, plot = FALSE, ...)
 }
 \arguments{
   \item{x}{An RSA object}
@@ -11,6 +11,9 @@ compare(x, verbose = TRUE, plot = FALSE)
 
   \item{plot}{Should the comparison be plotted (using the
   \code{\link{modeltree}} function)?}
+
+  \item{...}{Additional parameters passed to the
+  \code{\link{modeltree}} function}
 }
 \description{
 Compare several fit indexes of all models computed from the

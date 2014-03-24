@@ -47,10 +47,10 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   \item{models}{A vector with names of all models that
   should be computed. Should be any from \code{c("absdiff",
   "absunc", "diff", "additive", "IA", "sqdiff", "RR",
-  "SSD", "SRSD", "full", "null", "onlyx", "onlyy")}. For
-  \code{models="all"}, all models are computed, for
-  \code{models="default"} all models besides absolute
-  difference models are computed.}
+  "SSD", "SRSD", "full", "null", "onlyx", "onlyy",
+  "onlyx2", "onlyy2")}. For \code{models="all"}, all models
+  are computed, for \code{models="default"} all models
+  besides absolute difference models are computed.}
 
   \item{cubic}{Should a cubic model with the additional
   terms Y^3, XY^2, YX^2, and X^3 be included?}

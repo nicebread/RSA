@@ -4,7 +4,7 @@
 \title{Computes confidence intervals for RSA parameters, standard or bootstrapped}
 \usage{
 \method{confint}{RSA}(object, parm, level = 0.95, ..., model = "full",
-  method = "standard", R = 5000)
+  digits = 3, method = "standard", R = 5000)
 }
 \arguments{
   \item{object}{An RSA object}
@@ -12,6 +12,9 @@
   \item{parm}{Not used.}
 
   \item{level}{The confidence level required.}
+
+  \item{digits}{Number of digits the output is rounded to;
+  if NA, digits are unconstrained}
 
   \item{model}{A string specifying the model; defaults to
   "full"}

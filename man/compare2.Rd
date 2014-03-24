@@ -1,0 +1,27 @@
+\name{compare2}
+\alias{compare2}
+\title{Compare two specific RSA models}
+\usage{
+compare2(x, m1 = "", m2 = "full", verbose = TRUE)
+}
+\arguments{
+  \item{x}{An RSA object}
+
+  \item{m1}{Name of first model}
+
+  \item{m2}{Name of second model}
+
+  \item{verbose}{Should the summary be printed?}
+}
+\description{
+Compare several fit indexes of two models computed from the
+RSA function
+}
+\details{
+You must take care yourself that the compared models are
+nested! There is no automatic check, so you could, in
+principle, compare non-nested models. This is valid for
+AIC, BIC, CFI, TLI, and R2 indices, but *not* for the
+chi2-LR test!
+}
+

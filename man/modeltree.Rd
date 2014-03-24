@@ -2,7 +2,7 @@
 \alias{modeltree}
 \title{Plots a flow chart with model comparisons}
 \usage{
-modeltree(x, digits = 3, ...)
+modeltree(x, digits = 3, sig = 0.05, borderline = 0.1, ...)
 }
 \arguments{
   \item{x}{A cRSA object (= output from the
@@ -10,6 +10,12 @@ modeltree(x, digits = 3, ...)
 
   \item{digits}{The number of digits to which numbers are
   rounded}
+
+  \item{sig}{Threshold for models to be marked as "not
+  significant"}
+
+  \item{borderline}{Threshold for models to be marked as
+  "borderline significant" (used for color of arrows)}
 
   \item{...}{Additional parameters (not used yet)}
 }
