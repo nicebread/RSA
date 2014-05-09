@@ -3,12 +3,33 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.2}{
+
+
+\subsection{New features}{
+	\itemize{
+		\item AICc (corrected AIC) is provided in addition in the \code{compare} function - this is better for small sample sizes
+		\item An AIC model comparison table can be printed (based on code by Jarrett Byrnes).
+	}
+}
+
+
+\subsection{Bug Fixes}{
+	\itemize{
+		\item Predicted value of stationary point now is reported in \code{summary}
+	}
+}
+}
+
+
+
+
 \section{Version 0.9.1}{
 
 
 \subsection{New features}{
 	\itemize{
-		\item New models: onlyx and onlyx2, resp. onlyy and onlyy2, test whether one of both predictors can be dropped altogether
+		\item New models: onlyx and onlyx2, resp. onlyy and onlyy2, test whether one of both predictors can be dropped altogether. mean model: b1 == b2, i.e., x and y are averaged and taken as a single predictor.
 		\item New parameter \code{add} in \code{RSA} function: The user can pass additional lavaan syntax that is added at the end of the generated syntax. For example: \code{RSA(z ~ x*y, data=df, add="abs(a4) > abs(a2); a1==0")}
 		\item Added the \code{compare2} function which compares two specific models, e.g. \code{compare2(r1, m1="SRR", m2="full")}. Attention: You must take care yourself that the compared models are nested! There is no automatic check, so you could, in principle, compare non-nested models. This is valid for AIC, BIC, CFI, TLI, and R2 indices, but *not* for the chi2-LR test!
 		\item plotRSA gained a \code{main} parameter: The main title of the plot.
@@ -27,6 +48,13 @@
 		\item \code{cex} parameter now applies to all text output of plotRSA.
 		\item If outliers are removed automatically, the \code{RSA} function prints the row numbers of the outliers.
 		\item Plotting of outliers (with \code{points=list(out.mark=TRUE)}) is more reliable.
+	}
+}
+
+
+\subsection{Bug Fixes}{
+	\itemize{
+		\item Removed the \code{error using packet 1 'x' and 'units' must have length > 0} bug in 3d plots
 	}
 }
 }

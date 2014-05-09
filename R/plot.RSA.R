@@ -34,6 +34,7 @@
 #' @param ylab Label for y axis
 #' @param zlab Label for z axis
 #' @param main the main title of the plot
+#' @param cex.main Factor for main title size
 #' @param surface Method for the calculation of the surface z values. "predict" takes the predicted values from the model, "smooth" uses a thin plate smoother (function \code{Tps} from the \code{fields} package) of the raw data
 #' @param lambda lambda parameter for the smoother. Default (NULL) means that it is estimated by the smoother function. Small lambdas around 1 lead to rugged surfaces, big lambdas to very smooth surfaces.
 #' @param rotation Rotation of the 3d surface plot (when type == "3d")
@@ -133,7 +134,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
 	axes=c("LOC", "LOIC", "PA1", "PA2"), project=FALSE, maxlines=FALSE,
-	cex=1,
+	cex=1, cex.main=1, 
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
 	demo=FALSE, fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=TRUE, 
@@ -467,9 +468,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					# 4. plot of LOC and LOIC, and other axes
 						  for (a in axes) {
 							  a0 <- RESCALE(getIntersect2(p0=a$p0, p1=a$p1))
+							  if (nrow(a0) <= 1) break;
 				              panel.3dscatter(x = a0$X, y = a0$Y, z = a0$Z, xlim = xlim, ylim = ylim, zlim = zlim,
-				                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-											  type="l", col.line=a$col, lty=a$lty, lwd=2, ...)
+				                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, type="l", col.line=a$col, lty=a$lty, lwd=2, ...)
 						  }   
 						  
   					# ---------------------------------------------------------------------
@@ -605,7 +606,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					if (x2 == y2) {
 						# PA not defined: suppress
 						# print("Adjusting x2 to print PA1")
-						SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2*1.001, y2=y2)
+						# SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2*1.001, y2=y2)
 						#axesList[["PA1"]] <- list(p0=SP2$p10, p1=SP2$p11, lty="solid", col="black")
 						} else {
 							axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, lty="solid", col="black")
@@ -615,7 +616,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					if (x2 == y2) {
 						# PA not defined: suppress
 						# print("Adjusting x2 to print PA2")
-						SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2*1.001, y2=y2)
+						# SP2 <- RSA.ST(x=x, y=y, xy=xy, x2=x2*1.001, y2=y2)
 						#axesList[["PA2"]] <- list(p0=SP2$p20, p1=SP2$p21, lty="dotted", col="black")
 					} else {
 						axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, lty="dotted", col="black")	
@@ -643,7 +644,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
-					main	= list(cex=cex, label=main),
+					main	= list(cex=cex.main, label=main),
 					screen	= rotation, 
 					at		= at, col.regions=pal, colorkey=CK, 
 					par.settings = list(
@@ -661,7 +662,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
-					main	= list(cex=cex, label=main),
+					main	= list(cex=cex.main, label=main),
 					screen	= rotation,
 					at		= at, col.regions=pal, colorkey=CK, 
 					par.settings = list(

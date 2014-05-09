@@ -10,12 +10,12 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   label.rotation = list(x = 19, y = -40, z = 92), gridsize = 21,
   bw = FALSE, legend = TRUE, param = TRUE, axes = c("LOC", "LOIC",
   "PA1", "PA2"), project = FALSE, maxlines = FALSE, cex = 1,
-  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color =
-  "black", cex = 0.5, out.mark = FALSE), demo = FALSE, fit = NULL,
-  link = "identity", tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3, 1.4),
-  border = TRUE, contour = list(show = FALSE, color = "grey40", highlight =
-  c()), hull = FALSE, SP.CI = FALSE, pal = NULL, pal.range = "box",
-  pad = 0, ...)
+  cex.main = 1, points = list(data = NULL, show = NA, value = "raw", jitter
+  = 0, color = "black", cex = 0.5, out.mark = FALSE), demo = FALSE,
+  fit = NULL, link = "identity", tck = c(1.5, 1.5, 1.5),
+  distance = c(1.3, 1.3, 1.4), border = TRUE, contour = list(show = FALSE,
+  color = "grey40", highlight = c()), hull = FALSE, SP.CI = FALSE,
+  pal = NULL, pal.range = "box", pad = 0, ...)
 }
 \arguments{
   \item{x}{Either an RSA object (returned by the \code{RSA}
@@ -61,6 +61,8 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   \item{zlab}{Label for z axis}
 
   \item{main}{the main title of the plot}
+
+  \item{cex.main}{Factor for main title size}
 
   \item{surface}{Method for the calculation of the surface
   z values. "predict" takes the predicted values from the

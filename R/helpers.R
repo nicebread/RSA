@@ -52,7 +52,7 @@ cModels <- function(mL, set, free.max) {
 	aL1 <- anovaList(mL)
 	if (aL1$n.mods > 1 & "full" %in% names(mL)) {
 		n <- nobs(aL1$models[["full"]])
-		a1 <- cbind(aL1$ANOVA, plyr::ldply(aL1$models, function(X) {
+		a1 <- cbind(aL1$ANOVA[, c(1, 4:7)], plyr::ldply(aL1$models, function(X) {
 			F <- fitmeasures(X)
 			R <- inspect(X, "r2")
 			names(R) <- "R2"
@@ -61,8 +61,12 @@ cModels <- function(mL, set, free.max) {
 				NA,
 				pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
 			names(R2.p) <- "R2.p"
-			return(c(F[c("cfi", "tli", "rmsea", "srmr")], R, R2.p))
-
+			
+			# compute AICc
+	      	AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
+			names(AICc) <- "AICc"
+			
+			return(c(AICc=AICc, F[c("cfi", "tli", "rmsea", "srmr")], R, R2.p))
 		}))
 		a1 <- a1[, !grepl(".id", colnames(a1))]
 		a1$k <- free.max - a1$Df
@@ -267,3 +271,4 @@ interpolatePolygon <- function(x, y, minDist, plot=FALSE) {
 	}
 	return(interp)
 }
+

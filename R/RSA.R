@@ -21,7 +21,7 @@
 #' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from analyses?
 #' @param breakline Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...). Defaults to \code{FALSE}
 #' @param verbose Should additional information during the computation process be printed?
-#' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
+#' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "sqdiff", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
 #' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function. For example, you can obtained bootstrapped standard errors by setting \code{se="boot"}.
@@ -75,14 +75,14 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	verbose=TRUE, add = "", 
 	control.variables=c(), ...) {
 
-	validmodels <- c("absdiff", "absunc", "diff", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")
+	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
-	if (length(models)==1 & models[1]=="default") {models <- c("diff", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
+	if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
 	if (any(!models %in% validmodels))
 		stop("Unknown model name provided in parameter 'models'.")
 	
 	# set all result objects to NULL as default
-	s.NULL <- s.full <- s.IA <- s.diff <- s.absdiff <- s.additive <- s.sqdiff <- s.SSD <- s.SRSD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- NULL
+	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.sqdiff <- s.SSD <- s.SRSD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- NULL
 	SRSD.rot <- ""
 	SRRR.rot <- ""
 	
@@ -234,12 +234,28 @@ withCallingHandlers({
 			"b5==0",
 			"b1 == -b2",
 			"a1 := b1+b2",
-			"a2 := b3+b4+b5",
+			"a2 := 0",
 			"a3 := b1-b2",
-			"a4 := b3-b4+b5",
+			"a4 := 0",
 			add, sep="\n")
 			s.diff <- sem(m.diff, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
 		#summary(s.diff, fit.measures=TRUE)
+	}
+	
+	if ("mean" %in% models) {
+		if (verbose==TRUE) print("Computing mean model (mean) ...")
+		m.mean <- paste(poly,
+			"b3==0",
+			"b4==0",
+			"b5==0",
+			"b1 == b2",
+			"a1 := b1+b2",
+			"a2 := 0",
+			"a3 := b1-b2",
+			"a4 := 0",
+			add, sep="\n")
+			s.mean <- sem(m.mean, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		#summary(s.mean, fit.measures=TRUE)
 	}
 
 	if ("IA" %in% models) {
@@ -639,7 +655,7 @@ withCallingHandlers({
 	# ---------------------------------------------------------------------
 	# Build results object
 	res <- list(
-		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, absdiff=s.absdiff, additive=s.additive, sqdiff=s.sqdiff, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSD=s.SSD, SRSD=s.SRSD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2), 
+		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, sqdiff=s.sqdiff, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSD=s.SSD, SRSD=s.SRSD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2), 
 		SRSD.rot = SRSD.rot, SRRR.rot = SRRR.rot, LM=rs, formula=formula, 
 		data=df, data.original=df0, out.rm = out.rm, outliers = outs, DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
 		r.squared = summary(rs)$r.squared)
@@ -647,70 +663,3 @@ withCallingHandlers({
 	attr(res, "class") <- "RSA"
 	return(res)
 }
-
-
-
-getfit <- function(x) {
-	res <- plyr::laply(x$models, function(m) {fitMeasures(m)[c("aic", "bic", "cfi", "tli", "chisq", "df", "pvalue", "rmsea", "srmr")]})
-	rownames(res) <- names(x$models)
-	res <- data.frame(res)
-	res$rel.aic <- (res$aic - min(res$aic))/(max(res$aic) - min(res$aic))
-	res$rel.bic <- (res$bic - min(res$bic))/(max(res$bic) - min(res$bic))
-	return(res)
-}
-
-
-bestmodel <- function(x) {
-	
-	F <- summary(x$LM)$fstatistic
-	p.model <- 1-pf(F[1], F[2], F[3])
-	if (p.model > .05) {
-		return("Overall model is not significant.")
-	}
-	
-	f <- getfit(x)
-	
-	# Choose family based on AIC and BIC
-	
-	# if only one model is selected by AIC: that's it!
-	if (length(which(f$rel.aic < .01)) == 1) {
-		m <- rownames(f)[which(f$rel.aic < .01)]
-	} else 	
-	# AIC is ambiguous: let BIC decide!
-	if (length(which(f$rel.aic < .01)) > 1 & length(which(f$rel.bic < .01)) == 1) {
-		m <- rownames(f)[which(f$rel.bic < .01)]
-	} else 	
-	# If AIC and BIC are ambiguous: let AIC decide
-	if (length(which(f$rel.aic < .01)) > 1 & length(which(f$rel.bic < .01)) > 1) {
-		m <- rownames(f)[which.min(f$rel.aic)]
-	} else {
-		warning("Could not determine best model! err1")
-		return("err1")
-	}
-	
-	
-	## Let ALWAYS BIC decide
-	#m <- rownames(f)[which.min(f$rel.bic)]
-	
-	if (m %in% c("full", "IA", "additive", "diff")) {
-		# find the last model that is not significantly different from full model
-		a1 <- with(x$models, {anova(diff, additive, IA, full)})
-		M <- which(a1[, "Pr(>Chisq)"] < .05)
-		if (length(M) > 0) {
-			return(rownames(a1)[min(which(a1[, "Pr(>Chisq)"] < .05))-1])
-			} else {
-				return("diff")
-			}
-	} else 
-	if (m %in% c("sqdiff")) {
-		return("sqdiff")
-	} else 
-	if (m %in% c("absdiff", "absunc")) {
-		a1 <- with(x$models, {anova(absdiff, absunc)})
-		return(ifelse(a1[2, "Pr(>Chisq)"] < .05, "absunc", "absdiff"))
-	} else {
-		warning("Could not determine best model! err2")
-		return("err2")
-	}
-}
-

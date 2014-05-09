@@ -49,7 +49,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	RC$sig <- p2star(eff[eff$label %in% coef.sel, "pvalue"])
 	print(RC)	
 	
-	if (!model %in% c("onlyx", "onlyy", "cubic")) {
+	if (!model %in% c("diff", "mean", "onlyx", "onlyy","onlyx2", "onlyy2", "cubic")) {
 		cat(paste0("\n\nEigenvalues and shape of surface for model <", model, ">\n----------------------------\n"))
 		cat("Eigenvalues:\n")
 		EV <- eff[eff$label %in% c("l1", "l2"), c("label", "est", "se", "ci.lower", "ci.upper")]
@@ -94,7 +94,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		if (nrow(PA) > 0) {
 			
 			cat(paste0("\n\nLocation of stationary point: ", shape, " for model <", model, ">\n----------------------------\n"))
-			cat(paste0(IV1, " = ", round(eff[eff$label %in% "X0", "est"], 3), "; ", IV2, " = ", round(eff[eff$label %in% "Y0", "est"], 3), "; predicted ", DV, " = ", round(ST$Z0, 3), "\n\n"))
+			cat(paste0(IV1, " = ", round(eff[eff$label %in% "X0", "est"], 3), "; ", IV2, " = ", round(eff[eff$label %in% "Y0", "est"], 3), "; predicted ", DV, " = ", round(predictRSA(x, eff[eff$label %in% "X0", "est"], eff[eff$label %in% "Y0", "est"], model=model), 3), "\n\n"))
 		
 			cat(paste0("\nPrincipal axes for model <", model, ">\n----------------------------\n"))
 			PA[, 2:5] <- round(PA[, 2:5], digits)

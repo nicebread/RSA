@@ -126,9 +126,10 @@ modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 		layout 		= pos, 
 	
 		# define edges
-		edge.labels = paste0("p = ", f2(w, digits)), 
+		edge.labels = c(paste0("p = ", f2(w, digits)), rep("", 6)), 
 		edge.color	= c(pRamp(w, sig=sig, borderline=borderline), rep("#FFFFFF", 6)), 
 		edge.label.cex = 0.6,
+		edge.label.bg = "white",
 		edge.label.position = 0.5,
 		curve = c(0, -0.5, -1, 1, 0, 0, 0, 0,0,-0.5,0,0.5,0,0,0,0,0,-0.5,0.5, rep(0, 6)),	# hand-crafted edge curvature ...
 		curveAll = TRUE,
