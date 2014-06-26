@@ -1,9 +1,11 @@
-#' @S3method print RSA
+#' @export
+#' @method print RSA
 print.RSA <- function(x, ..., model="full", digits=3) {
 	summary.RSA(object=x, ..., model=model, digits=digits)
 }
 
-#' @S3method summary RSA
+#' @export
+#' @method summary RSA
 summary.RSA <- function(object, ..., model="full", digits=3) {
 	x <- object
 	with(x, {
@@ -29,9 +31,9 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	
 	cat("\nIs the full polynomial model significant?\n----------------------------\n")
 	# --> is R2 significant?
-	r2.model <- summary(LM)$r.squared
+	r2.model <- LM$r.squared
 	
-	F <- summary(LM)$fstatistic
+	F <- LM$fstatistic
 	p.model <- 1-pf(F[1], F[2], F[3])
 	cat(paste0("Test on model significance: R2 = ", round(r2.model, 3), ", ", p(p.model), "\n"))
 		

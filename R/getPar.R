@@ -26,11 +26,11 @@
 #' df <- within(df, {
 #' 	diff <- x-y
 #' 	absdiff <- abs(x-y)
-#' 	sqdiff <- (x-y)^2
-#' 	z.sq <- sqdiff + rnorm(n, 0, err)
+#' 	SD <- (x-y)^2
+#' 	z.sq <- SD + rnorm(n, 0, err)
 #' })
 #' 
-#' r1 <- RSA(z.sq~x*y, df, models=c("full", "SSD"))
+#' r1 <- RSA(z.sq~x*y, df, models=c("full", "SSQD"))
 #' getPar(r1, "syntax")
 #' getPar(r1, "R2")
 #' getPar(r1, "coef")

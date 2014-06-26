@@ -18,10 +18,10 @@
 #' @param scale Should predictor variables be scales on the SD of \emph{each variable} before analyses? You should think carefully about this option, as different scaling of the predictor variables can affect the commensurability of the predictor scales.
 #' @param na.rm Remove missings before proceeding?
 #' @param add Additional syntax that is added to the lavaan model. Can contain, for example, additional constraints, like "p01 == 0; p11 == 0"
-#' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from analyses?
+#' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from analyses? In large data sets this analysis is the speed bottleneck. If you are sure that no outliers exist, set this option to FALSE for speed improvements.
 #' @param breakline Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...). Defaults to \code{FALSE}
 #' @param verbose Should additional information during the computation process be printed?
-#' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "sqdiff", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
+#' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
 #' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function. For example, you can obtained bootstrapped standard errors by setting \code{se="boot"}.
@@ -40,10 +40,10 @@
 #' df <- within(df, {
 #' 	diff <- x-y
 #' 	absdiff <- abs(x-y)
-#' 	sqdiff <- (x-y)^2
+#' 	SD <- (x-y)^2
 #' 	z.diff <- diff + rnorm(n, 0, err)
 #' 	z.abs <- absdiff + rnorm(n, 0, err)
-#' 	z.sq <- sqdiff + rnorm(n, 0, err)
+#' 	z.sq <- SD + rnorm(n, 0, err)
 #' 	z.add <- diff + 0.4*x + rnorm(n, 0, err)
 #' 	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
 #' })
@@ -52,7 +52,7 @@
 #' print(r1)
 #' compare(r1)
 #' plot(r1)
-#' plot(r1, model="SRSD")
+#' plot(r1, model="SRSQD")
 #' plot(r1, model="full", type="c")
 #' getPar(r1, "coef")	# print model parameters including SE and CI
 #' RSA.ST(r1)	# get surface parameters
@@ -62,8 +62,8 @@
 #' r.m <- RSA(postVA~ePow*iPow, motcon)
 #'
 #' # Get boostrapped CIs with 10 bootstrap samples (usually this should be set to 5000 or higher),
-#' # only from the SSD model
-#' c1 <- confint(r.m, model="SSD", method="boot", R=10)
+#' # only from the SSQD model
+#' c1 <- confint(r.m, model="SSQD", method="boot", R=10)
 #' 
 #' # Plot the final model
 #' plot(r.m, model="RR", xlab="Explicit power motive", 
@@ -75,15 +75,15 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	verbose=TRUE, add = "", 
 	control.variables=c(), ...) {
 
-	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")
+	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
-	if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "sqdiff", "SRRR", "SRR", "RR", "SSD", "SRSD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
+	if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
 	if (any(!models %in% validmodels))
 		stop("Unknown model name provided in parameter 'models'.")
 	
 	# set all result objects to NULL as default
-	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.sqdiff <- s.SSD <- s.SRSD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- NULL
-	SRSD.rot <- ""
+	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.SQD <- s.SSQD <- s.SRSQD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- NULL
+	SRSQD.rot <- ""
 	SRRR.rot <- ""
 	
 	add <- paste0("\n# User defined syntax:\n", add)
@@ -93,7 +93,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	IV2 <- all.vars(formula)[3]
 
 	## Step 0a: Standardize values (if requested) and calculate higher order terms
-	df <- data
+	df <- data[, c(DV, IV1, IV2)]	# reduce data frame to actually used variables
 	df[, IV1] <- scale(df[, IV1], center=center, scale=scale)
 	df[, IV2] <- scale(df[, IV2], center=center, scale=scale)
 		
@@ -126,18 +126,16 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	addcubic <- ""
 	if (cubic==TRUE) addcubic <- paste0(" + ", paste(IV13, IV23, IV_IA2, IV_IA3, sep=" + "))
 	f <- paste0(paste0(DV, " ~ ", paste(IV1, IV2, IV12, IV_IA, IV22, sep=" + ")), addcubic, CV)
-	rs <- lm(f, df)
+	lm.full <- lm(f, df, na.action=na.exclude)
 	
 	# Mark outliers and influential cases according to Bollen & Jackman, 1980
-	df0 <- df	# df0 keeps the original data frame, before outliers are removed (we need this in plotRSA, if we want to show the outliers)
-	outs <- c()	# keeps the row numbers of the outliers
-	inf <- influence.measures(rs)
-	outs <- which(apply(inf$is.inf[, c("dffit", "cook.d", "hat")], 1, sum) == 3)
-	names(outs) <- NULL
+	df$out <- FALSE
 	if (out.rm == TRUE) {
-		if (verbose==TRUE & length(outs)>0) {
-			warning(paste("Removed", length(outs), "multivariate outlier(s) according to Bollen & Jackman (1980) criteria. Outliers are in row(s):", paste(outs , collapse=", ")))
-			df <- df[-outs, ]
+		inf <- influence.measures(lm.full)
+		df$out <- apply(inf$is.inf[, c("dffit", "cook.d", "hat")], 1, sum) == 3
+		n.out <- sum(na.omit(df$out) == TRUE)
+		if (verbose==TRUE & n.out>0) {
+			warning(paste("Removed", n.out, "multivariate outlier(s) according to Bollen & Jackman (1980) criteria. Outliers are in row(s):", paste(which(df$out == TRUE) , collapse=", ")))
 		}
 	}
 
@@ -150,7 +148,7 @@ withCallingHandlers({
 	poly <- paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b3*", IV12, " + b4*", IV_IA, " + b5*", IV22, CV)
 	
 	if ("null" %in% models) {
-		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	if ("additive" %in% models) {
@@ -164,7 +162,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.additive <- sem(m.additive, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	if ("onlyx2" %in% models) {
@@ -178,7 +176,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx2 <- sem(m.onlyx2, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	if ("onlyy2" %in% models) {
@@ -192,7 +190,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy2 <- sem(m.onlyy2, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 
 	if ("onlyx" %in% models) {
@@ -207,7 +205,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx <- sem(m.onlyx, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	if ("onlyy" %in% models) {
@@ -222,7 +220,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy <- sem(m.onlyy, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 
@@ -238,7 +236,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.diff <- sem(m.diff, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.diff <- sem(m.diff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 		#summary(s.diff, fit.measures=TRUE)
 	}
 	
@@ -254,7 +252,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.mean <- sem(m.mean, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.mean <- sem(m.mean, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 		#summary(s.mean, fit.measures=TRUE)
 	}
 
@@ -286,12 +284,12 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		add, sep="\n")
 		
-			s.IA <- sem(m.IA, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.IA <- sem(m.IA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
-	if ("sqdiff" %in% models) {
-		if (verbose==TRUE) print("Computing squared difference model (sqdiff) ...")
-		m.sqdiff <- paste(poly,
+	if ("SQD" %in% models) {
+		if (verbose==TRUE) print("Computing squared difference model (SQD) ...")
+		m.SQD <- paste(poly,
 			"b1==0",
 			"b2==0",
 			"b3==b5",
@@ -304,12 +302,12 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.sqdiff <- sem(m.sqdiff, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
-	if ("SSD" %in% models) {
-		if (verbose==TRUE) print("Computing shifted squared difference model (SSD) ...")
-		m.SSD <- paste(poly,
+	if ("SSQD" %in% models) {
+		if (verbose==TRUE) print("Computing shifted squared difference model (SSQD) ...")
+		m.SSQD <- paste(poly,
 			"b1==-b2",
 			"b3==b5",
 			"b3+b4+b5==0",
@@ -322,7 +320,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.SSD <- sem(m.SSD, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SSQD <- sem(m.SSQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	if (any(models %in% c("RR"))) {
@@ -341,7 +339,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.RR <- sem(m.RR, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.RR <- sem(m.RR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	if (any(models %in% c("SRR"))) {
@@ -360,7 +358,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.SRR <- sem(m.SRR, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SRR <- sem(m.SRR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	
@@ -382,7 +380,7 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		
 				add, sep="\n")
-				s.SRRR.up <- sem(m.SRRR.up, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)	
+				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)	
 				
 			if (verbose==TRUE) print("Computing rotated and shifted rising ridge model (SRRR), down ...")
 			m.SRRR.down <- paste(paste(poly, " + start(-0.01)*", IV12, " + start(-0.01)*", IV22),
@@ -402,7 +400,7 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 	
 				add, sep="\n")
-				s.SRRR.down <- sem(m.SRRR.down, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)	
+				s.SRRR.down <- sem(m.SRRR.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)	
 				
 			if (inspect(s.SRRR.up, "converged") == FALSE & inspect(s.SRRR.down, "converged") == TRUE) {
 				SRRR.rot <- "down"
@@ -426,9 +424,9 @@ withCallingHandlers({
 	}
 	
 	
-	if (any(models %in% c("SRSD"))) {
-		if (verbose==TRUE) print("Computing rotated squared difference model (SRSD), up ...")
-		m.SRSD.up <- paste(paste(poly, " + start(0.001)*", IV22),
+	if (any(models %in% c("SRSQD"))) {
+		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), up ...")
+		m.SRSQD.up <- paste(paste(poly, " + start(0.001)*", IV22),
 			"b1 == (b2*b4)/(2*b5)",
 			"b3 > 0.000001",
 			"b5 > 0.000001",
@@ -457,11 +455,11 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSD.up <- sem(m.SRSD.up, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SRSQD.up <- sem(m.SRSQD.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 			
 			
-		if (verbose==TRUE) print("Computing rotated squared difference model (SRSD), down ...")
-		m.SRSD.down <- paste(paste(poly, " + start(-0.001)*", IV22),
+		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), down ...")
+		m.SRSQD.down <- paste(paste(poly, " + start(-0.001)*", IV22),
 			"b1 == (b2*b4)/(2*b5)",
 			"b3 < 0.000001",
 			"b5 < 0.000001",
@@ -490,26 +488,26 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSD.down <- sem(m.SRSD.down, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SRSQD.down <- sem(m.SRSQD.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	
-			if (inspect(s.SRSD.up, "converged") == FALSE & inspect(s.SRSD.down, "converged") == TRUE) {
-				SRSD.rot <- "down"
+			if (inspect(s.SRSQD.up, "converged") == FALSE & inspect(s.SRSQD.down, "converged") == TRUE) {
+				SRSQD.rot <- "down"
 			} else 
-			if (inspect(s.SRSD.up, "converged") == TRUE & inspect(s.SRSD.down, "converged") == FALSE) {
-				SRSD.rot <- "up"
+			if (inspect(s.SRSQD.up, "converged") == TRUE & inspect(s.SRSQD.down, "converged") == FALSE) {
+				SRSQD.rot <- "up"
 			} else 
-			if (inspect(s.SRSD.up, "converged") == TRUE & inspect(s.SRSD.down, "converged") == TRUE) {
-				SRSD.rot <- ifelse(fitMeasures(s.SRSD.up, "chisq") > fitMeasures(s.SRSD.down, "chisq"), "down", "up")
+			if (inspect(s.SRSQD.up, "converged") == TRUE & inspect(s.SRSQD.down, "converged") == TRUE) {
+				SRSQD.rot <- ifelse(fitMeasures(s.SRSQD.up, "chisq") > fitMeasures(s.SRSQD.down, "chisq"), "down", "up")
 			} else {
-				if (verbose==TRUE) print("Warning: SRSD model has not converged (neither up nor down curvature)")
+				if (verbose==TRUE) print("Warning: SRSQD model has not converged (neither up nor down curvature)")
 			}
-			if (SRSD.rot == "up") {
-				s.SRSD <- s.SRSD.up
+			if (SRSQD.rot == "up") {
+				s.SRSQD <- s.SRSQD.up
 			} else 
-			if (SRSD.rot == "down") {
-				s.SRSD <- s.SRSD.down
+			if (SRSQD.rot == "down") {
+				s.SRSQD <- s.SRSQD.down
 			}
-			if (verbose == TRUE) print(paste0("Direction of SRSD curvature: ", SRSD.rot))
+			if (verbose == TRUE) print(paste0("Direction of SRSQD curvature: ", SRSQD.rot))
 
 		
 	}
@@ -542,7 +540,7 @@ withCallingHandlers({
 			add,
 			sep="\n"
 		)
-		s.full <- sem(m.full, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	
@@ -559,7 +557,7 @@ withCallingHandlers({
 			sep="\n"
 		)
 		#print(m.cubic)
-		s.cubic <- sem(m.cubic, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)		
+		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)		
 	}
 	
 	#m.absdiff.JRE <-  paste(
@@ -568,14 +566,14 @@ withCallingHandlers({
 	#	"b7 == -b8",
 	#	"b7 == -2*b1",
 	#	add, sep="\n")
-	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	#summary(s.absdiff.JRE, fit.measures=TRUE)
 	
 	# the unconstrained absolute difference model - Edwards (2002) formula
 	#m.absunc.JRE <-  paste(
 	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + b6*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
 	#	add, sep="\n")
-	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	#summary(s.absunc.JRE, fit.measures=TRUE)
 	
 	
@@ -589,7 +587,7 @@ withCallingHandlers({
 			"b7 == -b8",
 			add, sep="\n")
 			
-			s.absdiff <- sem(m.absdiff, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 	if ("absunc" %in% models) {
@@ -600,7 +598,7 @@ withCallingHandlers({
 			ifelse(breakline==FALSE, "b6==0", ""),
 			add, sep="\n")
 			
-			s.absunc <- sem(m.absunc, data=df, fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
 	}
 	
 },	  # end of "withCallingHandlers"
@@ -618,8 +616,8 @@ withCallingHandlers({
 
 	# ---------------------------------------------------------------------
 	# Sanity check: Check results for convergence problems
-	# Sometimes the SRRR or the SRSD model find a bad solution and have a higher chi2 than their nested models (which is theoretically not possible)
-	chisq1 <- plyr::ldply(list(full=s.full, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, sqdiff=s.sqdiff), function(x) {
+	# Sometimes the SRRR or the SRSQD model find a bad solution and have a higher chi2 than their nested models (which is theoretically not possible)
+	chisq1 <- plyr::ldply(list(full=s.full, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SQD=s.SQD), function(x) {
 		chi <- -1
 		if (!is.null(x)) {
 			if (inspect(x, "converged")==TRUE) chi <-  fitMeasures(x, "chisq")
@@ -634,7 +632,7 @@ withCallingHandlers({
 		}
 	}
 	
-	chisq2 <- plyr::ldply(list(full=s.full, SRRR=s.SRRR, SRSD=s.SRSD, SSD=s.SSD, sqdiff=s.sqdiff), function(x) {
+	chisq2 <- plyr::ldply(list(full=s.full, SRRR=s.SRRR, SRSQD=s.SRSQD, SSQD=s.SSQD, SQD=s.SQD), function(x) {
 		chi <- -1
 		if (!is.null(x)) {
 			if (inspect(x, "converged")==TRUE) chi <-  fitMeasures(x, "chisq")
@@ -655,10 +653,11 @@ withCallingHandlers({
 	# ---------------------------------------------------------------------
 	# Build results object
 	res <- list(
-		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, sqdiff=s.sqdiff, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSD=s.SSD, SRSD=s.SRSD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2), 
-		SRSD.rot = SRSD.rot, SRRR.rot = SRRR.rot, LM=rs, formula=formula, 
-		data=df, data.original=df0, out.rm = out.rm, outliers = outs, DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
-		r.squared = summary(rs)$r.squared)
+		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, SQD=s.SQD, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSQD=s.SSQD, SRSQD=s.SRSQD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2), 
+		SRSQD.rot = SRSQD.rot, SRRR.rot = SRRR.rot, LM=summary(lm.full), formula=formula, 
+		data=df, out.rm = out.rm, outliers = which(df$out == TRUE), DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, 
+		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
+		r.squared = summary(lm.full)$r.squared)
 	
 	attr(res, "class") <- "RSA"
 	return(res)

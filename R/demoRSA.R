@@ -51,17 +51,17 @@
 #' df <- within(df, {
 #' 	diff <- x-y
 #' 	absdiff <- abs(x-y)
-#' 	sqdiff <- (x-y)^2
+#' 	SD <- (x-y)^2
 #' 	z.diff <- diff + rnorm(n, 0, err)
 #' 	z.abs <- absdiff + rnorm(n, 0, err)
-#' 	z.sq <- sqdiff + rnorm(n, 0, err)
+#' 	z.sq <- SD + rnorm(n, 0, err)
 #' 	z.add <- diff + 0.4*x + rnorm(n, 0, err)
 #' 	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
 #' })
 #' 
 #' r1 <- RSA(z.sq~x*y, df)
 #' demoRSA(r1)
-#' demoRSA(r1, points=TRUE, model="sqdiff")
+#' demoRSA(r1, points=TRUE, model="SQD")
 #' }
 
 demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), points = list(show=TRUE, value="raw", jitter=0, color="black", cex=.5), model="full", extended=FALSE, ...) {
@@ -180,7 +180,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			tclvalue(X2) <- tclvalue(Y2) <- tclvalue(XY) <- tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
 			sapply(list(X2.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
-		if (type == "sqdiff") {
+		if (type == "SQD") {
 			tclvalue(Y) <- 0
 			tclvalue(X) <- 0
 			tclvalue(Y2) <- x2
@@ -277,7 +277,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="all", text="All parameters"))
 	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="poly", text="Full polynomial"))
 	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="IA", text="Interaction"))
-	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="sqdiff", text="Squared difference"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="SQD", text="Squared difference"))
 	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="sq.shift", text="Shifted squared difference"))
 	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="sq.rot", text="Shifted and rotated squared difference"))
 	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="diff", text="Difference score X-Y"))

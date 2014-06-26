@@ -36,29 +36,29 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res1)) {
 			cat("Testing directed difference models: Interaction, additive main effects, difference model :\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res1[, 1:15], 3))
+			print(round(res1[, 1:14], 3))
 		}
 			
-		res2 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRSD=SRSD, SSD=SSD, sqdiff=sqdiff, null=null), set="flat_sq", free.max)
+		res2 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRSQD=SRSQD, SSQD=SSQD, SQD=SQD, null=null), set="flat_sq", free.max)
 		if (verbose==TRUE & !is.null(res2)) {
 			cat("\n\nTesting 'flat ridge' discrepancy models against SRRR and full polynomial model:\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res2[, 1:15], 3))
+			print(round(res2[, 1:14], 3))
 		}
 	
-		res3 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRR=SRR, RR=RR, sqdiff=sqdiff, null=null), set="RR", free.max)
+		res3 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRR=SRR, RR=RR, SQD=SQD, null=null), set="RR", free.max)
 		if (verbose==TRUE & !is.null(res3)) {
 			cat("\n\nTesting 'rising ridge' against full polynomial model:\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res3[, 1:15], 3))
+			print(round(res3[, 1:14], 3))
 		}
 		
 		## compute additional comparisons
-		res4 <- cModels(list(full=full, SRR=SRR, SSD=SSD), set="SRR_SSD", free.max)
+		res4 <- cModels(list(full=full, SRR=SRR, SSQD=SSQD), set="SRR_SSQD", free.max)
 		if (verbose==TRUE & !is.null(res4)) {
-			cat("\n\nTesting transition from SRR to SSD model (i.e., removing the mean level effect from SRR):\n")
+			cat("\n\nTesting transition from SRR to SSQD model (i.e., removing the mean level effect from SRR):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res4[, 1:15], 3))
+			print(round(res4[, 1:14], 3))
 		}
 		
 		## single variable models (only x + x2, or y + y2)
@@ -66,13 +66,13 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res5)) {
 			cat("\n\nSingle variable models (only x + x^2):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res5[, 1:15], 3))
+			print(round(res5[, 1:14], 3))
 		}
 		res6 <- cModels(list(full=full, onlyy2=onlyy2, onlyy=onlyy), set="onlyy", free.max)
 		if (verbose==TRUE & !is.null(res6)) {
 			cat("\n\nSingle variable models (only y + y^2):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res6[, 1:15], 3))
+			print(round(res6[, 1:14], 3))
 		}
 		
 		
@@ -175,7 +175,7 @@ compare2 <- function(x, m1="", m2="full", verbose=TRUE) {
 	names(mL) <- c(m1, m2)
 	res <- cModels2(mL, set="two_models", free.max)
 	if (verbose==TRUE & !is.null(res)) {
-		print(round(res[, 1:15], 3))
+		print(round(res[, 1:14], 3))
 	}
 
 	invisible(res)

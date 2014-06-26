@@ -48,10 +48,10 @@
 #' df <- within(df, {
 #' 	diff <- x-y
 #' 	absdiff <- abs(x-y)
-#' 	sqdiff <- (x-y)^2
+#' 	SD <- (x-y)^2
 #' 	z.diff <- diff + rnorm(n, 0, err)
 #' 	z.abs <- absdiff + rnorm(n, 0, err)
-#' 	z.sq <- sqdiff + rnorm(n, 0, err)
+#' 	z.sq <- SD + rnorm(n, 0, err)
 #' 	z.add <- diff + 0.4*x + rnorm(n, 0, err)
 #' 	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
 #' })
@@ -105,6 +105,15 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 	
 	# Calculate stationary point, matrix-style
 	SP0 <- NULL
+	
+	# calculate eigenvectors
+	b <- c(x, y)	# linear terms
+	B <- matrix(c(x2, xy, xy, y2), ncol=2, nrow=2) * matrix(c(1, .5, .5, 1), ncol=2)	# matrix of higher order terms
+
+	M <- eigen(B)$vectors	# normalized eigenvectors
+	l <- eigen(B)$values	# eigenvalues
+	L <- t(M)%*%B%*%M		# Lambda matrix
+	
 	try({
 		SP0 <- -.5*solve(B)%*%b
 		}, silent=TRUE)
@@ -147,14 +156,6 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 	a2 <- as.numeric(x2+y2+xy)
 	a3 <- as.numeric(x-y)
 	a4 <- as.numeric(x2-xy+y2)
-	
-	# calculate eigenvectors
-	b <- c(x, y)	# linear terms
-	B <- matrix(c(x2, xy, xy, y2), ncol=2, nrow=2) * matrix(c(1, .5, .5, 1), ncol=2)	# matrix of higher order terms
-
-	M <- eigen(B)$vectors	# normalized eigenvectors
-	l <- eigen(B)$values	# eigenvalues
-	L <- t(M)%*%B%*%M		# Lambda matrix
 
 	
 	## SEs of Surface parameters: if an RSA object is provided, just retrieve them from that

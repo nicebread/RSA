@@ -31,7 +31,7 @@ add.variables <- function(formula, df) {
 	df[, paste0("W_", IV2)] <- df$W*df[, IV2]
 	
 	df$diff <- df[, IV2] - df[, IV1]
-	df$sqdiff <- df$diff^2
+	df$SD <- df$diff^2
 	df$absdiff <- abs(df$diff)
 	
 	# cubic terms
@@ -64,9 +64,9 @@ cModels <- function(mL, set, free.max) {
 			
 			# compute AICc
 	      	AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
-			names(AICc) <- "AICc"
+			names(AICc) <- NULL
 			
-			return(c(AICc=AICc, F[c("cfi", "tli", "rmsea", "srmr")], R, R2.p))
+			return(c(AICc=AICc, F[c("cfi", "tli", "srmr")], R, R2.p))
 		}))
 		a1 <- a1[, !grepl(".id", colnames(a1))]
 		a1$k <- free.max - a1$Df

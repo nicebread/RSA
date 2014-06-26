@@ -21,7 +21,7 @@
 #'
 #' @examples
 #' \dontrun{
-#'movieRSA(name="Sqdiff0",
+#'movieRSA(name="SD0",
 #' 		frames <- list(
 #'		 	step1 = list(b0=0, xy=-.40, x2=.20, y2=.20, 
 #'				rotation=list(x=-63, y=32, z=15),

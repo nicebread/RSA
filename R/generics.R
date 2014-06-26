@@ -2,8 +2,8 @@
 #' @description
 #' Return fitted values of a RSA model
 #'
+#' @export
 #' @method fitted RSA
-#' @S3method fitted RSA
 
 #' @param object An RSA object.
 #' @param ... Other parameters (currently not used)
@@ -17,8 +17,8 @@ fitted.RSA <- function(object, ..., model="full") {
 #' @description
 #' Return residual values of a RSA model
 #'
+#' @export
 #' @method residuals RSA
-#' @S3method residuals RSA
 #' @aliases resid
 
 #' @param object An RSA object.

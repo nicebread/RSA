@@ -18,12 +18,19 @@ aictab <- function(x, plot=FALSE) {
 	
 	if (plot==TRUE) {
 		a2 <- a1
-		a2 <- a2[order(a2$Delta_AICc, decreasing=TRUE), ]
 		a2$Modnames <- factor(a2$Modnames, levels=a2$Modnames, ordered=TRUE)
+		a2$ValidModels <- as.character(a2$Modnames)
+		a2$ValidModels[a2$Delta_AICc > 2] <- ""
 		a2$color <- ifelse(a2$Delta_AICc <= 2, "green", "orange")
 		a2$color[a2$Cum.Wt > .95] <- "gray"
 		a2$color <- factor(a2$color, levels=c("green", "orange", "gray"))
-		p1 <- ggplot(a2, aes_string(x="Modnames", y="Delta_AICc", group=1)) + geom_line() + theme_bw() + theme(axis.text.x = element_text(angle = 90)) + geom_hline(yintercept=2, linetype="dashed") + geom_hline(yintercept=7, linetype="dotted") + geom_point(aes_string(color="color"), size=3) + geom_vline(xintercept=which(a2$Cum.Wt < .95)[1] - 0.5, linetype="solid", color="grey")  + annotate("text", label="Cumulative weight > .95", y=max(a2$Delta_AICc), x=which(a2$Cum.Wt < .95)[1]-1, size=3, hjust=1) + annotate("text", label="Practically equivalent models", y=1, x=0.5, size=3, hjust=0, angle=90) + annotate("text", label="Implausible models", y=10, x=0.5, size=3, hjust=0, angle=90) + annotate("text", label="Cumulative weight < .95", y=max(a2$Delta_AICc), x=which(a2$Cum.Wt < .95)[1], size=3, hjust=1) + coord_flip(ylim=c(-0.5, max(a2$Delta_AICc)+1)) + ylab("Delta AIC") + xlab("Model")
+		
+		p1 <- ggplot(a2, aes_string(y="AICcWt", x="Delta_AICc", group=1)) + geom_line() + theme_bw() + geom_vline(xintercept=2, linetype="dashed") + geom_vline(xintercept=7, linetype="dotted") + geom_point(aes_string(color="color"), size=3) + coord_cartesian(xlim=c(-0.5, max(a2$Delta_AICc)+1)) + xlab("Delta AIC") + ylab("Model weight") + geom_text(aes_string(label="ValidModels"), size=3, hjust=-0.3) + scale_x_continuous(breaks=c(2, 7, 10))
+		
+		p1 <- p1 + geom_hline(yintercept=a2$AICcWt[max(which(a2$Cum.Wt < .95))], linetype="solid", color="grey") + annotate("text", label="Cumulative weight > .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3, hjust=1, vjust=-.4) + annotate("text", label="Cumulative weight < .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3, hjust=1, vjust=1.4) 
+		
+		p1 <- p1 + annotate("text", label="Practically equivalent models", x=1, y=0, size=3, hjust=0, vjust=0, angle=90) + annotate("text", label="Implausible models", x=10, y=0, size=3, hjust=0, vjust=0, angle=90)
+		
 		# + scale_color_discrete("", levels=1:3, values=c("green", "orange", "gray"))
 		
 		print(p1)

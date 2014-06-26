@@ -34,9 +34,9 @@ modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 		"diff", 	# 5
 		"SRR", 		# 6
 		"RR", 		# 7	
-		"sqdiff", 	# 8
-		"SRSD", 	# 9
-		"SSD", 		#10
+		"SQD", 	# 8
+		"SRSQD", 	# 9
+		"SSQD", 		#10
 		"onlyx2", 	#11
 		"onlyy2", 	#12
 		"onlyx", 	#13
@@ -103,7 +103,7 @@ modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 	w[is.na(w)] <- 0
 
 	# compute box labels
-	lab <- c("full", "SRRR", "Interaction", "Additive", "Difference", "SRR", "RR", "Squared difference", "SRSD", "SSD", "x + x^2", "y + y^2", "x", "y", "Intercept only", "k = 5", "k = 4", "k = 3", "k = 2", "k = 1", "k = 0")	
+	lab <- c("full", "SRRR", "Interaction", "Additive", "Difference", "SRR", "RR", "Squared difference", "SRSQD", "SSQD", "x + x^2", "y + y^2", "x", "y", "Intercept only", "k = 5", "k = 4", "k = 3", "k = 2", "k = 1", "k = 0")	
 	lab2 <- list()
 	lab.color <- c()
 	
@@ -148,7 +148,7 @@ modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 	invisible(p1)
 }
 
-#' @S3method plot cRSA
+#' @export
 plot.cRSA <- function(x, ...) {
-	plot.cRSA(x, ...)
+	modeltree(x, ...)
 }
