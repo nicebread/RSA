@@ -33,8 +33,8 @@
 #' @param xlab Label for x axis
 #' @param ylab Label for y axis
 #' @param zlab Label for z axis
-#' @param title the main title of the plot
-#' @param cex.title Factor for main title size
+#' @param main the main title of the plot
+#' @param cex.main Factor for main title size
 #' @param surface Method for the calculation of the surface z values. "predict" takes the predicted values from the model, "smooth" uses a thin plate smoother (function \code{Tps} from the \code{fields} package) of the raw data
 #' @param lambda lambda parameter for the smoother. Default (NULL) means that it is estimated by the smoother function. Small lambdas around 1 lead to rugged surfaces, big lambdas to very smooth surfaces.
 #' @param rotation Rotation of the 3d surface plot (when type == "3d")
@@ -128,12 +128,12 @@
 
 plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", model="full", 
 	xlim=NULL, ylim=NULL, zlim=NULL, 
-	xlab=NULL, ylab=NULL, zlab=NULL, title="",
+	xlab=NULL, ylab=NULL, zlab=NULL, main="",
 	surface="predict", lambda=NULL, 
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
 	axes=c("LOC", "LOIC", "PA1", "PA2"), project=FALSE, maxlines=FALSE,
-	cex=1, cex.title=1, 
+	cex=1, cex.main=1, 
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
 	demo=FALSE, fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=TRUE, 
@@ -389,7 +389,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		open3d(cex=cex)
 		rgl.viewpoint(-30, -90)
 		rgl.light(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
-		persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=title)
+		persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main)
 
 		if (contour$show == TRUE) {
 		    contours <- contourLines(P, z=DV2)
@@ -680,7 +680,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
-					main	= list(cex=cex.title, label=title),
+					main	= list(cex=cex.main, label=main),
 					screen	= rotation, 
 					at		= at, col.regions=pal, colorkey=CK, 
 					par.settings = list(
@@ -690,7 +690,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					axes	= axes,
 					axesList= axesList, 
 					SPs		= SP.text, 
-					panel.3d.wireframe = mypanel2, ...)
+					panel.3d.wireframe = mypanel2)
 								
 				#p1
 			} else {
@@ -700,7 +700,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
-					main	= list(cex=cex.title, label=title),
+					main	= list(cex=cex.main, label=main),
 					screen	= rotation,
 					at		= at, col.regions=pal, colorkey=CK, 
 					par.settings = list(
@@ -711,7 +711,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					axesList= axesList, 
 					SPs		= SP.text, 
 					panel.3d.wireframe = mypanel2,
-					x.points=xpoints, y.points=ypoints, z.points=zpoints, ...)
+					x.points=xpoints, y.points=ypoints, z.points=zpoints)
 			}
 				
 	}  # of type == "3d"
@@ -795,7 +795,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			}
 			
 			# Title
-			if (title != "") p1 <- p1 + ggtitle(title)
+			if (main != "") p1 <- p1 + ggtitle(main)
 			
 		}
 	}
@@ -812,15 +812,16 @@ plot.RSA <- function(x, ...) {
 	fit <- x
 	
 	extras <- match.call(expand.dots = FALSE)$...
-	if (is.null(extras)) extras <- list()
-	if (is.null(extras$model)) extras$model <- "full"
+
+	if (is.null(extras)) {extras <- list()}
+	if (is.null(extras[["model"]])) {extras[["model"]] <- "full"}
 	
 	C <- coef(fit$models[[extras$model]])
 	if (fit$models[[extras$model]]@Options$estimator != "DWLS") {
-		extras$b0 <- as.numeric(ifelse(is.na(C[paste0(fit$DV, "~1")]), 0, C[paste0(fit$DV, "~1")]))
+		extras[["b0"]] <- as.numeric(ifelse(is.na(C[paste0(fit$DV, "~1")]), 0, C[paste0(fit$DV, "~1")]))
 	} else {			
 		# the threshold is the negative of the intercept ...
-		extras$b0 <- -as.numeric(ifelse(is.na(C[paste0(fit$DV, "|t1")]), 0, C[paste0(fit$DV, "|t1")]))
+		extras[["b0"]] <- -as.numeric(ifelse(is.na(C[paste0(fit$DV, "|t1")]), 0, C[paste0(fit$DV, "|t1")]))
 	}
 	extras$x <- as.numeric(ifelse(is.na(C["b1"]), 0, C["b1"]))
 	extras$y <- as.numeric(ifelse(is.na(C["b2"]), 0, C["b2"]))
@@ -837,9 +838,9 @@ plot.RSA <- function(x, ...) {
 	extras$x2y <- as.numeric(ifelse(is.na(C["b11"]), 0, C["b11"]))
 	extras$y3 <- as.numeric(ifelse(is.na(C["b12"]), 0, C["b12"]))
 	
-	if (is.null(extras$xlab)) extras$xlab <- fit$IV1
-	if (is.null(extras$ylab)) extras$ylab <- fit$IV2
-	if (is.null(extras$zlab)) extras$zlab <- fit$DV
+	if (is.null(extras[["xlab"]])) {extras[["xlab"]] <- fit$IV1}
+	if (is.null(extras[["ylab"]])) {extras[["ylab"]] <- fit$IV2}
+	if (is.null(extras[["zlab"]])) {extras[["zlab"]] <- fit$DV}
 		
 	extras$fit <- fit
 
@@ -878,8 +879,6 @@ plot.RSA <- function(x, ...) {
 		extras$xlim[2] <- extras$ylim[2] <- max(extras$xlim[2], extras$ylim[2])
 	}
 	
-	
-	
-	do.call(plotRSA, as.list(extras))
+	do.call(plotRSA, as.list(extras), envir = parent.frame())
 }
 
