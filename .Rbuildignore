@@ -5,3 +5,4 @@ LICENSE
 .git
 checks
 .Rapp.history
+.travis.yml

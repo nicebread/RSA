@@ -44,7 +44,9 @@ getPar <- function(x, type="coef", model="full", digits=NA, ...) {
 	}
 	if (type=="coef") {
 		p1 <- parameterEstimates(x$models[[model]], ...)
+		p1$label[p1$lhs==x$DV & p1$op=="~1"] <- "b0"
 		p1 <- data.frame(p1[p1$label != "", ])
+		
 		rownames(p1) <- paste0(p1$lhs, p1$op, p1$rhs)
 		p1 <- p1[, -c(1:3)]
 		if (!is.na(digits))	p1[, -1] <- round(p1[, -1], digits)

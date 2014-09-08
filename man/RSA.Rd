@@ -5,7 +5,7 @@
 \usage{
 RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   out.rm = TRUE, breakline = FALSE, models = "default", cubic = FALSE,
-  verbose = TRUE, add = "", control.variables = c(), ...)
+  verbose = TRUE, add = "", control.variables = c(), se = "robust", ...)
 }
 \arguments{
 \item{formula}{A formula in the form \code{z ~ x*y}, specifying the variable names used from the data frame, where z is the name of the response variable, and x and y are the names of the predictor variables.}
@@ -31,6 +31,8 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
 \item{cubic}{Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?}
 
 \item{control.variables}{A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.}
+
+\item{se}{Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there.}
 
 \item{...}{Additional parameters passed to the \code{lavaan} \code{\link{sem}} function. For example, you can obtained bootstrapped standard errors by setting \code{se="boot"}.}
 }
@@ -60,7 +62,7 @@ df <- within(df, {
 })
 \dontrun{
 r1 <- RSA(z.sq~x*y, df)
-print(r1)
+summary(r1)
 compare(r1)
 plot(r1)
 plot(r1, model="SRSQD")

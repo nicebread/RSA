@@ -24,6 +24,7 @@
 #' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
+#' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there.
 #' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function. For example, you can obtained bootstrapped standard errors by setting \code{se="boot"}.
 #'
 #'
@@ -49,7 +50,7 @@
 #' })
 #' \dontrun{
 #' r1 <- RSA(z.sq~x*y, df)
-#' print(r1)
+#' summary(r1)
 #' compare(r1)
 #' plot(r1)
 #' plot(r1, model="SRSQD")
@@ -73,7 +74,7 @@
 RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE, 
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
 	verbose=TRUE, add = "", 
-	control.variables=c(), ...) {
+	control.variables=c(), se = "robust", ...) {
 
 	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
@@ -93,7 +94,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	IV2 <- all.vars(formula)[3]
 
 	## Step 0a: Standardize values (if requested) and calculate higher order terms
-	df <- data[, c(DV, IV1, IV2)]	# reduce data frame to actually used variables
+	df <- data[, c(DV, IV1, IV2, control.variables)]	# reduce data frame to actually used variables
 	df[, IV1] <- scale(df[, IV1], center=center, scale=scale)
 	df[, IV2] <- scale(df[, IV2], center=center, scale=scale)
 		
@@ -148,7 +149,7 @@ withCallingHandlers({
 	poly <- paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b3*", IV12, " + b4*", IV_IA, " + b5*", IV22, CV)
 	
 	if ("null" %in% models) {
-		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if ("additive" %in% models) {
@@ -162,7 +163,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if ("onlyx2" %in% models) {
@@ -176,7 +177,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if ("onlyy2" %in% models) {
@@ -190,7 +191,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 
 	if ("onlyx" %in% models) {
@@ -205,7 +206,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if ("onlyy" %in% models) {
@@ -220,7 +221,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 
@@ -236,7 +237,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.diff <- sem(m.diff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.diff <- sem(m.diff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 		#summary(s.diff, fit.measures=TRUE)
 	}
 	
@@ -252,7 +253,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.mean <- sem(m.mean, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.mean <- sem(m.mean, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 		#summary(s.mean, fit.measures=TRUE)
 	}
 
@@ -284,7 +285,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		add, sep="\n")
 		
-			s.IA <- sem(m.IA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.IA <- sem(m.IA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if ("SQD" %in% models) {
@@ -302,7 +303,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if ("SSQD" %in% models) {
@@ -320,7 +321,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.SSQD <- sem(m.SSQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SSQD <- sem(m.SSQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if (any(models %in% c("RR"))) {
@@ -339,7 +340,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.RR <- sem(m.RR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.RR <- sem(m.RR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if (any(models %in% c("SRR"))) {
@@ -358,7 +359,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.SRR <- sem(m.SRR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SRR <- sem(m.SRR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	
@@ -380,7 +381,7 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		
 				add, sep="\n")
-				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)	
+				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)	
 				
 			if (verbose==TRUE) print("Computing rotated and shifted rising ridge model (SRRR), down ...")
 			m.SRRR.down <- paste(paste(poly, " + start(-0.01)*", IV12, " + start(-0.01)*", IV22),
@@ -400,7 +401,7 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 	
 				add, sep="\n")
-				s.SRRR.down <- sem(m.SRRR.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)	
+				s.SRRR.down <- sem(m.SRRR.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)	
 				
 			if (inspect(s.SRRR.up, "converged") == FALSE & inspect(s.SRRR.down, "converged") == TRUE) {
 				SRRR.rot <- "down"
@@ -455,7 +456,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSQD.up <- sem(m.SRSQD.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SRSQD.up <- sem(m.SRSQD.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 			
 			
 		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), down ...")
@@ -488,7 +489,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSQD.down <- sem(m.SRSQD.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.SRSQD.down <- sem(m.SRSQD.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	
 			if (inspect(s.SRSQD.up, "converged") == FALSE & inspect(s.SRSQD.down, "converged") == TRUE) {
 				SRSQD.rot <- "down"
@@ -514,7 +515,7 @@ withCallingHandlers({
 	
 	
 	if ("full" %in% models) {
-		if (verbose==TRUE) print("Computing polynomial model ...")
+		if (verbose==TRUE) print("Computing polynomial model (full) ...")
 		m.full <-  paste(poly,
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
@@ -540,12 +541,12 @@ withCallingHandlers({
 			add,
 			sep="\n"
 		)
-		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	
 	if (cubic==TRUE) {
-		if (verbose==TRUE) print("Computing full cubic model ...")
+		if (verbose==TRUE) print("Computing full cubic model (cubic) ...")
 		m.cubic <-  paste(paste0(poly, " + b9*", IV13, " + b10*", IV_IA2, " + b11*", IV_IA3, " + b12*", IV23),
 			"u1 := b1 + b2",				# linear part of LOC
 			"u2 := b3 + b4 + b5",			# quadratic part of LOC
@@ -557,7 +558,7 @@ withCallingHandlers({
 			sep="\n"
 		)
 		#print(m.cubic)
-		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)		
+		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)		
 	}
 	
 	#m.absdiff.JRE <-  paste(
@@ -566,19 +567,19 @@ withCallingHandlers({
 	#	"b7 == -b8",
 	#	"b7 == -2*b1",
 	#	add, sep="\n")
-	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	#summary(s.absdiff.JRE, fit.measures=TRUE)
 	
 	# the unconstrained absolute difference model - Edwards (2002) formula
 	#m.absunc.JRE <-  paste(
 	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + b6*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
 	#	add, sep="\n")
-	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	#summary(s.absunc.JRE, fit.measures=TRUE)
 	
 	
 	if ("absdiff" %in% models) {
-		if (verbose==TRUE) print("Computing constrained absolute difference model ...")
+		if (verbose==TRUE) print("Computing constrained absolute difference model (absdiff) ...")
 		m.absdiff <-  paste(
 			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b6*W + b7*W_", IV1, " + b8*W_", IV2),
 			"b1 == 0",
@@ -587,18 +588,18 @@ withCallingHandlers({
 			"b7 == -b8",
 			add, sep="\n")
 			
-			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 	if ("absunc" %in% models) {
 		# the unconstrained absolute difference model - new formula
-		if (verbose==TRUE) print("Computing unconstrained absolute difference model ...")
+		if (verbose==TRUE) print("Computing unconstrained absolute difference model (absunc) ...")
 		m.absunc <-  paste(
 			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b6*W + b7*W_", IV1, " + b8*W_", IV2),
 			ifelse(breakline==FALSE, "b6==0", ""),
 			add, sep="\n")
 			
-			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, ...)
+			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
 	}
 	
 },	  # end of "withCallingHandlers"

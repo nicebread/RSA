@@ -70,7 +70,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	type2 <- type
 	if (type2 == "interactive") stop("demoRSA only works with type == '3d' or 'contour'!")
 
-    if(!require(tkrplot) ) stop('This function depends on the tkrplot package being available')
+    if(!require(tkrplot) ) stop('This function depends on the tkrplot package. Please install with install.packages("tkrplot")')
 
 	# if model is provided: take its parameters as starting values
 	if (is.null(x)) {
@@ -109,6 +109,14 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			xlim[2] <- ylim[2] <- max(xlim[2], ylim[2])
 		
 			zlim <- c(min(fit$data[, fit$DV], na.rm=TRUE)*0.8, max(fit$data[, fit$DV], na.rm=TRUE)*1.2)
+			
+			# define raw data
+			if (is.null(points$out.mark)) points$out.mark <- FALSE
+
+			if (points$out.mark == FALSE) {data.used <- fit$data[fit$data$out==FALSE, ]}
+			if (points$out.mark == TRUE) {data.used <- fit$data}
+			
+			points$data <- data.used[, c(fit$IV1, fit$IV2, fit$DV, colnames(fit$data)[which(!colnames(fit$data) %in% c(fit$IV1, fit$IV2, fit$DV))])]
 		}
 	} else {
 		fit <- NULL

@@ -7,15 +7,15 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0, type = "3d",
   model = "full", xlim = NULL, ylim = NULL, zlim = NULL, xlab = NULL,
   ylab = NULL, zlab = NULL, main = "", surface = "predict",
-  lambda = NULL, rotation = list(x = -63, y = 32, z = 15),
-  label.rotation = list(x = 19, y = -40, z = 92), gridsize = 21,
-  bw = FALSE, legend = TRUE, param = TRUE, axes = c("LOC", "LOIC",
-  "PA1", "PA2"), project = FALSE, maxlines = FALSE, cex = 1,
-  cex.main = 1, points = list(data = NULL, show = NA, value = "raw", jitter
-  = 0, color = "black", cex = 0.5, out.mark = FALSE), demo = FALSE,
-  fit = NULL, link = "identity", tck = c(1.5, 1.5, 1.5),
-  distance = c(1.3, 1.3, 1.4), border = TRUE, contour = list(show = FALSE,
-  color = "grey40", highlight = c()), hull = NA, SP.CI = FALSE,
+  lambda = NULL, suppress.surface = FALSE, suppress.box = FALSE,
+  rotation = list(x = -63, y = 32, z = 15), label.rotation = list(x = 19, y
+  = -40, z = 92), gridsize = 21, bw = FALSE, legend = TRUE,
+  param = TRUE, axes = c("LOC", "LOIC", "PA1", "PA2"), project = "",
+  maxlines = FALSE, cex = 1, cex.main = 1, points = list(data = NULL,
+  show = NA, value = "raw", jitter = 0, color = "black", cex = 0.5, out.mark =
+  FALSE), demo = FALSE, fit = NULL, link = "identity", tck = c(1.5, 1.5,
+  1.5), distance = c(1.3, 1.3, 1.4), border = FALSE, contour = list(show =
+  FALSE, color = "grey40", highlight = c()), hull = NA, SP.CI = FALSE,
   pal = NULL, pal.range = "box", pad = 0, ...)
 }
 \arguments{
@@ -80,21 +80,22 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 \item{type}{\code{3d} for 3d surface plot, \code{contour} for 2d contour plot, "interactive" for interactive rotatable plot. Shortcuts (i.e., first letter of string) are sufficient}
 
 \item{points}{A list of parameters which define the appearance of the raw scatter points:
-\itemize{
-    \item data: Data frame which contains the coordinates of the raw data points. First column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object
-    \item show = TRUE: Should the original data points be overplotted?
-    \item color = "black": Color of the points
-    \item value="raw": Plot the original z value, "predicted": plot the predicted z value
-    \item jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable
-    \item cex = .5: multiplication factor for point size
-    \item out.mark = FALSE: If set to TRUE, outliers according to Bollen & Jackman (1980) are printed as red X symbols, but only when they have been removed in the RSA function: \code{RSA(..., out.rm=TRUE)}.
-        \itemize{
-            \item If out.rm == TRUE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is removed from the model and *not plotted* in plotRSA.
-            \item If out.rm == TRUE (in RSA()) and out.mark == TRUE (in plotRSA()), the outlier is removed from the model but plotted and marked in plotRSA.
-            \item If out.rm == FALSE (in RSA()): Outliers are not removed and cannot be plotted.
-            \item Example syntax: \code{plotRSA(r1, points=list(show=TRUE, out.mark=TRUE))}
+    \itemize{
+        \item data: Data frame which contains the coordinates of the raw data points. First column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object
+        \item show = TRUE: Should the original data points be overplotted?
+        \item color = "black": Color of the points
+        \item value="raw": Plot the original z value, "predicted": plot the predicted z value
+        \item jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable
+        \item cex = .5: multiplication factor for point size
+        \item out.mark = FALSE: If set to TRUE, outliers according to Bollen & Jackman (1980) are printed as red X symbols, but only when they have been removed in the RSA function: \code{RSA(..., out.rm=TRUE)}.
+            \itemize{
+                \item If out.rm == TRUE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is removed from the model and *not plotted* in plotRSA.
+                \item If out.rm == TRUE (in RSA()) and out.mark == TRUE (in plotRSA()), the outlier is removed from the model but plotted and marked in plotRSA.
+                \item If out.rm == FALSE (in RSA()): Outliers are not removed and cannot be plotted.
+                \item Example syntax: \code{plotRSA(r1, points=list(show=TRUE, out.mark=TRUE))}
+        }
     }
-}}
+As a shortcut, you can also set \code{points=TRUE} to set the defaults.}
 
 \item{model}{If x is an RSA object: from which model should the response surface be computed?}
 
@@ -106,11 +107,15 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 
 \item{axes}{A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis}
 
-\item{project}{Should the LOC, LOIC, etc. (as defined in parameter \code{axes}) be also plotted as a projection on the bottom of the cube?}
+\item{project}{A vector of component names that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour")}
 
 \item{maxlines}{Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"}
 
 \item{link}{Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"}
+
+\item{suppress.surface}{Should the surface be suppressed (only for \code{type="3d"})? Useful for only showing the data points, or for didactic purposes (e.g., first show the cube, then fade in the surface).}
+
+\item{suppress.box}{Should the surrounding box be suppressed (only for \code{type="3d"})?}
 
 \item{border}{Should a thicker border around the surface be plotted? Sometimes this border leaves the surrounding box, which does not look good. In this case the border can be suppressed by setting \code{border=FALSE}.}
 

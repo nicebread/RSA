@@ -2,10 +2,30 @@
 \title{News for package 'RSA'}
 \encoding{UTF-8}
 
+\section{Version 0.9.4}{
+
+\subsection{New features and improvements}{
+	\itemize{
+		\item The surface can be suppressed in the 3d plot: \code{suppress.surface=TRUE}. Useful for didactical purposes (first show empty cube, or cube with raw data points, then fade-in the regression surface.)
+		\item \code{summary} now also reports the R^2 of the selected model and the intercept.
+		\item Changed default for lavaan standard errors to "robust"
+	}
+}
+\subsection{Bug Fixes}{
+	\itemize{
+		\item \code{summary}: The standardized beta weights are now correct.
+		\item \code{plotRSA}: The LOC and LOIC now are black in b/w mode
+		\item \code{plotRSA}: When attempting to plot an RSA object with \code{plotRSA} (instead of simply \code{plot(r1)}), an informative warning is shown.
+		\item New shortcut in \code{plotRSA}: Simply set \code{points=TRUE} (instead of defining the full list).
+		\item Fixed a bug in \code{demoRSA} which prevented plotting of RSA-objects.
+		\item Moved package \code{aplpack} into \code{Depends}, as plotting the hull now by default is turned on.
+	}
+}
+}
 
 \section{Version 0.9.3}{
 
-\subsection{New features and improvement}{
+\subsection{New features and improvements}{
 	\itemize{
 		\item Added function \code{compare2} to compare two specific models.
 		\item \code{plotRSA}: parameter \code{project} can now plot axes ("LOC", "LOIC", "PA1", and "PA2") and the contour lines "contour" on the bottom of the cube. Example: \code{plot(r1, project=c("PA1", "contour"))}
@@ -45,7 +65,145 @@
 	\itemize{
 		\item Predicted value of stationary point now is reported in \code{summary}
 	}
-}
+}library(lme4)
+library(ggplot2)
+library(R2jags)
+library(mcmcplots)
+library(plotrix)
+library(dplyr)
+
+
+# Load data
+dat0 <- read.table("FS_MOCO3.txt", header=TRUE)
+
+# Bilder in richtige Reihenfolge bringen
+dat0$pic <- factor(dat0$pic, levels=c("violin", "ship_captain", "trapeze", "group", "woman", "window", "nightclub", "canyon"), ordered=TRUE)
+dat0 <- arrange(dat0, pid, pic, unit)
+
+names(dat0)
+unique(dat0$pic)
+
+# Only use sentences that have a unique classification (after correction)
+# dat1 <- filter(dat0, pow+ach+aff <= 1)
+  dat1<-dat0
+
+# Create choice
+dat1$choice <- 1
+dat1$choice[dat1$pow==1] <- 2
+dat1$choice[dat1$aff==1] <- 3
+dat1$choice[dat1$ach==1] <- 4
+
+
+############ Multinomial logit with picture x person interaction ########
+#pow   	= dat1$pow
+#aff    = dat1$aff
+#ach    = dat1$ach
+n		= nrow(dat1)
+y= dat1$choice
+item	= as.numeric(as.factor(dat1$pic))
+id		= as.numeric(as.factor(dat1$pid))
+W		= diag(3)	# identity matrix # See e.g. Gelman and Hill (2007), p. 3
+dat<-c("y", "n", "item", "id", "W")
+
+parameters<-c( "beta1","beta2","beta3", 
+               "theta1", "theta2", "theta3",
+               "rho_theta12", "rho_theta13", "rho_theta23", 
+               "sigma.theta1", "sigma.theta2", "sigma.theta3",
+               "sigma1", "sigma2", "sigma3")
+
+
+print(paste("Start: ", Sys.time()))
+output1 <- jags.parallel(dat, 
+                         inits = NULL, 
+                         parameters.to.save = parameters, 
+                         model.file="mult_logit_interact.txt",    
+                         n.chains=4, n.iter=10000)
+print(paste("Finished: ", Sys.time()))
+attach.jags(output1)
+
+## Check convergence
+plot(output1)
+levels(dat1$pic)
+
+# more details please...
+mcmcplot(output1)
+
+## Estimate reliabilities by Andrich's method.
+
+var_theta1 <- var(apply(theta1,2,mean))
+error1 <- mean(apply(theta1,2,var))
+(rel_pow <- var_theta1/(var_theta1+error1))
+
+var_theta2 <- var(apply(theta2,2,mean))
+error2 <- mean(apply(theta2,2,var))
+(rel_aff <- var_theta2/(var_theta2+error2))
+
+var_theta3 <- var(apply(theta3,2,mean))
+error3 <- mean(apply(theta3,2,var))
+(rel_ach <- var_theta3/(var_theta3+error3))
+
+round(rel_pow, 2)
+round(rel_aff, 2)
+round(rel_ach, 2)
+
+##################################### Multinomial logit with person x item interaction
+##################################### plus between-story autoregression 
+n		= nrow(dat1)
+y= dat1$choice
+item	= as.numeric(as.factor(dat1$pic))
+id		= as.numeric(as.factor(dat1$pid))
+W		= diag(3)	# identity matrix # See e.g. Gelman and Hill (2007), p. 3
+powpic.lag	= dat1$powsum.lag
+affpic.lag	= dat1$affsum.lag
+achpic.lag	= dat1$achsum.lag
+
+dat<-c("y", "n", "item", "id", "W", "powpic.lag", "affpic.lag", "achpic.lag")
+
+parameters<-c( "beta1","beta2","beta3", 
+               "theta1", "theta2", "theta3",
+               "rho_theta12", "rho_theta13", "rho_theta23", 
+               "sigma.theta1", "sigma.theta2", "sigma.theta3",
+               "sigma1", "sigma2", "sigma3", 
+               "gamma11", "gamma12", "gamma13",
+               "gamma21", "gamma22", "gamma23",
+               "gamma31", "gamma32", "gamma33")
+
+print(paste("Start: ", Sys.time()))
+output1 <- jags.parallel(dat, 
+                         inits = NULL, 
+                         parameters.to.save = parameters, 
+                         model.file="mult_logit_interact_story_lag.txt",    
+                         n.chains=4, n.iter=10000)
+print(paste("Finished: ", Sys.time()))
+attach.jags(output1)
+
+
+## Check convergence
+plot(output1)
+levels(dat1$pic)
+
+# more details please...
+mcmcplot(output1)
+
+## Estimate reliabilities by Andrich's method.
+
+var_theta1 <- var(apply(theta1,2,mean))
+error1 <- mean(apply(theta1,2,var))
+(rel_pow <- var_theta1/(var_theta1+error1))
+
+var_theta2 <- var(apply(theta2,2,mean))
+error2 <- mean(apply(theta2,2,var))
+(rel_aff <- var_theta2/(var_theta2+error2))
+
+var_theta3 <- var(apply(theta3,2,mean))
+error3 <- mean(apply(theta3,2,var))
+(rel_ach <- var_theta3/(var_theta3+error3))
+
+round(rel_pow, 2)
+round(rel_aff, 2)
+round(rel_ach, 2)
+
+
 }
 
 

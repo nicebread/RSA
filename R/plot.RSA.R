@@ -13,6 +13,8 @@
 #'
 #' @aliases plotRSA
 #'
+#' @importFrom aplpack compute.bagplot
+#'
 #' @export
 #' @param x Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor
 #' @param y Y coefficient
@@ -60,15 +62,18 @@
 #'				\item Example syntax: \code{plotRSA(r1, points=list(show=TRUE, out.mark=TRUE))}
 #'		}
 #'	}
+#' As a shortcut, you can also set \code{points=TRUE} to set the defaults.
 
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param demo Do not change that parameter (internal use only)
 #' @param fit Do not change that parameter (internal use only)
 #' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on the upper left side; in case of a contour plot the principal axes are plotted.
 #' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis
-#' @param project Should the LOC, LOIC, etc. (as defined in parameter \code{axes}) be also plotted as a projection on the bottom of the cube?
+#' @param project A vector of component names that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
 #' @param link Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"
+#' @param suppress.surface Should the surface be suppressed (only for \code{type="3d"})? Useful for only showing the data points, or for didactic purposes (e.g., first show the cube, then fade in the surface).
+#' @param suppress.box Should the surrounding box be suppressed (only for \code{type="3d"})?
 #' @param border Should a thicker border around the surface be plotted? Sometimes this border leaves the surrounding box, which does not look good. In this case the border can be suppressed by setting \code{border=FALSE}.
 #' @param contour A list defining the appearance of contour lines (aka. height lines). show=TRUE: Should the contour lines be plotted on the 3d wireframe plot? (Parameter only relevant for \code{type="3d"}). color = "grey40": Color of the contour lines. highlight = c(): A vector of heights which should be highlighted (i.e., printed in bold). Be careful: the highlighted line is not necessarily exactly at the specified height; instead the nearest height line is selected.
 #' @param hull Plot a bag plot on the surface (This is a bivariate extension of the boxplot. 50\% of points are in the inner bag, 50\% in the outer region). See Rousseeuw, Ruts, & Tukey (1999).
@@ -130,21 +135,33 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	xlim=NULL, ylim=NULL, zlim=NULL, 
 	xlab=NULL, ylab=NULL, zlab=NULL, main="",
 	surface="predict", lambda=NULL, 
+	suppress.surface=FALSE, suppress.box = FALSE,
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
-	axes=c("LOC", "LOIC", "PA1", "PA2"), project=FALSE, maxlines=FALSE,
+	axes=c("LOC", "LOIC", "PA1", "PA2"), project="", maxlines=FALSE,
 	cex=1, cex.main=1, 
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
 	demo=FALSE, fit=NULL, link="identity", 
-	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=TRUE, 
+	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=FALSE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
 	hull=NA, SP.CI=FALSE, 
 	pal=NULL, pal.range="box", 
 	pad=0, ...) {
 	
 	if (!identical(xlim, ylim)) {warning("Axes dimensions are not equal. The visual diagonal is *not* the line of numerical congruence! Consider choosing identical values for xlim and ylim.")}
+		
+	if (class(x) == "RSA") {
+		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the coefficients.")
+	}
 	
 	# define the defaults
+	if (is.null(points) || (typeof(points) == "logical" && points == TRUE)) {
+		points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
+	}
+	if (is.null(points) || (typeof(points) == "logical" && points == FALSE)) {
+		points <- list(show=FALSE)
+	}
+	
 	if (is.null(points$show)) points$show <- TRUE
 	if (is.na(points$show)) {
 		if (is.null(points$data)) {
@@ -318,7 +335,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 
 	# determine zlim
 	if (!is.null(points$data) & demo==FALSE & is.null(zlim)) {
-		zlim <- c(min(min(new2$z, na.rm=TRUE), min(points$data[, 3], na.rm=TRUE)), max(max(new2$z, na.rm=TRUE), max(points$data[, 3], na.rm=TRUE)))
+		# old: set zlim according to fitted surface
+		#zlim <- c(min(min(new2$z, na.rm=TRUE), min(points$data[, 3], na.rm=TRUE)), max(max(new2$z, na.rm=TRUE), max(points$data[, 3], na.rm=TRUE)))
+		
+		# new: set zlim according to actualy data range
+		zlim <- c(min(points$data[, 3], na.rm=TRUE), max(points$data[, 3], na.rm=TRUE))
 	} else {
 		if (is.null(zlim)) zlim <- c(min(new2$z), max(new2$z))
 	}
@@ -326,7 +347,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	
 	
 	
-	## Plots
+	# Define colors
 	
 	if (bw == FALSE) {
 		# RdYlGn palette
@@ -334,13 +355,20 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			pal <- c("#A50026","#D73027","#F46D43","#FDAE61","#FEE08B","#FFFFBF","#D9EF8B","#A6D96A","#66BD63","#1A9850","#006837")
 		}
 		gridCol <- ifelse(contour$show == TRUE, "grey60", "grey30")
+		
+		LOC.col <- LOIC.col <- "blue"
+		PA1.col <- PA2.col <- "grey30"
 	} else {
 		if (is.null(pal)) {
 			pal <- colorRampPalette(c("#FFFFFF", "#AAAAAA", "#030303"), bias=2)(11)
 		}
 		gridCol <- ifelse(contour$show == TRUE, "grey30", "grey30")
+		
+		LOC.col <- LOIC.col <- "black"
+		PA1.col <- PA2.col <- "grey50"
 	}
 	if (length(pal) < 2) {legend <- FALSE}
+		
 		
 	
 	
@@ -349,9 +377,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	#  calculate bag plot: bag = outer, loop = inner
 	
 	if (hull==TRUE) {
-		library(aplpack)
-		
-		BAG <- compute.bagplot(xpoints, ypoints)
+		BAG <- aplpack::compute.bagplot(xpoints, ypoints)
 		
 		# close the polygon
 		h1 <- rbind(BAG$hull.bag, BAG$hull.bag[1, ])
@@ -490,7 +516,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			   # 2. Borders, back part
 			   
 			   
-					if (border==TRUE) {
+					if (border==TRUE & suppress.surface==FALSE) {
 						  # Make boundary of grid a bit thicker
 						  box1 <- new2[new2$y == max(new2$y), ]
 						  box2 <- new2[new2$y == min(new2$y), ]
@@ -509,13 +535,17 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				
 					  # ---------------------------------------------------------------------
 					  # 3. the surface
+					  if (suppress.surface==FALSE) {
 						  panel.3dwire(x = x, y = y, z = z, xlim = xlim, ylim = ylim, zlim = zlim,
 		                           xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
 								   col=gridCol, lwd=0.3, ...)
 								   
+					   }
+								   
 								   
 					# ---------------------------------------------------------------------
 					# 4. plot of LOC and LOIC, and other axes
+					if (suppress.surface==FALSE) {
 						  for (a in axes) {
 							  if (!is.null(axesList[[a]])) {
 								  a0 <- RESCALE(getIntersect2(p0=axesList[[a]]$p0, p1=axesList[[a]]$p1))
@@ -525,10 +555,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 											type="l", col.line=axesList[[a]]$col, lty=axesList[[a]]$lty, lwd=2, ...)
 							  }
 						  }   
+					  }
 						  
   					# ---------------------------------------------------------------------
   					# 4b. plot of maximum lines
-					if (maxlines == TRUE) {
+					if (maxlines == TRUE & suppress.surface==FALSE) {
 						# maximum X for a given Y
   							  a0 <- RESCALE(getIntersect2(p0=-(C[1]/C[5]), p1=-((2*C[3])/C[5])))
   				              panel.3dscatter(x = a0$X, y = a0$Y, z = a0$Z, xlim = xlim, ylim = ylim, zlim = zlim,
@@ -550,7 +581,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					# ---------------------------------------------------------------------
 					# 5. Borders, front part	  
 									   
-					   if (border==TRUE) {
+					   if (border==TRUE & suppress.surface==FALSE) {
  						  # plot the front boundary lines
  			              panel.3dscatter(x = x.box[box$side==2], y = y.box[box$side==2], z = z.box[box$side==2], xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, type="l", col.line=gridCol, lwd=3, ...)
 						  panel.3dscatter(x = x.box[box$side==4], y = y.box[box$side==4], z = z.box[box$side==4], xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, type="l", col.line=gridCol, lwd=3, ...)
@@ -566,7 +597,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 						# ---------------------------------------------------------------------
 						# 6a: The bag plot, if requested
 					
-						if (hull==TRUE) {	
+						if (hull==TRUE & suppress.surface==FALSE) {	
 							
 							# bag (= inner bag)
 							if (any(bag$X < xlim[1] | bag$X > xlim[2] | bag$Y < ylim[1] | bag$Y > ylim[2])) {
@@ -611,7 +642,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					# ---------------------------------------------------------------------
 					# 7. plot contour lines on surface:
 					
-					if (contour$show == TRUE) {
+					if (contour$show == TRUE & suppress.surface==FALSE) {
 						# C0 keeps the contour lines and has been computed before
 							for (cL in C0$group) {
 							  C1 <- RESCALE(C0[C0$group==cL, c("X", "Y", "Z")])
@@ -653,11 +684,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				}
 				
 				axesList <- list()
-				axesList[["LOC"]]  <- list(p0=0, p1=1, lty="solid", col="blue")
-				axesList[["LOIC"]] <- list(p0=0, p1=-1, lty="solid", col="blue")
+				axesList[["LOC"]]  <- list(p0=0, p1=1, lty="solid", col=LOC.col)
+				axesList[["LOIC"]] <- list(p0=0, p1=-1, lty="solid", col=LOIC.col)
 				if (x2 != y2) {
-					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, lty="dotted", col="grey30")
-					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, lty="dotted", col="grey30")	
+					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, lty="dotted", col=PA1.col)
+					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, lty="dotted", col=PA2.col)	
 				}			
 				
 				
@@ -674,9 +705,18 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					CK <- list(labels=list(cex=cex))
 				}
 				
+				# Define appearance of the surrounding box
+				axesCol <- "black"
+				boxCol <- "black"
+				
+				if (suppress.box == TRUE) {
+					axesCol <- "transparent"
+					boxCol <- NA
+				}
+				
 			if (points$show == FALSE) {
 				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
-					scales 	= list(arrows = FALSE, cex=cex, col = "black", font = 1, tck=tck, distance=distance), 
+					scales 	= list(arrows = FALSE, cex=cex, col = axesCol, font = 1, tck=tck, distance=distance), 
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
@@ -686,17 +726,19 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					par.settings = list(
 						axis.line = list(col = "transparent"), 
 						layout.heights = list(top.padding=pad, bottom.padding=pad), 
-						layout.widths=list(left.padding=pad, right.padding=pad)), 
+						layout.widths=list(left.padding=pad, right.padding=pad),
+						box.3d = list(col=boxCol)), 
 					axes	= axes,
 					axesList= axesList, 
 					SPs		= SP.text, 
 					panel.3d.wireframe = mypanel2)
 								
 				#p1
+				
 			} else {
 				
 				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
-					scales 	= list(arrows = FALSE, cex=cex, col = "black", font = 1, tck=tck, distance=distance), 
+					scales 	= list(arrows = FALSE, cex=cex, col = axesCol, font = 1, tck=tck, distance=distance), 
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
 					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
@@ -706,7 +748,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					par.settings = list(
 						axis.line = list(col = "transparent"), 
 						layout.heights = list(top.padding=pad, bottom.padding=pad), 
-						layout.widths=list(left.padding=pad, right.padding=pad)), 
+						layout.widths=list(left.padding=pad, right.padding=pad),
+						box.3d = list(col=boxCol)), 
 					axes	= axes,
 					axesList= axesList, 
 					SPs		= SP.text, 
@@ -844,7 +887,7 @@ plot.RSA <- function(x, ...) {
 		
 	extras$fit <- fit
 
-	if (is.null(extras$points)) {
+	if (is.null(extras$points) || (typeof(extras$points) == "logical" && extras$points == TRUE)) {
 		extras$points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
 	}
 	if (is.null(extras$points$out.mark)) extras$points$out.mark <- FALSE
