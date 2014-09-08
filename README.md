@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/nicebread/RSA.svg?branch=master)](https://travis-ci.org/nicebread/RSA)
+
+
 RSA
 ===
 
