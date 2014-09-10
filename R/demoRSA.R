@@ -7,6 +7,7 @@
 #' No details so far. Just play around with the interface!
 #'
 #' @export
+#' @import tkrplot
 #' @param x Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor
 #' @param y Y coefficient
 #' @param x2 X^2 coefficient
@@ -70,9 +71,9 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	type2 <- type
 	if (type2 == "interactive") stop("demoRSA only works with type == '3d' or 'contour'!")
 		
-	if (!requireNamespace("tkrplot", quietly = TRUE)) {
-		stop('`tkrplot` package needed for modeltrees. Please install it with . Please install with install.packages("tkrplot")', call. = FALSE)
-	}	
+	# if (!requireNamespace("tkrplot", quietly = TRUE)) {
+	# 	stop('`tkrplot` package needed for modeltrees. Please install it with . Please install with install.packages("tkrplot")', call. = FALSE)
+	# }	
 	
 
 	# if model is provided: take its parameters as starting values
@@ -126,38 +127,42 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	}
 	
 
-    TYPE <- tkrplot::tclVar(); tkrplot::tclvalue(TYPE) <- "full"
+    TYPE <- tclVar(); tclvalue(TYPE) <- "full"
 	
-	B0 <- tkrplot::tclVar(); tkrplot::tclvalue(B0) <- b0
-	X <- tkrplot::tclVar(); tkrplot::tclvalue(X) <- x
-	Y <- tkrplot::tclVar(); tkrplot::tclvalue(Y) <- y
-	X2 <- tkrplot::tclVar(); tkrplot::tclvalue(X2) <- x2
-	Y2 <- tkrplot::tclVar(); tkrplot::tclvalue(Y2) <- y2
-	XY <- tkrplot::tclVar(); tkrplot::tclvalue(XY) <- xy
+	B0 <- tclVar(); tclvalue(B0) <- b0
+	X <- tclVar(); tclvalue(X) <- x
+	Y <- tclVar(); tclvalue(Y) <- y
+	X2 <- tclVar(); tclvalue(X2) <- x2
+	Y2 <- tclVar(); tclvalue(Y2) <- y2
+	XY <- tclVar(); tclvalue(XY) <- xy
 	
-	W <- tkrplot::tclVar(); tkrplot::tclvalue(W) <- w
-	WX <- tkrplot::tclVar(); tkrplot::tclvalue(WX) <- wx
-	WY <- tkrplot::tclVar(); tkrplot::tclvalue(WY) <- wy
+	W <- tclVar(); tclvalue(W) <- w
+	WX <- tclVar(); tclvalue(WX) <- wx
+	WY <- tclVar(); tclvalue(WY) <- wy
 	
 	# rotation of the 3d-frame
-	RX <- tkrplot::tclVar(); tkrplot::tclvalue(RX) <- -45
-	RY <- tkrplot::tclVar(); tkrplot::tclvalue(RY) <- 45
-	RZ <- tkrplot::tclVar(); tkrplot::tclvalue(RZ) <- 35
+	RX <- tclVar(); tclvalue(RX) <- -45
+	RY <- tclVar(); tclvalue(RY) <- 45
+	RZ <- tclVar(); tclvalue(RZ) <- 35
 	
 	# Dummy variables: Shift and rotation
-	C <- tkrplot::tclVar(); tkrplot::tclvalue(C) <- 0
-	S <- tkrplot::tclVar(); tkrplot::tclvalue(S) <- 1
+	C <- tclVar(); tclvalue(C) <- 0
+	S <- tclVar(); tclvalue(S) <- 1
 	
 	if (extended==TRUE) {
-		X.Y2 <- tkrplot::tclVar(); tkrplot::tclvalue(X.Y2) <- 0
+		X.Y2 <- tclVar(); tclvalue(X.Y2) <- 0
 	}
 	
 	
 	setAllBlack <- function() {
-		sapply(list(X.lab, Y.lab, X2.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkrplot::tkconfigure, foreground="black")
+		sapply(list(X.lab, Y.lab, X2.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="black")
 	}
 
 	update <- function(...) {
+		
+		# dirty hack to please CRAN ..
+		if(getRversion() >= "2.15.1")  {utils::globalVariables('tclvalue')}
+		
 		# read parameters from sliders
         type <- as.character(tclvalue(TYPE))
 		b0 <- as.numeric(tclvalue(B0))
@@ -182,22 +187,22 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 		if (type == "all") {
 		}
 		if (type == "poly") {
-			tclvalue(W) <- tkrplot::tclvalue(WX) <- tkrplot::tclvalue(WY) <- 0
-			sapply(list(W.lab, WX.lab, WY.lab), tkrplot::tkconfigure, foreground="grey40")
+			tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
+			sapply(list(W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 		
 		if (type == "diff") {
 			tclvalue(Y) <- -x
-			tclvalue(X2) <- tkrplot::tclvalue(Y2) <- tkrplot::tclvalue(XY) <- tkrplot::tclvalue(W) <- tkrplot::tclvalue(WX) <- tkrplot::tclvalue(WY) <- 0
-			sapply(list(X2.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkrplot::tkconfigure, foreground="grey40")
+			tclvalue(X2) <- tclvalue(Y2) <- tclvalue(XY) <- tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
+			sapply(list(X2.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 		if (type == "SQD") {
 			tclvalue(Y) <- 0
 			tclvalue(X) <- 0
 			tclvalue(Y2) <- x2
 			tclvalue(XY) <- -2*x2
-			tclvalue(W) <- tkrplot::tclvalue(WX) <- tkrplot::tclvalue(WY) <- 0
-			sapply(list(X.lab, Y.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkrplot::tkconfigure, foreground="grey40")
+			tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
+			sapply(list(X.lab, Y.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 		if (type == "sq.shift") {
 			tclvalue(Y) <- -x
@@ -206,8 +211,8 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			if (x2 != 0) {
 				tclvalue(B0) <- x^2 / (4*x2)
 			}
-			tclvalue(W) <- tkrplot::tclvalue(WX) <- tkrplot::tclvalue(WY) <- 0
-			sapply(list(Y.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkrplot::tkconfigure, foreground="grey40")
+			tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
+			sapply(list(Y.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 		if (type == "sq.rot") {
 			#tclvalue(X) <- 2*c*s*y2
@@ -217,7 +222,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			
 			if (y2 != 0) {
 				tclvalue(X2) <- (xy^2) / (4*y2)
-				x <- tkrplot::tclvalue(X) <- (y*xy)/(2*y2)
+				x <- tclvalue(X) <- (y*xy)/(2*y2)
 			}
 			
 			if (y2 != 0 & y != 0) {
@@ -225,20 +230,20 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 				tclvalue(C) <- -0.5*(y/y2)
 				tclvalue(S) <- -(x/y)
 			}
-			tclvalue(W) <- tkrplot::tclvalue(WX) <- tkrplot::tclvalue(WY) <- 0
-			sapply(list(X.lab, X2.lab, W.lab, WX.lab, WY.lab), tkrplot::tkconfigure, foreground="grey40")
+			tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
+			sapply(list(X.lab, X2.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 		if (type == "IA") {
 			tclvalue(X2) <- 0
 			tclvalue(Y2) <- 0
-			tclvalue(W) <- tkrplot::tclvalue(WX) <- tkrplot::tclvalue(WY) <- 0
-			sapply(list(X2.lab, Y2.lab, W.lab, WX.lab, WY.lab), tkrplot::tkconfigure, foreground="grey40")
+			tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
+			sapply(list(X2.lab, Y2.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 		if (type == "absunc") {
 			tclvalue(X2) <- 0
 			tclvalue(Y2) <- 0
 			tclvalue(XY) <- 0
-			sapply(list(X2.lab, Y2.lab, XY.lab), tkrplot::tkconfigure, foreground="grey40")
+			sapply(list(X2.lab, Y2.lab, XY.lab), tkconfigure, foreground="grey40")
 		}
 		if (type == "absdiff") {
 			tclvalue(X) <- 0
@@ -248,10 +253,10 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			tclvalue(XY) <- 0
 			tclvalue(W) <- 0
 			tclvalue(WY) <- -wx
-			sapply(list(X.lab, Y.lab, X2.lab, Y2.lab, XY.lab, W.lab, WY.lab), tkrplot::tkconfigure, foreground="grey40")
+			sapply(list(X.lab, Y.lab, X2.lab, Y2.lab, XY.lab, W.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 
-        tkrplot::tkrreplot(img, hscale=1.5, vscale=1.5)
+        tkrreplot(img, hscale=1.5, vscale=1.5)
     }
 
     replot <- function() {
@@ -274,110 +279,110 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
     }
 
 	# define framework
-    tt <- tkrplot::tktoplevel()
-    tkrplot::tkwm.title(tt, "Response surface plot - polynomial model")
+    tt <- tktoplevel()
+    tkwm.title(tt, "Response surface plot - polynomial model")
 
-    img <- tkrplot::tkrplot(tt, replot, vscale=1.5, hscale=1.5)
-    tkrplot::tkpack(img, side='left')
+    img <- tkrplot(tt, replot, vscale=1.5, hscale=1.5)
+    tkpack(img, side='left')
 	
 	# define radiobuttons
-	tkrplot::tkpack(tfr <- tkrplot::tkframe(tt, relief='groove', borderwidth=3), side='top')
+	tkpack(tfr <- tkframe(tt, relief='groove', borderwidth=3), side='top')
 	
-	tkrplot::tkpack(typebox <- tkrplot::tkframe(tfr), side='top', fill='x')
-    tkrplot::tkpack(tkrplot::tklabel(typebox,text='Constraints: '), side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="all", text="All parameters"))
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="poly", text="Full polynomial"))
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="IA", text="Interaction"))
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="SQD", text="Squared difference"))
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="sq.shift", text="Shifted squared difference"))
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="sq.rot", text="Shifted and rotated squared difference"))
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="diff", text="Difference score X-Y"))
+	tkpack(typebox <- tkframe(tfr), side='top', fill='x')
+    tkpack(tklabel(typebox,text='Constraints: '), side='left',anchor='s')
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="all", text="All parameters"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="poly", text="Full polynomial"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="IA", text="Interaction"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="SQD", text="Squared difference"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="sq.shift", text="Shifted squared difference"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="sq.rot", text="Shifted and rotated squared difference"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="diff", text="Difference score X-Y"))
 	
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="absunc", text="Unconstrained absolute difference"))
-	tkrplot::tkpack(tkrplot::tkradiobutton(typebox, variable=TYPE, command=update, value="absdiff", text="Absolute difference"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="absunc", text="Unconstrained absolute difference"))
+	tkpack(tkradiobutton(typebox, variable=TYPE, command=update, value="absdiff", text="Absolute difference"))
 
 	
 
 	# define sliders: polynomial model
-	tkrplot::tkpack(tfr <- tkrplot::tkframe(tt, relief='groove', borderwidth=3), side='left')
-	tkrplot::tkpack(fr0 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr1 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr2 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr3 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr4 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr5 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr6 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr7 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	tkrplot::tkpack(fr8 <- tkrplot::tkframe(tfr), side='top',fill='x')
-	B0.lab <- tkrplot::tklabel(fr0,text='Intercept: ')
-	X.lab <- tkrplot::tklabel(fr1,text='x: ')
-	Y.lab <- tkrplot::tklabel(fr2,text='y: ')
-	XY.lab <- tkrplot::tklabel(fr3,text='xy: ')
-	X2.lab <- tkrplot::tklabel(fr4,text='x2: ')
-	Y2.lab <- tkrplot::tklabel(fr5,text='y2: ')
-	W.lab <- tkrplot::tklabel(fr6,text='w: ')
-	WX.lab <- tkrplot::tklabel(fr7,text='wx: ')
-	WY.lab <- tkrplot::tklabel(fr8,text='wy: ')
+	tkpack(tfr <- tkframe(tt, relief='groove', borderwidth=3), side='left')
+	tkpack(fr0 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr1 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr2 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr3 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr4 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr5 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr6 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr7 <- tkframe(tfr), side='top',fill='x')
+	tkpack(fr8 <- tkframe(tfr), side='top',fill='x')
+	B0.lab <- tklabel(fr0,text='Intercept: ')
+	X.lab <- tklabel(fr1,text='x: ')
+	Y.lab <- tklabel(fr2,text='y: ')
+	XY.lab <- tklabel(fr3,text='xy: ')
+	X2.lab <- tklabel(fr4,text='x2: ')
+	Y2.lab <- tklabel(fr5,text='y2: ')
+	W.lab <- tklabel(fr6,text='w: ')
+	WX.lab <- tklabel(fr7,text='wx: ')
+	WY.lab <- tklabel(fr8,text='wy: ')
 	
-    tkrplot::tkpack(B0.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr0, variable=B0, orient='horizontal', command=update, from=-50, to=50, resolution=1), side='left')
+    tkpack(B0.lab, side='left',anchor='s')
+	tkpack(tkscale(fr0, variable=B0, orient='horizontal', command=update, from=-50, to=50, resolution=1), side='left')
 	
-    tkrplot::tkpack(X.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr1, variable=X, orient='horizontal', command=update, from=ifelse(is.null(fit), -5, -abs(x.0)*2), to=ifelse(is.null(fit), 5, abs(x.0)*2), resolution=0.01), side='left')
+    tkpack(X.lab, side='left',anchor='s')
+	tkpack(tkscale(fr1, variable=X, orient='horizontal', command=update, from=ifelse(is.null(fit), -5, -abs(x.0)*2), to=ifelse(is.null(fit), 5, abs(x.0)*2), resolution=0.01), side='left')
 
-    tkrplot::tkpack(Y.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr2, variable=Y, orient='horizontal', command=update, from=ifelse(is.null(fit), -5, -abs(y.0)*2), to=ifelse(is.null(fit), 5, abs(y.0)*2), resolution=0.01), side='left')
+    tkpack(Y.lab, side='left',anchor='s')
+	tkpack(tkscale(fr2, variable=Y, orient='horizontal', command=update, from=ifelse(is.null(fit), -5, -abs(y.0)*2), to=ifelse(is.null(fit), 5, abs(y.0)*2), resolution=0.01), side='left')
 	
-    tkrplot::tkpack(XY.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr3, variable=XY, orient='horizontal', command=update, from=ifelse(is.null(fit), -3, -abs(xy.0)*2), to=ifelse(is.null(fit), 3, abs(xy.0)*2), resolution=0.01), side='left')
+    tkpack(XY.lab, side='left',anchor='s')
+	tkpack(tkscale(fr3, variable=XY, orient='horizontal', command=update, from=ifelse(is.null(fit), -3, -abs(xy.0)*2), to=ifelse(is.null(fit), 3, abs(xy.0)*2), resolution=0.01), side='left')
 	
-    tkrplot::tkpack(X2.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr4, variable=X2, orient='horizontal', command=update, from=ifelse(is.null(fit), -3, -abs(x2.0)*2), to=ifelse(is.null(fit), 3, abs(x2.0)*2), resolution=0.01), side='left')
+    tkpack(X2.lab, side='left',anchor='s')
+	tkpack(tkscale(fr4, variable=X2, orient='horizontal', command=update, from=ifelse(is.null(fit), -3, -abs(x2.0)*2), to=ifelse(is.null(fit), 3, abs(x2.0)*2), resolution=0.01), side='left')
 
-    tkrplot::tkpack(Y2.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr5, variable=Y2, orient='horizontal', command=update, from=ifelse(is.null(fit), -3, -abs(y2.0)*2), to=ifelse(is.null(fit), 3, abs(y2.0)*2), resolution=0.01), side='left')
+    tkpack(Y2.lab, side='left',anchor='s')
+	tkpack(tkscale(fr5, variable=Y2, orient='horizontal', command=update, from=ifelse(is.null(fit), -3, -abs(y2.0)*2), to=ifelse(is.null(fit), 3, abs(y2.0)*2), resolution=0.01), side='left')
 	
 	# define sliders: absdiff model
-	tkrplot::tkpack(tfr <- tkrplot::tkframe(tt, relief='groove', borderwidth=3), side='right')
+	tkpack(tfr <- tkframe(tt, relief='groove', borderwidth=3), side='right')
 	
-    tkrplot::tkpack(W.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr6, variable=W, orient='horizontal', command=update, from=ifelse(is.null(fit), -5, -abs(w.0)*2), to=ifelse(is.null(fit), 5, abs(w.0)*2), resolution=0.01), side='left')
+    tkpack(W.lab, side='left',anchor='s')
+	tkpack(tkscale(fr6, variable=W, orient='horizontal', command=update, from=ifelse(is.null(fit), -5, -abs(w.0)*2), to=ifelse(is.null(fit), 5, abs(w.0)*2), resolution=0.01), side='left')
 
-    tkrplot::tkpack(WX.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr7, variable=WX, orient='horizontal', command=update, from=ifelse(is.null(fit), -1, -abs(wx.0)*2), to=ifelse(is.null(fit), 1, abs(wx.0)*2), resolution=0.01), side='left')
+    tkpack(WX.lab, side='left',anchor='s')
+	tkpack(tkscale(fr7, variable=WX, orient='horizontal', command=update, from=ifelse(is.null(fit), -1, -abs(wx.0)*2), to=ifelse(is.null(fit), 1, abs(wx.0)*2), resolution=0.01), side='left')
 	
-    tkrplot::tkpack(WY.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr8, variable=WY, orient='horizontal', command=update, from=ifelse(is.null(fit), -1, -abs(wy.0)*2), to=ifelse(is.null(fit), 1, abs(wy.0)*2), resolution=0.01), side='left')
+    tkpack(WY.lab, side='left',anchor='s')
+	tkpack(tkscale(fr8, variable=WY, orient='horizontal', command=update, from=ifelse(is.null(fit), -1, -abs(wy.0)*2), to=ifelse(is.null(fit), 1, abs(wy.0)*2), resolution=0.01), side='left')
 	
 	
 	## Rotation of display
-	tkrplot::tkpack(tfr3d <- tkrplot::tkframe(tt, relief='groove', borderwidth=3), side='right')
-	tkrplot::tkpack(fr3.1 <- tkrplot::tkframe(tfr3d), side='top',fill='x')
-	tkrplot::tkpack(fr3.2 <- tkrplot::tkframe(tfr3d), side='top',fill='x')
-	tkrplot::tkpack(fr3.3 <- tkrplot::tkframe(tfr3d), side='top',fill='x')
-	X3.lab <- tkrplot::tklabel(fr3.1,text='x rotation: ')
-	Y3.lab <- tkrplot::tklabel(fr3.2,text='y rotation: ')
-	Z3.lab <- tkrplot::tklabel(fr3.3,text='z rotation: ')
-    tkrplot::tkpack(X3.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr3.1, variable=RX, orient='horizontal', command=update, from=-90, to=90, resolution=1), side='left')
+	tkpack(tfr3d <- tkframe(tt, relief='groove', borderwidth=3), side='right')
+	tkpack(fr3.1 <- tkframe(tfr3d), side='top',fill='x')
+	tkpack(fr3.2 <- tkframe(tfr3d), side='top',fill='x')
+	tkpack(fr3.3 <- tkframe(tfr3d), side='top',fill='x')
+	X3.lab <- tklabel(fr3.1,text='x rotation: ')
+	Y3.lab <- tklabel(fr3.2,text='y rotation: ')
+	Z3.lab <- tklabel(fr3.3,text='z rotation: ')
+    tkpack(X3.lab, side='left',anchor='s')
+	tkpack(tkscale(fr3.1, variable=RX, orient='horizontal', command=update, from=-90, to=90, resolution=1), side='left')
 
-    tkrplot::tkpack(Y3.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr3.2, variable=RY, orient='horizontal', command=update, from=-90, to=90, resolution=1), side='left')
+    tkpack(Y3.lab, side='left',anchor='s')
+	tkpack(tkscale(fr3.2, variable=RY, orient='horizontal', command=update, from=-90, to=90, resolution=1), side='left')
 	
-    tkrplot::tkpack(Z3.lab, side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(fr3.3, variable=RZ, orient='horizontal', command=update, from=-90, to=90, resolution=1), side='left')
+    tkpack(Z3.lab, side='left',anchor='s')
+	tkpack(tkscale(fr3.3, variable=RZ, orient='horizontal', command=update, from=-90, to=90, resolution=1), side='left')
 	
 	
 	
 	## Extra (dummy) parameters
-	tkrplot::tkpack(frROT1 <- tkrplot::tkframe(tfr3d), side='top',fill='x')
-	tkrplot::tkpack(frROT2 <- tkrplot::tkframe(tfr3d), side='top',fill='x')
+	tkpack(frROT1 <- tkframe(tfr3d), side='top',fill='x')
+	tkpack(frROT2 <- tkframe(tfr3d), side='top',fill='x')
 	
-    tkrplot::tkpack(tkrplot::tklabel(frROT1,text='Shift (C): '), side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(frROT1, variable=C, orient='horizontal', command=update, from=-20, to=20, resolution=0.1), side='left')
+    tkpack(tklabel(frROT1,text='Shift (C): '), side='left',anchor='s')
+	tkpack(tkscale(frROT1, variable=C, orient='horizontal', command=update, from=-20, to=20, resolution=0.1), side='left')
 
-    tkrplot::tkpack(tkrplot::tklabel(frROT2,text='Rotation (S): '), side='left',anchor='s')
-	tkrplot::tkpack(tkrplot::tkscale(frROT2, variable=S, orient='horizontal', command=update, from=0, to=3, resolution=0.1), side='left')
+    tkpack(tklabel(frROT2,text='Rotation (S): '), side='left',anchor='s')
+	tkpack(tkscale(frROT2, variable=S, orient='horizontal', command=update, from=0, to=3, resolution=0.1), side='left')
 	
     return(invisible(NULL))
 }
@@ -387,6 +392,5 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 #demoRSA(fit=r1, points=TRUE)
 
 if(getRversion() >= "2.15.1")  {
-	utils::globalVariables(c(
-'tkrplot::tclVar', 'tkrplot::tclvalue', 'tkrplot::tkconfigure' , 'tkrplot::tkframe', 'tkrplot::tklabel', 'tkrplot::tkpack', 'tkrplot::tkradiobutton', 'tkrplot::tkscale', 'tkrplot::tktoplevel', 'tkrplot::tkwm.title'))
+	utils::globalVariables(c('tclVar', 'tclvalue', 'tkconfigure' , 'tkframe', 'tklabel', 'tkpack', 'tkradiobutton', 'tkscale', 'tktoplevel', 'tkwm.title'))
 }

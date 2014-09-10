@@ -149,7 +149,7 @@ withCallingHandlers({
 	poly <- paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b3*", IV12, " + b4*", IV_IA, " + b5*", IV22, CV)
 	
 	if ("null" %in% models) {
-		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if ("additive" %in% models) {
@@ -163,7 +163,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if ("onlyx2" %in% models) {
@@ -177,7 +177,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if ("onlyy2" %in% models) {
@@ -191,7 +191,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 
 	if ("onlyx" %in% models) {
@@ -206,7 +206,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if ("onlyy" %in% models) {
@@ -221,7 +221,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 
@@ -237,7 +237,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.diff <- sem(m.diff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.diff <- sem(m.diff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 		#summary(s.diff, fit.measures=TRUE)
 	}
 	
@@ -253,7 +253,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.mean <- sem(m.mean, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.mean <- sem(m.mean, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 		#summary(s.mean, fit.measures=TRUE)
 	}
 
@@ -285,7 +285,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		add, sep="\n")
 		
-			s.IA <- sem(m.IA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.IA <- sem(m.IA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if ("SQD" %in% models) {
@@ -303,7 +303,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if ("SSQD" %in% models) {
@@ -321,7 +321,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.SSQD <- sem(m.SSQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.SSQD <- sem(m.SSQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if (any(models %in% c("RR"))) {
@@ -340,7 +340,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.RR <- sem(m.RR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.RR <- sem(m.RR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if (any(models %in% c("SRR"))) {
@@ -359,7 +359,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.SRR <- sem(m.SRR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.SRR <- sem(m.SRR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	
@@ -381,7 +381,7 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		
 				add, sep="\n")
-				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)	
+				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)	
 				
 			if (verbose==TRUE) print("Computing rotated and shifted rising ridge model (SRRR), down ...")
 			m.SRRR.down <- paste(paste(poly, " + start(-0.01)*", IV12, " + start(-0.01)*", IV22),
@@ -401,7 +401,7 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 	
 				add, sep="\n")
-				s.SRRR.down <- sem(m.SRRR.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)	
+				s.SRRR.down <- sem(m.SRRR.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)	
 				
 			if (inspect(s.SRRR.up, "converged") == FALSE & inspect(s.SRRR.down, "converged") == TRUE) {
 				SRRR.rot <- "down"
@@ -456,7 +456,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSQD.up <- sem(m.SRSQD.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.SRSQD.up <- sem(m.SRSQD.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 			
 			
 		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), down ...")
@@ -489,7 +489,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSQD.down <- sem(m.SRSQD.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.SRSQD.down <- sem(m.SRSQD.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	
 			if (inspect(s.SRSQD.up, "converged") == FALSE & inspect(s.SRSQD.down, "converged") == TRUE) {
 				SRSQD.rot <- "down"
@@ -541,7 +541,7 @@ withCallingHandlers({
 			add,
 			sep="\n"
 		)
-		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	
@@ -558,7 +558,7 @@ withCallingHandlers({
 			sep="\n"
 		)
 		#print(m.cubic)
-		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)		
+		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)		
 	}
 	
 	#m.absdiff.JRE <-  paste(
@@ -567,14 +567,14 @@ withCallingHandlers({
 	#	"b7 == -b8",
 	#	"b7 == -2*b1",
 	#	add, sep="\n")
-	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	#summary(s.absdiff.JRE, fit.measures=TRUE)
 	
 	# the unconstrained absolute difference model - Edwards (2002) formula
 	#m.absunc.JRE <-  paste(
 	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + b6*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
 	#	add, sep="\n")
-	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	#summary(s.absunc.JRE, fit.measures=TRUE)
 	
 	
@@ -588,7 +588,7 @@ withCallingHandlers({
 			"b7 == -b8",
 			add, sep="\n")
 			
-			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 	if ("absunc" %in% models) {
@@ -599,7 +599,7 @@ withCallingHandlers({
 			ifelse(breakline==FALSE, "b6==0", ""),
 			add, sep="\n")
 			
-			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, ...)
+			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
 	}
 	
 },	  # end of "withCallingHandlers"
