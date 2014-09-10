@@ -19,8 +19,15 @@
 #'
 #' @seealso \code{\link{RSA}}, \code{\link{compare}}
 #'
+#' @examples
+#' data(motcon)
+#' r.m <- RSA(postVA~ePow*iPow, motcon)
+#' c1 <- compare(r.m)
+#' modeltree(c1)
 modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
-	library(qgraph)
+	if (!requireNamespace("qgraph", quietly = TRUE)) {
+		stop('`qgraph` package needed for modeltrees. Please install it with . Please install with install.packages("qgraph")', call. = FALSE)
+	}
 
 	c1 <- x
 	c1$fromto <- c("", paste0(c1$model[1:(nrow(c1)-1)], "_", c1$model[2:(nrow(c1))]))
@@ -120,7 +127,7 @@ modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 	}
 	
 	dev.new(width=11.5, height=6.5)
-	p1 <- qgraph(eL, 
+	p1 <- qgraph::qgraph(eL, 
 		edgeList	= TRUE,
 		nNodes		= length(lab),
 		layout 		= pos, 

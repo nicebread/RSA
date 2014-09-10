@@ -131,27 +131,29 @@
 # rotation=list(x=-45, y=45, z=35), label.rotation=list(x=45, y=-25, z=94)
 # distance=c(1, 1, 1), tck=c(1, 1, 1)
 
-plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", model="full", 
+plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, 
+	type="3d", model="full", 
 	xlim=NULL, ylim=NULL, zlim=NULL, 
 	xlab=NULL, ylab=NULL, zlab=NULL, main="",
 	surface="predict", lambda=NULL, 
 	suppress.surface=FALSE, suppress.box = FALSE,
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
-	axes=c("LOC", "LOIC", "PA1", "PA2"), project="", maxlines=FALSE,
+	axes=c("LOC", "LOIC", "PA1", "PA2"), 
+	project=c("contour"), maxlines=FALSE,
 	cex=1, cex.main=1, 
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
-	demo=FALSE, fit=NULL, link="identity", 
+	fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=FALSE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
 	hull=NA, SP.CI=FALSE, 
 	pal=NULL, pal.range="box", 
-	pad=0, ...) {
+	pad=0, demo=FALSE, ...) {
 	
-	if (!identical(xlim, ylim)) {warning("Axes dimensions are not equal. The visual diagonal is *not* the line of numerical congruence! Consider choosing identical values for xlim and ylim.")}
+	if (!identical(xlim, ylim)) {print("Note: Axes dimensions are not equal. The visual diagonal is *not* the line of numerical congruence! Consider choosing identical values for xlim and ylim.")}
 		
 	if (class(x) == "RSA") {
-		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the coefficients.")
+		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the regression coefficients.")
 	}
 	
 	# define the defaults
@@ -314,8 +316,12 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		new2$z <- b0 + colSums(C*t(new2[, c(1:5, 9:11, 15:18)]))
 	}
 	if (surface == "smooth") {
-		library(fields)
-		tpsfit <- Tps(points$data[, 1:2], points$data[, 3], scale.type="unscaled", lambda=lambda)
+		
+		if (!requireNamespace("fields", quietly = TRUE)) {
+			stop('`fields` package needed for smooth surfaces to work. Please install it with install.packages("fields")', call. = FALSE)
+		}
+		
+		tpsfit <- fields::Tps(points$data[, 1:2], points$data[, 3], scale.type="unscaled", lambda=lambda)
 		new2$z <- predict(tpsfit, new[, c("x", "y")])
 		param <- FALSE
 		axes <- ""
@@ -405,35 +411,37 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	## ======================================================================
 	
 	if (type == "interactive") {
-		library(rgl)
+		if (!requireNamespace("rgl", quietly = TRUE)) {
+			stop("`rgl` package needed for interactive plots. Please install it with install.packages('rgl').", call. = FALSE)
+		}
 		
 		P <- list(x=seq(xlim[1], xlim[2], length.out=grid), y=seq(ylim[1], ylim[2], length.out=grid))
 		DV2 <- matrix(new2$z, nrow=grid, ncol=grid, byrow=FALSE)
 		R <- range(DV2)
 		col2 <- as.character(cut(1:(R[2] - R[1] + 1), breaks=length(pal), labels=pal))
 		
-		open3d(cex=cex)
-		rgl.viewpoint(-30, -90)
-		rgl.light(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
-		persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main)
+		rgl::open3d(cex=cex)
+		rgl::rgl.viewpoint(-30, -90)
+		rgl::rgl.light(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
+		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main)
 
 		if (contour$show == TRUE) {
 		    contours <- contourLines(P, z=DV2)
 		     for (i in 1:length(contours)) {
-				 with(contours[[i]], lines3d(x, y, level, col=contour$color))
+				 with(contours[[i]], rgl::lines3d(x, y, level, col=contour$color))
 			 }
 		 }
 		
 		if (points$show == TRUE) {
 			if (points$out.mark == FALSE) {
-				points3d(data.frame(xpoints, ypoints, zpoints), col=points$color)
+				rgl::points3d(data.frame(xpoints, ypoints, zpoints), col=points$color)
 			}
 			if (points$out.mark == TRUE) {
 				if (!is.null(fit)) {
 					colvec <- rep(points$color, nrow(fit$data))
 					colvec[fit$outliers] <- "red"
-					points3d(fit$data[, c(fit$IV1, fit$IV2, fit$DV)], col=colvec)
-					text3d(fit$data[fit$outliers, c(fit$IV1, fit$IV2, fit$DV)], col="red", texts="X")
+					rgl::points3d(fit$data[, c(fit$IV1, fit$IV2, fit$DV)], col=colvec)
+					rgl::text3d(fit$data[fit$outliers, c(fit$IV1, fit$IV2, fit$DV)], col="red", texts="X")
 				} else {
 					warning("Please provide an RSA-object to mark outliers.")
 				}
