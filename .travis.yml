@@ -11,7 +11,8 @@ before_install:
 - ./travis-tool.sh bootstrap
 
 install:
-- ./travis-tool.sh r_binary_install fields sdmtools tkrplot rgl qgraph aiccmodavg
+- ./travis-tool.sh r_binary_install fields sdmtools tkrplot rgl qgraph
+- ./travis-tool.sh r_install aiccmodavg
 - ./travis-tool.sh install_deps
 
 script: ./travis-tool.sh run_tests

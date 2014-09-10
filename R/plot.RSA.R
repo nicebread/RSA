@@ -596,7 +596,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					   }
 										  
 						  if (param == TRUE) {
-							  grid.text(SPs, .02, .95, just="left", gp=gpar(cex=cex))
+							  grid::grid.text(SPs, .02, .95, just="left", gp=grid::gpar(cex=cex))
 						  }  
 						  
 						  
