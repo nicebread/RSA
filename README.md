@@ -13,15 +13,13 @@ The stable CRAN version can be installed by:
 
 The current development version can be installed by:
 
-	install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra"), dependencies=TRUE)
+	install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "SDMTools", "qgraph", "AICcmodavg"), dependencies=TRUE)
     library(devtools)
-    install_github("RSA", username="nicebread")
+    install_github("nicebread/RSA")
 
 	
 ## Information
 
-* Some information on RSA will be collected on this website: http://www.nicebread.de/software/RSA
-* More information will be added in the Github Wiki: https://github.com/nicebread/RSA/wiki
 * An email list for asking questions related to the RSA-package has been created at Google groups: https://groups.google.com/forum/?fromgroups&hl=en#!forum/rsa-in-r
 
 
@@ -52,6 +50,7 @@ The current development version can be installed by:
     
     # Compare all models
     compare(r1, plot=TRUE)
+	aictab(r1, plot=TRUE)
     
     # Show all RSA parameters with parametric
     # SEs, p values, and CIs

@@ -48,11 +48,13 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		cat(paste0("\nIs the selected model <", model, "> significant?\n----------------------------\n"))
 		F <- fitmeasures(x$models[[model]])
 		R <- inspect(x$models[[model]], "r2")
-		n <- nobs(x$models[[model]])
+		n <- lavaan::nobs(x$models[[model]])
 		k <- F["baseline.df"] - F["df"]				
 		R2.p <- ifelse(k==0, NA, pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
 		cat(paste0("Test on model significance: R^2 = ", round(R, 3), ", ", p0(R2.p), "\n"))
-	}		
+	}
+
+	cat(paste0("\n\nNumber of obervations: n = ", nobs(x$models[[model]]), "\n----------------------------\n"))
 
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
 	if (model != "cubic") {
@@ -133,6 +135,43 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 			cat("  --> Lateral shift of second PA from LOC at point (0; 0): C2 = ", round((-C["p20"])/(C["p21"] + 1), 3), "\n")
 		}
 	}
+	
+	
+	# ---------------------------------------------------------------------
+	# Tests for fit patterns
+	
+#	if (all(c("full", "weak", "strong") %in% names(models))) {
+# 		cat("\n\n\nTests for weak and strong fit patterns:\n----------------------------\n")
+#
+# 		eff.full <- getPar(x, model="full", standardized=TRUE)
+# 		coef.sel <- paste0("b", c(3, 5))
+# 		RC.full <- eff.full[eff.full$label %in% coef.sel, c(1:3, 6:7)]
+# 		RC.full[, 2:5] <- round(RC.full[, 2:5], digits)
+# 		RC.full$beta <- round(eff.full[eff.full$label %in% coef.sel, "std.all"], digits)
+# 		RC.full$pvalue <- p(eff.full[eff.full$label %in% coef.sel, "pvalue"])
+# 		RC.full$sig <- p2star(eff.full[eff.full$label %in% coef.sel, "pvalue"])
+# 		print(RC.full)
+#
+# 		cat("\n\nWeak fit pattern:\n")
+# 		aictab1 <- aictab(x, cand.set=c("full", "weak"))
+# 		aicdiff.weak <- aictab1$AICc[aictab1$Modnames == "weak"] - aictab1$AICc[aictab1$Modnames == "full"]
+#
+# 		print(aictab1)
+#
+# 		is.weak <- aicdiff.weak <= 0.001
+# 		cat(paste0("The data ", ifelse(is.weak==TRUE, "DO", "DO NOT"), " support a weak fit pattern."))
+#
+# 		if (is.weak == TRUE) {
+# 			cat("\n\nStrong fit pattern:\n")
+# 			aictab2 <- aictab(x, cand.set=c("weak", "strong"))
+# 			ctab2 <- compare2(x, m1="weak", m2="strong", verbose=FALSE)
+# 			print(round(ctab2[, 1:13], 3))
+# 			aicdiff.weak <- aictab1$AICc[aictab1$Modnames == "weak"] - aictab1$AICc[aictab1$Modnames == "full"]
+# 			cat(paste0("The data ", ifelse(ctab2["strong", "Pr(>Chisq)"] > .05, "DO", "DO NOT"), " support a strong fit pattern."))
+# 		}
+# 	}
+	
+	
 	
 	})
 }

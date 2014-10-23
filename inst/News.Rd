@@ -6,14 +6,12 @@
 
 \subsection{New features and improvements}{
 	\itemize{
-		\item Robustness against non-normality: Default now is robust SE and Satorra-Bentler test statistic
+		\item Robustness against non-normality: Default estimator now is "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values.
+		\item Option \code{missing} in \code{RSA}. If missing values are present, by default \code{missing = "fiml"} is set, and a warning is issued that this is only valid if the data are missing completely at random (MCAR) or missing at random (MAR). Use \code{missing = "listwise"} to exclude missing values.
+		\item In the 3d plot, addtionally data points and hull can be projected on the floor. Example: \code{plot(r1, project=c("PA1", "contour", "points", "hull"))}
 	}
 }
-\subsection{Bug Fixes}{
-	\itemize{
-		\item x
-	}
-}
+
 
 \subsection{Improvements}{
 	\itemize{

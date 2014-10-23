@@ -5,7 +5,8 @@
 \usage{
 RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
   out.rm = TRUE, breakline = FALSE, models = "default", cubic = FALSE,
-  verbose = TRUE, add = "", control.variables = c(), se = "robust", ...)
+  verbose = TRUE, add = "", estimator = "MLR", se = "robust",
+  missing = NA, ..., control.variables = c())
 }
 \arguments{
 \item{formula}{A formula in the form \code{z ~ x*y}, specifying the variable names used from the data frame, where z is the name of the response variable, and x and y are the names of the predictor variables.}
@@ -30,17 +31,22 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
 
 \item{add}{Additional syntax that is added to the lavaan model. Can contain, for example, additional constraints, like "p01 == 0; p11 == 0"}
 
-\item{control.variables}{A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.}
+\item{estimator}{Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values.}
 
-\item{se}{Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there.}
+\item{se}{Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).}
 
-\item{...}{Additional parameters passed to the \code{lavaan} \code{\link{sem}} function. For example, you can obtained bootstrapped standard errors by setting \code{se="boot"}.}
+\item{missing}{Handling of missing values. By default (\code{NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If families with missing values should be excluded, use \code{missing = "listwise"}}
+
+\item{...}{Additional parameters passed to the \code{lavaan} \code{\link{sem}} function.}
+
+\item{control.variables}{A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is very beta, and seems to break model comparison. Use with caution (or better: don't use it at all, yet).}
 }
 \description{
 Performs several RSA model tests on a data set with two predictors
 }
 \details{
-You can also fit binary outcome variables with a probit link function. For that purpose, the response variable has to be defined as "ordered": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary")} (for more details see the help file of the \code{sem} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
+Even if the main variables of the model are normally distirbuted, their squared terms and interaction terms are necessarily non-normal. By default, the RSA function uses a scaled test statistic (\code{test="Satorra-Bentler"}) and robust standard errors (\code{se="robust"}), which are robust against violations of the normality assumption.
+You can also fit binary outcome variables with a probit link function. For that purpose, the response variable has to be defined as "ordered": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
 }
 \examples{
 # Compute response surface from a fake data set
@@ -84,6 +90,6 @@ plot(r.m, model="RR", xlab="Explicit power motive",
 }
 }
 \seealso{
-\code{\link{demoRSA}}, \code{\link{plotRSA}}, \code{\link{RSA.ST}}, \code{\link{confint.RSA}}
+\code{\link{demoRSA}}, \code{\link{plotRSA}}, \code{\link{RSA.ST}}, \code{\link{confint.RSA}}, \code{\link{compare}}
 }
 

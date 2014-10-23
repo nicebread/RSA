@@ -4,7 +4,8 @@
 #' Performs several RSA model tests on a data set with two predictors
 #'
 #' @details
-#' You can also fit binary outcome variables with a probit link function. For that purpose, the response variable has to be defined as "ordered": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary")} (for more details see the help file of the \code{sem} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
+#' Even if the main variables of the model are normally distirbuted, their squared terms and interaction terms are necessarily non-normal. By default, the RSA function uses a scaled test statistic (\code{test="Satorra-Bentler"}) and robust standard errors (\code{se="robust"}), which are robust against violations of the normality assumption.
+#' You can also fit binary outcome variables with a probit link function. For that purpose, the response variable has to be defined as "ordered": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
 #'
 #' @export
 #' @import lavaan
@@ -23,12 +24,14 @@
 #' @param verbose Should additional information during the computation process be printed?
 #' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
-#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
-#' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there.
-#' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function. For example, you can obtained bootstrapped standard errors by setting \code{se="boot"}.
+#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is very beta, and seems to break model comparison. Use with caution (or better: don't use it at all, yet).
+#' @param estimator Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values.
+#' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).
+#' @param missing Handling of missing values. By default (\code{NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If families with missing values should be excluded, use \code{missing = "listwise"}
+#' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function.
 #'
 #'
-#' @seealso \code{\link{demoRSA}}, \code{\link{plotRSA}}, \code{\link{RSA.ST}}, \code{\link{confint.RSA}}
+#' @seealso \code{\link{demoRSA}}, \code{\link{plotRSA}}, \code{\link{RSA.ST}}, \code{\link{confint.RSA}}, \code{\link{compare}}
 #'
 #' @examples
 #' # Compute response surface from a fake data set
@@ -73,17 +76,21 @@
 
 RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE, 
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
-	verbose=TRUE, add = "", 
-	control.variables=c(), se = "robust", ...) {
+	verbose=TRUE, add = "", estimator="MLR",
+	se = "robust", missing=NA, ..., control.variables=c()) {
 
-	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")
+	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong")
+	
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
+	#if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy", "weak", "strong")}
 	if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
 	if (any(!models %in% validmodels))
 		stop("Unknown model name provided in parameter 'models'.")
 	
+
+	
 	# set all result objects to NULL as default
-	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.SQD <- s.SSQD <- s.SRSQD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- NULL
+	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.SQD <- s.SSQD <- s.SRSQD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- s.weak <- s.strong <-  NULL
 	SRSQD.rot <- ""
 	SRRR.rot <- ""
 	
@@ -108,7 +115,21 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 		
 	# give warning if one variable has a much higher range than the other variable
 	if ((max(df[, IV1], na.rm=TRUE) - min(df[, IV1], na.rm=TRUE)) / (max(df[, IV2], na.rm=TRUE) - min(df[, IV2], na.rm=TRUE)) > 2)
-		warning("Predictor variables have a very different range (by factor 2)- please check scaling of variables.")
+		warning("Predictor variables have a very different range (by factor 2 or larger)- please check scaling of variables.")
+	
+	
+	
+	# set defaults for missing option
+	if (is.na(missing)) {
+		if (any(is.na(df))) {
+			missing <- "fiml"
+			warning("There are missing values in your data set. Model is computed with option `missing = 'fiml'`. This is only valid if the data are missing completely at random (MCAR) or missing at random (MAR)! If you want to exclude NA, use `missing = 'listwise'`", call.=FALSE)
+		} else {
+			missing <- "listwise"
+		}
+	}
+	
+	
 	
 	IV12 <- paste0(IV1, "2")
 	IV22 <- paste0(IV2, "2")
@@ -129,9 +150,18 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	f <- paste0(paste0(DV, " ~ ", paste(IV1, IV2, IV12, IV_IA, IV22, sep=" + ")), addcubic, CV)
 	lm.full <- lm(f, df, na.action=na.exclude)
 	
-	# Mark outliers and influential cases according to Bollen & Jackman, 1980
+	# ---------------------------------------------------------------------
+	#  Mark outliers and influential cases 
+	
+	# define the defaults
+	if (is.null(out.rm) || (typeof(out.rm) == "logical" && out.rm == TRUE)) {
+		out.rm <- "bj1980"
+	}
+	out.rm <- match.arg(out.rm, c("bj1980", "robust"))
 	df$out <- FALSE
-	if (out.rm == TRUE) {
+
+	#...according to Bollen & Jackman, 1980
+	if (out.rm == "bj1980") {
 		inf <- influence.measures(lm.full)
 		df$out <- apply(inf$is.inf[, c("dffit", "cook.d", "hat")], 1, sum) == 3
 		n.out <- sum(na.omit(df$out) == TRUE)
@@ -139,6 +169,21 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 			warning(paste("Removed", n.out, "multivariate outlier(s) according to Bollen & Jackman (1980) criteria. Outliers are in row(s):", paste(which(df$out == TRUE) , collapse=", ")))
 		}
 	}
+	#...outpro function from WRS
+	if (out.rm == "robust") {
+		stop("Robust outlier detection not implemented yet.")
+		# out.pro <- outpro(df[, c(DV, IV1, IV2)])
+# 		n.out <- out.pro$n.out
+# 		df$out[out.pro$out.id] <- TRUE
+# 		if (verbose==TRUE & n.out>0) {
+# 			warning(paste("Removed", n.out, "multivariate outlier(s) using a robust procedure (Wilcox, 2012). Outliers are in row(s):", paste(which(df$out == TRUE) , collapse=", ")))
+# 		}
+	}
+	
+	# Rows with outliers have a NA in $out. Should they be kept or removed? I will keep them, otherwise it would not make sense to have fiml estimation, as all NAs are automatically processed as outliers.
+	# FIXME: is this a good default choice?
+	df$out[is.na(df$out)] <- FALSE
+
 
 	## Test all models
 	
@@ -149,7 +194,7 @@ withCallingHandlers({
 	poly <- paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b3*", IV12, " + b4*", IV_IA, " + b5*", IV22, CV)
 	
 	if ("null" %in% models) {
-		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("additive" %in% models) {
@@ -163,7 +208,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("onlyx2" %in% models) {
@@ -177,7 +222,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("onlyy2" %in% models) {
@@ -191,7 +236,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 
 	if ("onlyx" %in% models) {
@@ -206,7 +251,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("onlyy" %in% models) {
@@ -221,7 +266,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
 		add, sep="\n")
-		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 
@@ -237,7 +282,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.diff <- sem(m.diff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.diff <- sem(m.diff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 		#summary(s.diff, fit.measures=TRUE)
 	}
 	
@@ -253,7 +298,7 @@ withCallingHandlers({
 			"a3 := b1-b2",
 			"a4 := 0",
 			add, sep="\n")
-			s.mean <- sem(m.mean, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.mean <- sem(m.mean, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 		#summary(s.mean, fit.measures=TRUE)
 	}
 
@@ -285,7 +330,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		add, sep="\n")
 		
-			s.IA <- sem(m.IA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.IA <- sem(m.IA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("SQD" %in% models) {
@@ -303,7 +348,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("SSQD" %in% models) {
@@ -321,7 +366,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")			
-			s.SSQD <- sem(m.SSQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.SSQD <- sem(m.SSQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if (any(models %in% c("RR"))) {
@@ -340,7 +385,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.RR <- sem(m.RR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.RR <- sem(m.RR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if (any(models %in% c("SRR"))) {
@@ -359,7 +404,7 @@ withCallingHandlers({
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			
 			add, sep="\n")
-			s.SRR <- sem(m.SRR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.SRR <- sem(m.SRR, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	
@@ -381,13 +426,13 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 		
 				add, sep="\n")
-				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)	
+				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)	
 				
 			if (verbose==TRUE) print("Computing rotated and shifted rising ridge model (SRRR), down ...")
 			m.SRRR.down <- paste(paste(poly, " + start(-0.01)*", IV12, " + start(-0.01)*", IV22),
 			#m.SRRR <- paste(paste(poly, " + start(-0.001)*", IV22),
-				"b3 < 0.000001",
-				"b5 < 0.000001",
+				"b3 < -0.000001",
+				"b5 < -0.000001",
 				"b4^2 == 4*b3*b5",
 				"a1 := b1+b2",
 				"a2 := b3+b4+b5",
@@ -401,7 +446,7 @@ withCallingHandlers({
 				"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 	
 				add, sep="\n")
-				s.SRRR.down <- sem(m.SRRR.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)	
+				s.SRRR.down <- sem(m.SRRR.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)	
 				
 			if (inspect(s.SRRR.up, "converged") == FALSE & inspect(s.SRRR.down, "converged") == TRUE) {
 				SRRR.rot <- "down"
@@ -456,14 +501,14 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSQD.up <- sem(m.SRSQD.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.SRSQD.up <- sem(m.SRSQD.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 			
 			
 		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), down ...")
 		m.SRSQD.down <- paste(paste(poly, " + start(-0.001)*", IV22),
 			"b1 == (b2*b4)/(2*b5)",
-			"b3 < 0.000001",
-			"b5 < 0.000001",
+			"b3 < -0.000001",
+			"b5 < -0.000001",
 			"b4^2 == 4*b3*b5",
 		
 			"C := -.5*(b2/b5)",
@@ -489,7 +534,7 @@ withCallingHandlers({
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
-			s.SRSQD.down <- sem(m.SRSQD.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.SRSQD.down <- sem(m.SRSQD.down, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	
 			if (inspect(s.SRSQD.up, "converged") == FALSE & inspect(s.SRSQD.down, "converged") == TRUE) {
 				SRSQD.rot <- "down"
@@ -538,12 +583,68 @@ withCallingHandlers({
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
+			# specific tests for fit pattern
+			"weakcondition    := b3*b5",				# must be > 0
+			"strongcondition1 := (b2*b4)/(2*b5) - b1",	# must not be different from 0
+			"strongcondition2 := 2*sqrt(b3*b5)  - b4",	# must not be different from 0
 			add,
 			sep="\n"
 		)
-		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
+	}	
+	
+	if ("weak" %in% models) {
+		if (verbose==TRUE) print("Computing weak fit pattern ...")
+		m.weak <-  paste(poly,
+			"a1 := b1+b2",
+			"a2 := b3+b4+b5",
+			"a3 := b1-b2",
+			"a4 := b3-b4+b5",
+			"X0 := (b2*b4 - 2*b1*b5) / (4*b3*b5 - b4^2)",
+			"Y0 := (b1*b4 - 2*b2*b3) / (4*b3*b5 - b4^2)",
+			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
+			"p10 := Y0 - p11*X0",
+			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
+			"p20 := Y0 - p21*X0",
+			"as1X := b1 + p11*b2 + b4*p10 + 2*b5*p10*p11",
+			"as2X := b3 + b4*p11 + (p11^2)*b5",
+			"as1Y := b1/p11 + b2 - (2*b3*p10)/p11^2 - (b4*p10)/p11",
+			"as2Y := b3/p11^2 + b4/p11 + b5",
+			"as3X := b1 + p21*b2 + b4*p20 + 2*b5*p20*p21",
+			"as4X := b3 + b4*p21 + (p21^2)*b5",
+			"as3Y := b1/p21 + b2 - (2*b3*p20)/p21^2 - (b4*p20)/p21",
+			"as4Y := b3/p21^2 + b4/p21 + b5",
+			# eigenvalues
+			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
+			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
+			# constraints for weak pattern
+			"b3*b5 > 0",	# must be > 0
+			add,
+			sep="\n"
+		)
+		s.weak <- sem(m.weak, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
+	
+	if ("strong" %in% models) {
+		if (verbose==TRUE) print("Computing strong fit pattern ...")
+		m.strong <-  paste(poly,
+			"a1 := b1+b2",
+			"a2 := b3+b4+b5",
+			"a3 := b1-b2",
+			"a4 := b3-b4+b5",
+			# eigenvalues
+			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
+			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
+			# constraints for strong pattern
+			"b3*b5 > 0.000001",			# must be > 0
+			"(b2*b4) == 2*b1*b5",	# must be 0
+			"4*b3*b5  == b4^2",	# must be 0
+			add,
+			sep="\n"
+		)
+		s.strong <- sem(m.strong, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
+	}
 	
 	if (cubic==TRUE) {
 		if (verbose==TRUE) print("Computing full cubic model (cubic) ...")
@@ -558,7 +659,7 @@ withCallingHandlers({
 			sep="\n"
 		)
 		#print(m.cubic)
-		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)		
+		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)		
 	}
 	
 	#m.absdiff.JRE <-  paste(
@@ -567,14 +668,14 @@ withCallingHandlers({
 	#	"b7 == -b8",
 	#	"b7 == -2*b1",
 	#	add, sep="\n")
-	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	#summary(s.absdiff.JRE, fit.measures=TRUE)
 	
 	# the unconstrained absolute difference model - Edwards (2002) formula
 	#m.absunc.JRE <-  paste(
 	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + b6*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
 	#	add, sep="\n")
-	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	#summary(s.absunc.JRE, fit.measures=TRUE)
 	
 	
@@ -588,7 +689,7 @@ withCallingHandlers({
 			"b7 == -b8",
 			add, sep="\n")
 			
-			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("absunc" %in% models) {
@@ -599,7 +700,7 @@ withCallingHandlers({
 			ifelse(breakline==FALSE, "b6==0", ""),
 			add, sep="\n")
 			
-			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, test="Satorra-Bentler", ...)
+			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 },	  # end of "withCallingHandlers"
@@ -654,7 +755,7 @@ withCallingHandlers({
 	# ---------------------------------------------------------------------
 	# Build results object
 	res <- list(
-		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, SQD=s.SQD, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSQD=s.SSQD, SRSQD=s.SRSQD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2), 
+		models = list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, SQD=s.SQD, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSQD=s.SSQD, SRSQD=s.SRSQD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2, weak=s.weak, strong=s.strong), 
 		SRSQD.rot = SRSQD.rot, SRRR.rot = SRRR.rot, LM=summary(lm.full), formula=formula, 
 		data=df, out.rm = out.rm, outliers = which(df$out == TRUE), DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, 
 		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 

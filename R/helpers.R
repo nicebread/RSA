@@ -44,18 +44,51 @@ add.variables <- function(formula, df) {
 }
 
 
+# helper function: takes a list of lavaan models (can include NULLs), and returns the usual anova object
+anovaList <- function(modellist) {
+	mods <- modellist[!sapply(modellist, function(x) is.null(x))]
+	mods <- mods[!sapply(mods, function(x) !inspect(x, "converged"))]
+	
+	if (length(mods) == 0) {
+		return(list(n.mods=0))
+	}
+	
+    # put them in order (using df)
+    DF <- sapply(mods, fitmeasures, "df")
+    mods <- mods[order(DF, decreasing = FALSE)]
+		
+	pStr <- sapply(1:length(mods), function(x){ 
+		if(x==1) {
+			paste("mods[[",x,"]]",sep = "")
+		} else {
+			paste("force(mods[[",x,"]])",sep = "")
+		}
+	})
+	pStr2 <- paste0("anova(", paste(pStr, collapse=", "), ")")
+	
+	a1 <- eval(parse(text = pStr2))
+	
+	if (length(mods) > 1) {
+		rownames(a1) <- names(mods)
+	}
+	
+	attr(a1, "n.mods") <- length(mods)
+	return(list(ANOVA=a1, models=mods, n.mods=length(mods)))
+}
+
 
 ## internal helper function: compare models
 # mL = model list
 # set = label that is attached to the results
 cModels <- function(mL, set, free.max) {
 	aL1 <- anovaList(mL)
-	if (aL1$n.mods > 1 & "full" %in% names(mL)) {
-		n <- nobs(aL1$models[["full"]])
+	if (aL1$n.mods > 1) {
+		N <- lavaan::nobs(aL1$models[[1]])
 		a1 <- cbind(aL1$ANOVA[, c(1, 4:7)], plyr::ldply(aL1$models, function(X) {
 			F <- fitmeasures(X)
 			R <- inspect(X, "r2")
 			names(R) <- "R2"
+			n <- lavaan::nobs(X)
 			k <- free.max - F["df"]				
 			R2.p <- ifelse(k==0,
 				NA,
@@ -66,11 +99,11 @@ cModels <- function(mL, set, free.max) {
 	      	AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
 			names(AICc) <- NULL
 			
-			return(c(AICc=AICc, F[c("cfi", "tli", "srmr")], R, R2.p))
+			return(c(AICc=AICc, F[c("cfi", "srmr")], R, R2.p))
 		}))
 		a1 <- a1[, !grepl(".id", colnames(a1))]
 		a1$k <- free.max - a1$Df
-		a1$R2.adj <- 1 - ((1-a1$R2))*((n-1)/(n-a1$k-1))
+		a1$R2.adj <- 1 - ((1-a1$R2))*((N-1)/(N-a1$k-1))
 		a1$delta.R2 <- c(NA, a1$R2[1:(nrow(a1)-1)] - a1$R2[2:(nrow(a1))])			
 		a1$model <- rownames(a1)
 		a1$set <- set
@@ -126,39 +159,6 @@ getFreeParameters <- function(model) {
 }
 
 
-
-
-# helper function: takes a list of lavaan models (can include NULLs), and returns the usual anova object
-anovaList <- function(modellist) {
-	mods <- modellist[!sapply(modellist, function(x) is.null(x))]
-	mods <- mods[!sapply(mods, function(x) !inspect(x, "converged"))]
-	
-	if (length(mods) == 0) {
-		return(list(n.mods=0))
-	}
-	
-    # put them in order (using df)
-    DF <- sapply(mods, fitmeasures, "df")
-    mods <- mods[order(DF, decreasing = FALSE)]
-		
-	pStr <- sapply(1:length(mods), function(x){ 
-		if(x==1) {
-			paste("mods[[",x,"]]",sep = "")
-		} else {
-			paste("force(mods[[",x,"]])",sep = "")
-		}
-	})
-	pStr2 <- paste0("anova(", paste(pStr, collapse=", "), ")")
-	
-	a1 <- eval(parse(text = pStr2))
-	
-	if (length(mods) > 1) {
-		rownames(a1) <- names(mods)
-	}
-	
-	attr(a1, "n.mods") <- length(mods)
-	return(list(ANOVA=a1, models=mods, n.mods=length(mods)))
-}
 
 
 # computes the coordinates of an arbitrary intersection of the surface,

@@ -3,12 +3,15 @@
 \alias{aictab}
 \title{Show a table of AIC model comparisons}
 \usage{
-aictab(x, plot = FALSE)
+aictab(x, plot = FALSE, cand.set = names(x$models)[!names(x$models) \%in\%
+  c("absdiff", "absunc")])
 }
 \arguments{
 \item{x}{An RSA object}
 
 \item{plot}{Should a plot of the AICc table be plotted? (Experimental)}
+
+\item{cand.set}{A vector with all model names of the candidate set. Defaults to all polynomial models in the RSA object.}
 }
 \description{
 Show a table of AIC model comparisons

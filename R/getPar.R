@@ -57,14 +57,14 @@ getPar <- function(x, type="coef", model="full", digits=NA, ...) {
 	}
 	if (type %in% c("r2.p", "rsquared.p", "r.squared.p")) {
 		R <- inspect(x$models[[model]], "R2", ...)
-		n <- nobs(x$models[[model]])
+		n <- lavaan::nobs(x$models[[model]])
 		k <- fitmeasures(x$models[[model]], "npar")
 		return(pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
 	}
 	
 	if (type %in% c("r2.adj", "rsquared.adj", "r.squared.adj")) {
 		freeparam <- getFreeParameters(x$models[[model]]) - fitmeasures(x$models[[model]], "Df")
-		r2.adj <- 1 - (1-inspect(x$models[[model]], "R2")) * ((nobs(x$models[[model]])-1)/(nobs(x$models[[model]]) - freeparam - 1))
+		r2.adj <- 1 - (1-inspect(x$models[[model]], "R2")) * ((lavaan::nobs(x$models[[model]])-1)/(lavaan::nobs(x$models[[model]]) - freeparam - 1))
 		names(r2.adj) <- "r2.adj"
 		return(r2.adj)
 	}

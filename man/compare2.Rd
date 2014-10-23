@@ -18,6 +18,6 @@ compare2(x, m1 = "", m2 = "full", verbose = TRUE)
 Compare several fit indexes of two models computed from the RSA function
 }
 \details{
-You must take care yourself that the compared models are nested! There is no automatic check, so you could, in principle, compare non-nested models. This is valid for AIC, BIC, CFI, TLI, and R2 indices, but *not* for the chi2-LR test!
+You must take care yourself that the compared models are nested! There is no automatic check, so you could, in principle, compare non-nested models. This is valid for AIC, BIC, CFI, and R2 indices, but *not* for the chi2-LR test!
 }
 

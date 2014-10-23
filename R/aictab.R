@@ -9,12 +9,13 @@
 #'
 #' @export
 #' @param x An RSA object
+#' @param cand.set A vector with all model names of the candidate set. Defaults to all polynomial models in the RSA object.
 #' @param plot Should a plot of the AICc table be plotted? (Experimental)
 
-aictab <- function(x, plot=FALSE) {
-	cand.set <- x$models[!names(x$models) %in% c("absdiff", "absunc")]
-	cand.set <- cand.set[!unlist(lapply(cand.set, is.null))]
-	a1 <- aictab.lavaan(cand.set, modnames=names(cand.set))
+aictab <- function(x, plot=FALSE, cand.set=names(x$models)[!names(x$models) %in% c("absdiff", "absunc")]) {
+	cand.set.models <- x$models[cand.set]
+	cand.set.models <- cand.set.models[!unlist(lapply(cand.set.models, is.null))]
+	a1 <- aictab.lavaan(cand.set.models, modnames=names(cand.set.models))
 	
 	if (plot==TRUE) {
 		a2 <- a1
@@ -39,9 +40,10 @@ aictab <- function(x, plot=FALSE) {
 }
 
 
+# from: http://byrneslab.net/classes/lavaan_materials/lavaan.modavg.R
 AICc.lavaan<-function(object, second.ord=TRUE, c.hat = 1, return.K = FALSE){
 	object <- as.list(fitMeasures(object))
-  npar<-object$baseline.df - object$df
+	npar<-object$baseline.df - object$df
 	if(return.K == TRUE) return(object$npar)
 	if(second.ord == FALSE && c.hat>1) return(-2*object$logl/c.hat+2*npar)
 	if(second.ord == FALSE) return(object$aic)
@@ -50,16 +52,14 @@ AICc.lavaan<-function(object, second.ord=TRUE, c.hat = 1, return.K = FALSE){
 }
     
 aictab.lavaan<-function(cand.set, modnames, sort = TRUE, c.hat = 1, second.ord = TRUE, nobs = NULL){
-	if(is.null(modnames)) modnames<-1:length(cand.set)
+	if (is.null(modnames)) modnames<-1:length(cand.set)
 	# check.resp <- lapply(X = cand.set, FUN = function(b) formula(b)[2])
    # if (length(unique(check.resp)) > 1) 
    #     stop("You must use the same response variable for all models\n")
     Results <- NULL
     Results <- data.frame(Modnames = modnames)
-    Results$K <- unlist(lapply(X = cand.set, FUN = AICc.lavaan, 
-        return.K = TRUE, c.hat = c.hat,second.ord = second.ord))
-    Results$AICc <- unlist(lapply(X = cand.set, FUN = AICc.lavaan, 
-        return.K = FALSE, c.hat = c.hat,second.ord = second.ord))
+    Results$K <- unlist(lapply(X = cand.set, FUN = AICc.lavaan, return.K = TRUE, c.hat = c.hat, second.ord = second.ord))
+    Results$AICc <- unlist(lapply(X = cand.set, FUN = AICc.lavaan, return.K = FALSE, c.hat = c.hat,second.ord = second.ord))
     Results$Delta_AICc <- Results$AICc - min(Results$AICc)
     Results$ModelLik <- exp(-0.5 * Results$Delta_AICc)
     Results$AICcWt <- Results$ModelLik/sum(Results$ModelLik)

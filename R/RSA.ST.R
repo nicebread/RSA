@@ -91,7 +91,7 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 			names(SE) <- c("x", "y", "x2", "xy", "y2")
 			COV0 <- vcov(fit$models[[model]])
 			COV <- c(x_y = COV0["b1", "b2"], x2_y2=COV0["b3", "b5"], x2_xy = COV0["b3", "b4"], y2_xy = COV0["b5", "b4"])
-			df <- nobs(fit$models[[model]]) - sum(inspect(fit$models[[model]], "free")$beta != 0) - 1
+			df <- lavaan::nobs(fit$models[[model]]) - sum(inspect(fit$models[[model]], "free")$beta != 0) - 1
 		} else {
 			stop(paste("Unknown object of class", attr(x, "class")))
 		}

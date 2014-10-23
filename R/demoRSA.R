@@ -65,6 +65,8 @@
 #' demoRSA(r1, points=TRUE, model="SQD")
 #' }
 
+## TODO: Convert to Shiny app
+
 demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), points = list(show=TRUE, value="raw", jitter=0, color="black", cex=.5), model="full", extended=FALSE, ...) {
 
 	type <- match.arg(type, c("interactive", "3d", "contour"))
@@ -72,7 +74,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	if (type2 == "interactive") stop("demoRSA only works with type == '3d' or 'contour'!")
 		
 	# if (!requireNamespace("tkrplot", quietly = TRUE)) {
-	# 	stop('`tkrplot` package needed for modeltrees. Please install it with . Please install with install.packages("tkrplot")', call. = FALSE)
+	# 	stop('`tkrplot` package needed for modeltrees. Please install with install.packages("tkrplot")', call. = FALSE)
 	# }	
 	
 

@@ -36,21 +36,21 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res1)) {
 			cat("Testing directed difference models: Interaction, additive main effects, difference model :\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res1[, 1:14], 3))
+			print(round(res1[, 1:13], 3))
 		}
 			
 		res2 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRSQD=SRSQD, SSQD=SSQD, SQD=SQD, null=null), set="flat_sq", free.max)
 		if (verbose==TRUE & !is.null(res2)) {
 			cat("\n\nTesting 'flat ridge' discrepancy models against SRRR and full polynomial model:\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res2[, 1:14], 3))
+			print(round(res2[, 1:13], 3))
 		}
 	
 		res3 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRR=SRR, RR=RR, SQD=SQD, null=null), set="RR", free.max)
 		if (verbose==TRUE & !is.null(res3)) {
 			cat("\n\nTesting 'rising ridge' against full polynomial model:\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res3[, 1:14], 3))
+			print(round(res3[, 1:13], 3))
 		}
 		
 		## compute additional comparisons
@@ -58,7 +58,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res4)) {
 			cat("\n\nTesting transition from SRR to SSQD model (i.e., removing the mean level effect from SRR):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res4[, 1:14], 3))
+			print(round(res4[, 1:13], 3))
 		}
 		
 		## single variable models (only x + x2, or y + y2)
@@ -66,13 +66,13 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res5)) {
 			cat("\n\nSingle variable models (only x + x^2):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res5[, 1:14], 3))
+			print(round(res5[, 1:13], 3))
 		}
 		res6 <- cModels(list(full=full, onlyy2=onlyy2, onlyy=onlyy), set="onlyy", free.max)
 		if (verbose==TRUE & !is.null(res6)) {
 			cat("\n\nSingle variable models (only y + y^2):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res6[, 1:14], 3))
+			print(round(res6[, 1:13], 3))
 		}
 		
 		
@@ -94,7 +94,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 			F <- fitmeasures(X)
 			R <- inspect(X, "r2")
 			names(R) <- "R2"
-			n <- nobs(X)
+			n <- lavaan::nobs(X)
 			k <- free.max2 - F["df"]
 			R2.p <- pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE)
 			names(R2.p) <- "R2.p"
@@ -102,7 +102,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		}))
 		a3 <- a3[, !grepl(".id", colnames(a3))]
 		a3$k <- free.max2 - a3$Df
-		a3$R2.adj <- 1 - ((1-a3$R2))*((nobs(absunc)-1)/(nobs(absunc)-a3$k-1))
+		a3$R2.adj <- 1 - ((1-a3$R2))*((lavaan::nobs(absunc)-1)/(lavaan::nobs(absunc)-a3$k-1))
 		a3$delta.R2 <- c(NA, a3$R2[1:(nrow(a3)-1)] - a3$R2[2:(nrow(a3))])
 		if (verbose==TRUE) print(round(a3, 3))
 		a3$model <- rownames(a3)
@@ -129,7 +129,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 #' Compare several fit indexes of two models computed from the RSA function
 #'
 #' @details
-#' You must take care yourself that the compared models are nested! There is no automatic check, so you could, in principle, compare non-nested models. This is valid for AIC, BIC, CFI, TLI, and R2 indices, but *not* for the chi2-LR test!
+#' You must take care yourself that the compared models are nested! There is no automatic check, so you could, in principle, compare non-nested models. This is valid for AIC, BIC, CFI, and R2 indices, but *not* for the chi2-LR test!
 #'
 #' @export
 #' @param x An RSA object
@@ -148,7 +148,7 @@ compare2 <- function(x, m1="", m2="full", verbose=TRUE) {
 	names(mL) <- c(m1, m2)
 	res <- cModels(mL, set="two_models", free.max)
 	if (verbose==TRUE & !is.null(res)) {
-		print(round(res[, 1:14], 3))
+		print(round(res[, 1:13], 3))
 	}
 
 	invisible(res)

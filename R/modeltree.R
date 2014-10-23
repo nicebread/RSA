@@ -26,7 +26,7 @@
 #' modeltree(c1)
 modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 	if (!requireNamespace("qgraph", quietly = TRUE)) {
-		stop('`qgraph` package needed for modeltrees. Please install it with . Please install with install.packages("qgraph")', call. = FALSE)
+		stop('`qgraph` package needed for modeltrees. Please install with install.packages("qgraph")', call. = FALSE)
 	}
 
 	c1 <- x

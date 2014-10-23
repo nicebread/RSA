@@ -69,7 +69,7 @@
 #' @param fit Do not change that parameter (internal use only)
 #' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on the upper left side; in case of a contour plot the principal axes are plotted.
 #' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis
-#' @param project A vector of component names that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour")
+#' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
 #' @param link Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"
 #' @param suppress.surface Should the surface be suppressed (only for \code{type="3d"})? Useful for only showing the data points, or for didactic purposes (e.g., first show the cube, then fade in the surface).
@@ -259,6 +259,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	# ---------------------------------------------------------------------
 	# Calculate positions of raw points
 
+	xpoints <- ypoints <- zpoints <- NA
 	if (points$out.mark == TRUE & is.null(fit)) {
 		warning("Outliers can only be marked if an RSA-object is provided. Points are not plotted.")
 		points$show <- FALSE
@@ -494,7 +495,29 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					  }
 					  
 					  if (p == "hull") {
-					  	
+	  					  bag.rescale <- RESCALE(bag)
+						  panel.3dscatter(x = bag.rescale$X, y = bag.rescale$Y, z = rep(RESCALE.Z(min(zlim.final) + .01), nrow(bag.rescale)), 
+					  				xlim = xlim, ylim = ylim, zlim = zlim,
+		                            xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
+									type="l", col.line="grey30", lty="dashed", lwd=2, ...)
+									
+  	  					  loop.rescale <- RESCALE(loop)
+  						  panel.3dscatter(x = loop.rescale$X, y = loop.rescale$Y, z = rep(RESCALE.Z(min(zlim.final) + .01), nrow(loop.rescale)), 
+  					  				xlim = xlim, ylim = ylim, zlim = zlim,
+  		                            xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
+  									type="l", col.line="black", lty="dashed", lwd=2, ...)			
+										
+					  }
+					  
+					  if (p == "points") {
+  			              x2 <- xlim.scaled[1] + diff(xlim.scaled) * (x.points - xlim[1]) / diff(xlim)
+  			              y2 <- ylim.scaled[1] + diff(ylim.scaled) * (y.points - ylim[1]) / diff(ylim)
+						  z2 <- rep(RESCALE.Z(min(zlim.final) + .01), length(x2))
+						
+  			              panel.3dscatter(x = x2, y = y2, z = z2, 
+							  			xlim = xlim, ylim = ylim, zlim = zlim,
+  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+  										  pch=20, col=points$color, cex=points$cex, ...)
 					  }
 				  }
 			  }
@@ -724,30 +747,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					boxCol <- NA
 				}
 				
-			if (points$show == FALSE) {
-				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
-					scales 	= list(arrows = FALSE, cex=cex, col = axesCol, font = 1, tck=tck, distance=distance), 
-					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
-					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
-					zlab	= list(cex=cex, label=zlab, rot=label.rotation[["z"]]), zlim=zlim, 
-					main	= list(cex=cex.main, label=main),
-					screen	= rotation, 
-					at		= at, col.regions=pal, colorkey=CK, 
-					par.settings = list(
-						axis.line = list(col = "transparent"), 
-						layout.heights = list(top.padding=pad, bottom.padding=pad), 
-						layout.widths=list(left.padding=pad, right.padding=pad),
-						box.3d = list(col=boxCol)), 
-					axes	= axes,
-					axesList= axesList, 
-					SPs		= SP.text, 
-					panel.3d.wireframe = mypanel2)
-								
-				#p1
-				
-			} else {
-				
-				p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
+			p1 <- wireframe(z ~ x*y, new2,  drape=TRUE, 
 					scales 	= list(arrows = FALSE, cex=cex, col = axesCol, font = 1, tck=tck, distance=distance), 
 					xlab	= list(cex=cex, label=xlab, rot=label.rotation[["x"]]), 
 					ylab	= list(cex=cex, label=ylab, rot=label.rotation[["y"]]), 
@@ -765,7 +765,6 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					SPs		= SP.text, 
 					panel.3d.wireframe = mypanel2,
 					x.points=xpoints, y.points=ypoints, z.points=zpoints)
-			}
 				
 	}  # of type == "3d"
 	
@@ -896,9 +895,13 @@ plot.RSA <- function(x, ...) {
 	if (is.null(extras[["zlab"]])) {extras[["zlab"]] <- fit$DV}
 		
 	extras$fit <- fit
-
+	
+	# define the defaults
 	if (is.null(extras$points) || (typeof(extras$points) == "logical" && extras$points == TRUE)) {
 		extras$points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
+	}
+	if (is.null(extras$points) || (typeof(extras$points) == "logical" && extras$points == FALSE)) {
+		extras$points <- list(show=FALSE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
 	}
 	if (is.null(extras$points$out.mark)) extras$points$out.mark <- FALSE
 
