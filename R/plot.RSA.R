@@ -152,11 +152,20 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	pal=NULL, pal.range="box", 
 	pad=0, demo=FALSE, ...) {
 	
+	
+	# ---------------------------------------------------------------------
+	# Warnings and error handling ...
 	if (!identical(xlim, ylim)) {print("Note: Axes dimensions are not equal. The visual diagonal is *not* the line of numerical congruence! Consider choosing identical values for xlim and ylim.")}
 		
 	if (class(x) == "RSA") {
 		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the regression coefficients.")
 	}
+	
+	
+	if (any(c(x3, xy2, x2y, y3) != 0)) {
+		axes <- ""
+	}
+	
 	
 	# define the defaults
 	if (is.null(points) || (typeof(points) == "logical" && points == TRUE)) {
@@ -354,6 +363,13 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	zlim.final <- zlim
 	
+	
+	# Catch border case: completely flat surface. Remove contour, redefine zlim
+	if (var(new2$z) == 0) {
+		contour$show <- FALSE
+		project <- project[-which(project == "contour")]
+		if (zlim[1] == 0 && zlim[2] == 0) zlim <- xlim
+	}
 	
 	
 	# Define colors

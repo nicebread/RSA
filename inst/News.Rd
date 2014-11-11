@@ -13,10 +13,11 @@
 }
 
 
-\subsection{Improvements}{
+\subsection{Bug fixes/ Improvements}{
 	\itemize{
 		\item Internal restructuring to please CRAN; less dependencies (more imports) etc.
 		\item Added Travis CI to the Github repo
+		\item Catched some border cases in plotRSA (e.g., a flat surface led to problems)
 	}
 }
 }

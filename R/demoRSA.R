@@ -163,7 +163,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	update <- function(...) {
 		
 		# dirty hack to please CRAN ..
-		if(getRversion() >= "2.15.1")  {utils::globalVariables('tclvalue')}
+		if (getRversion() >= "2.15.1") {utils::globalVariables('tclvalue')}
 		
 		# read parameters from sliders
         type <- as.character(tclvalue(TYPE))
