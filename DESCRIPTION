@@ -26,7 +26,7 @@ Depends:
     ggplot2,
     lattice,
     gridExtra,
-	tkrplot
+    tkrplot
 Imports:
     plyr,
     RColorBrewer,

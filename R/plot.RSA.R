@@ -4,7 +4,7 @@
 #' Plots an RSA object, or a response surface with specified parameters
 #'
 #' @details
-#' Each plot type has its distinctive advantages. The two-dimensional contour plot gives a clear view of the position of the principal axes and the stationary point. The 3d plot gives a three dimensional impression of the surface, allows overplotting of the original data points (in case an RSA object is provided), and allows the interactive adjustment of regression weights in the \code{\link{demoRSA}} function. The interactive plot allows rotating and exploring a three-dimensional surface with the mouse (nice for demonstration purposes).
+#' Each plot type has its distinctive advantages. The two-dimensional contour plot gives a clear view of the position of the principal axes and the stationary point. The 3d plot gives a three dimensional impression of the surface, allows overplotting of the original data points (in case an RSA object is provided), and allows the interactive adjustment of regression weights in the \code{\link{RSA}} function. The interactive plot allows rotating and exploring a three-dimensional surface with the mouse (nice for demonstration purposes).
 #' If you want to export publication-ready plots, it is recommended to export it with following commands:
 #' \code{p1 <- plot(r1, bw=TRUE)
 #' trellis.device(device="cairo_pdf", filename="RSA_plot.pdf")
@@ -67,7 +67,8 @@
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param demo Do not change that parameter (internal use only)
 #' @param fit Do not change that parameter (internal use only)
-#' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on the upper left side; in case of a contour plot the principal axes are plotted.
+#' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.
+#' @param coefs Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)
 #' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis
 #' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
@@ -80,7 +81,7 @@
 #' @param SP.CI Plot the CI of the stationary point (only relevant for \code{type="contour"})
 #' @param distance A vector of three values defining the distance of labels to the axes
 #' @param tck A vector of three values defining the position of labels to the axes (see ?wireframe)
-#' @param pal A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}
+#' @param pal A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}. If \code{pal="flip"}, the default palette is used, but reversed (so that red is on top and green on the bottom).
 #' @param pal.range Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.
 #' @param pad Pad controls the margin around the figure (positive numbers: larger margin, negative numbers: smaller margin)
 #'#' @param ... Additional parameters passed to the plotting function (e.g., sub="Title"). A useful title might be the R squared of the plotted model: \code{sub = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))}
@@ -140,7 +141,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	surface="predict", lambda=NULL, 
 	suppress.surface=FALSE, suppress.box = FALSE,
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
-	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, 
+	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, coefs=FALSE,
 	axes=c("LOC", "LOIC", "PA1", "PA2"), 
 	project=c("contour"), maxlines=FALSE,
 	cex=1, cex.main=1, 
@@ -161,9 +162,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the regression coefficients.")
 	}
 	
-	
-	if (any(c(x3, xy2, x2y, y3) != 0)) {
+	# remove LOC, LOIC etc. when they do not make sense.
+	if (any(c(x3, xy2, x2y, y3, w, wx, wy) != 0)) {
 		axes <- ""
+		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
 	}
 	
 	
@@ -264,6 +266,12 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		SP.text <- ""
 	}
 	
+	# Print coefs in 3d plot?
+	COEFS <- ""
+	if (coefs == TRUE) {
+		COEFS <- paste0("b1 = ", f2(x, 3), "\n", "b2 = ", f2(y, 3), "\n", "b3 = ", f2(x2, 3), "\n", "b4 = ", f2(xy, 3), "\n", "b5 = ", f2(y2, 3), "\n")
+	}
+	
 	
 	# ---------------------------------------------------------------------
 	# Calculate positions of raw points
@@ -356,7 +364,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		# old: set zlim according to fitted surface
 		#zlim <- c(min(min(new2$z, na.rm=TRUE), min(points$data[, 3], na.rm=TRUE)), max(max(new2$z, na.rm=TRUE), max(points$data[, 3], na.rm=TRUE)))
 		
-		# new: set zlim according to actualy data range
+		# new: set zlim according to actual data range
 		zlim <- c(min(points$data[, 3], na.rm=TRUE), max(points$data[, 3], na.rm=TRUE))
 	} else {
 		if (is.null(zlim)) zlim <- c(min(new2$z), max(new2$z))
@@ -372,13 +380,22 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	
 	
-	# Define colors
+	## Define colors
 	
+	# flip palette?
+	flip <- FALSE
+	if (!is.null(pal) && pal=="flip") {
+		flip <- TRUE
+		pal <- NULL
+	}
 	if (bw == FALSE) {
+		
 		# RdYlGn palette
 		if (is.null(pal)) {
 			pal <- c("#A50026","#D73027","#F46D43","#FDAE61","#FEE08B","#FFFFBF","#D9EF8B","#A6D96A","#66BD63","#1A9850","#006837")
+			if (flip==TRUE) {pal <- rev(pal)}
 		}
+		
 		gridCol <- ifelse(contour$show == TRUE, "grey60", "grey30")
 		
 		LOC.col <- LOIC.col <- "blue"
@@ -386,6 +403,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	} else {
 		if (is.null(pal)) {
 			pal <- colorRampPalette(c("#FFFFFF", "#AAAAAA", "#030303"), bias=2)(11)
+			if (flip==TRUE) {pal <- rev(pal)}
 		}
 		gridCol <- ifelse(contour$show == TRUE, "grey30", "grey30")
 		
@@ -393,8 +411,6 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		PA1.col <- PA2.col <- "grey50"
 	}
 	if (length(pal) < 2) {legend <- FALSE}
-		
-		
 	
 	
 	
@@ -502,6 +518,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			  if (length(project) > 0) {
 				  for (p in project) {
 					  if (p %in% c("LOC", "LOIC", "PA1", "PA2")) {
+						  if (is.null(axesList[[p]])) break;
 						  a0 <- RESCALE(getIntersect2(p0=axesList[[p]]$p0, p1=axesList[[p]]$p1))
 						  if (nrow(a0) <= 1) break;
 							  panel.3dscatter(x = a0$X, y = a0$Y, z = rep(RESCALE.Z(min(zlim.final) + .01), nrow(a0)), 
@@ -640,6 +657,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 							  grid::grid.text(SPs, .02, .95, just="left", gp=grid::gpar(cex=cex))
 						  }  
 						  
+						  if (coefs == TRUE) {
+							  grid::grid.text(COEFS, .80, .87, just="left", gp=grid::gpar(cex=cex))
+						  }  
 						  
 						
 						
@@ -778,7 +798,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 						box.3d = list(col=boxCol)), 
 					axes	= axes,
 					axesList= axesList, 
-					SPs		= SP.text, 
+					SPs		= SP.text,
+					COEFS	= COEFS, 
 					panel.3d.wireframe = mypanel2,
 					x.points=xpoints, y.points=ypoints, z.points=zpoints)
 				

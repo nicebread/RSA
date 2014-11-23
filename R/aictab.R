@@ -9,12 +9,18 @@
 #'
 #' @export
 #' @param x An RSA object
-#' @param cand.set A vector with all model names of the candidate set. Defaults to all polynomial models in the RSA object.
+#' @param models A vector with all model names of the candidate set. Defaults to all polynomial models in the RSA object.
 #' @param plot Should a plot of the AICc table be plotted? (Experimental)
 
-aictab <- function(x, plot=FALSE, cand.set=names(x$models)[!names(x$models) %in% c("absdiff", "absunc")]) {
-	cand.set.models <- x$models[cand.set]
-	cand.set.models <- cand.set.models[!unlist(lapply(cand.set.models, is.null))]
+aictab <- function(x, plot=FALSE, models=names(x$models)[!names(x$models) %in% c("absdiff", "absunc")]) {
+	cand.set.models <- x$models[models]
+	
+	# remove NULL models
+	cand.set.models <- cand.set.models[!unlist(lapply(cand.set.models, is.null))]	
+	
+	# remove non-converged models
+	cand.set.models <- cand.set.models[unlist(lapply(cand.set.models, inspect, "converged"))]
+	
 	a1 <- aictab.lavaan(cand.set.models, modnames=names(cand.set.models))
 	
 	if (plot==TRUE) {

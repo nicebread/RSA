@@ -10,7 +10,7 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   lambda = NULL, suppress.surface = FALSE, suppress.box = FALSE,
   rotation = list(x = -63, y = 32, z = 15), label.rotation = list(x = 19, y
   = -40, z = 92), gridsize = 21, bw = FALSE, legend = TRUE,
-  param = TRUE, axes = c("LOC", "LOIC", "PA1", "PA2"),
+  param = TRUE, coefs = FALSE, axes = c("LOC", "LOIC", "PA1", "PA2"),
   project = c("contour"), maxlines = FALSE, cex = 1, cex.main = 1,
   points = list(data = NULL, show = NA, value = "raw", jitter = 0, color =
   "black", cex = 0.5, out.mark = FALSE), fit = NULL, link = "identity",
@@ -82,7 +82,9 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 
 \item{legend}{Print color legend for z values?}
 
-\item{param}{Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on the upper left side; in case of a contour plot the principal axes are plotted.}
+\item{param}{Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.}
+
+\item{coefs}{Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)}
 
 \item{axes}{A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis}
 
@@ -128,7 +130,7 @@ As a shortcut, you can also set \code{points=TRUE} to set the defaults.}
 
 \item{SP.CI}{Plot the CI of the stationary point (only relevant for \code{type="contour"})}
 
-\item{pal}{A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}}
+\item{pal}{A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}. If \code{pal="flip"}, the default palette is used, but reversed (so that red is on top and green on the bottom).}
 
 \item{pal.range}{Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.}
 
@@ -143,7 +145,7 @@ As a shortcut, you can also set \code{points=TRUE} to set the defaults.}
 Plots an RSA object, or a response surface with specified parameters
 }
 \details{
-Each plot type has its distinctive advantages. The two-dimensional contour plot gives a clear view of the position of the principal axes and the stationary point. The 3d plot gives a three dimensional impression of the surface, allows overplotting of the original data points (in case an RSA object is provided), and allows the interactive adjustment of regression weights in the \code{\link{demoRSA}} function. The interactive plot allows rotating and exploring a three-dimensional surface with the mouse (nice for demonstration purposes).
+Each plot type has its distinctive advantages. The two-dimensional contour plot gives a clear view of the position of the principal axes and the stationary point. The 3d plot gives a three dimensional impression of the surface, allows overplotting of the original data points (in case an RSA object is provided), and allows the interactive adjustment of regression weights in the \code{\link{RSA}} function. The interactive plot allows rotating and exploring a three-dimensional surface with the mouse (nice for demonstration purposes).
 If you want to export publication-ready plots, it is recommended to export it with following commands:
 \code{p1 <- plot(r1, bw=TRUE)
 trellis.device(device="cairo_pdf", filename="RSA_plot.pdf")

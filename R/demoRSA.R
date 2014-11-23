@@ -6,6 +6,8 @@
 #' @details
 #' No details so far. Just play around with the interface!
 #'
+#' @aliases demoSRR
+#'
 #' @export
 #' @import tkrplot
 #' @param x Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor
@@ -24,6 +26,10 @@
 #' @param xlim Limits of the x axis
 #' @param ylim Limits of the y axis
 #' @param zlim Limits of the z axis
+#' @param xlab Label of the x axis
+#' @param ylab Label of the y axis
+#' @param zlab Label of the z axis
+
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot. Shortcuts (i.e., first letter of string) are sufficient; be careful: "contour" is very slow at the moment
 #' @param points A list of parameters which define the appearance of the raw scatter points: show = TRUE: Should the original data points be overplotted? value="raw": Plot the original z value, "predicted": plot the predicted z value. jitter=0: Amount of jitter for the raw data points. cex = .5: multiplication factor for point size.
 #' @param model If x is an RSA object: from which model should the response surface be computed?
@@ -67,21 +73,26 @@
 
 ## TODO: Convert to Shiny app
 
-demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), points = list(show=TRUE, value="raw", jitter=0, color="black", cex=.5), model="full", extended=FALSE, ...) {
+demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), xlab=NULL, ylab=NULL, zlab=NULL, points = TRUE, model="full", project=c("PA1", "PA2"), extended=FALSE, ...) {
 
 	type <- match.arg(type, c("interactive", "3d", "contour"))
 	type2 <- type
 	if (type2 == "interactive") stop("demoRSA only works with type == '3d' or 'contour'!")
 		
-	# if (!requireNamespace("tkrplot", quietly = TRUE)) {
-	# 	stop('`tkrplot` package needed for modeltrees. Please install with install.packages("tkrplot")', call. = FALSE)
-	# }	
+	if (!requireNamespace("tkrplot", quietly = TRUE)) {
+		stop('`tkrplot` package needed for modeltrees. Please install with install.packages("tkrplot")', call. = FALSE)
+	}	
 	
 
 	# if model is provided: take its parameters as starting values
 	if (is.null(x)) {
 		x <- 0
 		fit <- NULL
+		points <- FALSE
+		if (is.null(xlab)) {xlab <- "X"}
+		if (is.null(ylab)) {ylab <- "Y"}
+		if (is.null(zlab)) {zlab <- "Z"}
+			
 	} else if (!is.null(x) & !is.null(attr(x, "class"))) {
 		if (attr(x, "class") == "RSA") {
 			fit <- x
@@ -103,6 +114,10 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 		
 			xlim <- c(min(fit$data[, fit$IV1], na.rm=TRUE), max(fit$data[, fit$IV1], na.rm=TRUE))
 			ylim <- c(min(fit$data[, fit$IV2], na.rm=TRUE), max(fit$data[, fit$IV2], na.rm=TRUE))
+			
+			if (is.null(xlab)) xlab <- fit$IV1
+			if (is.null(ylab)) ylab <- fit$IV2
+			if (is.null(zlab)) zlab <- fit$DV
 				
 			# expand range by 20% at each end
 			xlim[1] <- xlim[1]*ifelse(xlim[1]<0, 1.1, 0.9)
@@ -161,10 +176,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	}
 
 	update <- function(...) {
-		
-		# dirty hack to please CRAN ..
-		if (getRversion() >= "2.15.1") {utils::globalVariables('tclvalue')}
-		
+				
 		# read parameters from sliders
         type <- as.character(tclvalue(TYPE))
 		b0 <- as.numeric(tclvalue(B0))
@@ -211,7 +223,8 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			tclvalue(Y2) <- x2
 			tclvalue(XY) <- -2*x2
 			if (x2 != 0) {
-				tclvalue(B0) <- x^2 / (4*x2)
+				tclvalue(B0) <- x^2 / (4*x2)				
+				tclvalue(C) <- x/(2*x2)
 			}
 			tclvalue(W) <- tclvalue(WX) <- tclvalue(WY) <- 0
 			sapply(list(Y.lab, Y2.lab, XY.lab, W.lab, WX.lab, WY.lab), tkconfigure, foreground="grey40")
@@ -277,7 +290,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 		ry <- as.numeric(tclvalue(RY))
 		rz <- as.numeric(tclvalue(RZ))
 		
-		plot(plotRSA(x=x, y=y, x2=x2, y2=y2, xy=xy, w=w, wx=wx, wy=wy, b0=b0, rotation=list(x=rx, y=ry, z=rz), zlim=zlim, xlim=xlim, ylim=ylim, points=points, demo=TRUE, type=type2, fit=fit, ...))
+		plot(plotRSA(x=x, y=y, x2=x2, y2=y2, xy=xy, w=w, wx=wx, wy=wy, b0=b0, rotation=list(x=rx, y=ry, z=rz), zlim=zlim, xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, zlab=zlab, points=points, demo=TRUE, type=type2, fit=fit, project=project, ...))
     }
 
 	# define framework
@@ -327,7 +340,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	WY.lab <- tklabel(fr8,text='wy: ')
 	
     tkpack(B0.lab, side='left',anchor='s')
-	tkpack(tkscale(fr0, variable=B0, orient='horizontal', command=update, from=-50, to=50, resolution=1), side='left')
+	tkpack(tkscale(fr0, variable=B0, orient='horizontal', command=update, from=-5, to=5, resolution=.1), side='left')
 	
     tkpack(X.lab, side='left',anchor='s')
 	tkpack(tkscale(fr1, variable=X, orient='horizontal', command=update, from=ifelse(is.null(fit), -5, -abs(x.0)*2), to=ifelse(is.null(fit), 5, abs(x.0)*2), resolution=0.01), side='left')
@@ -393,6 +406,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 #demoRSA()
 #demoRSA(fit=r1, points=TRUE)
 
+# Hack to please CRAN:
 if(getRversion() >= "2.15.1")  {
 	utils::globalVariables(c('tclVar', 'tclvalue', 'tkconfigure' , 'tkframe', 'tklabel', 'tkpack', 'tkradiobutton', 'tkscale', 'tktoplevel', 'tkwm.title'))
 }
