@@ -2,6 +2,18 @@
 \title{News for package 'RSA'}
 \encoding{UTF-8}
 
+
+\section{Version 0.9.6}{
+
+\subsection{New features and improvements}{
+	\itemize{
+		\item Removed dependency \code{gridExtra}, added dependency \code{tcltk}
+		\item Fixed a bug in \code{demoRSA}
+		\item Added new demo: \code{demoSRRR}, which has surface parameteres as sliders.
+	}
+}
+}
+
 \section{Version 0.9.5}{
 
 \subsection{New features and improvements}{

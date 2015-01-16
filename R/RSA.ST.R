@@ -25,8 +25,10 @@
 #' M = eigenvectors, l = eigenvalues, L = lambda matrix
 #' as1X to as4X: surface parameters of the PA, relative to X values
 #' as1Y to as4Y: surface parameters of the PA, relative to Y values
-#' PA1.curvature: quadratic component of the first PA (equivalent to the first eigenvalue)
-#' PA2.curvature: quadratic component of the second PA (equivalent to the second eigenvalue)
+#' PA1.curvX: quadratic component of the first PA, as seen from X axis
+#' PA2.curvX: quadratic component of the second PA, as seen from X axis
+#' PA1.curv: quadratic component of the first PA, after optimal coord transformation
+#' PA2.curv: quadratic component of the second PA, after optimal coord transformation
 #'
 #' @references
 #' Shanock, L. R., Baran, B. E., Gentry, W. A., Pattison, S. C., & Heggestad, E. D. (2010). Polynomial Regression with Response Surface Analysis: A Powerful Approach for Examining Moderation and Overcoming Limitations of Difference Scores. \emph{Journal of Business and Psychology, 25}, 543-554. doi:10.1007/s10869-010-9183-4
@@ -62,7 +64,7 @@
 
 
 
-RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, model="full"){
+RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, model="full"){
 	if (!is.null(attr(x, "class"))) {
 		if (attr(x, "class") == "RSA") {
 			if (model %in% c("absunc", "absdiff")) stop("No surface parameters are computed for absolute difference models!")
@@ -100,12 +102,14 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 	}
 	
 	## compute stationary point and principal axes
+	# Calculate slopes of principal axes (you can do that even when the stationary point is undefined)
+	p11 <- (y2 - x2 + sqrt(((x2 - y2)^2) + xy^2)) / xy
+	p21 <- (y2 - x2 - sqrt(((x2 - y2)^2) + xy^2)) / xy
+	PA1.curvX <- x2 - xy*p11 + y2*p11^2
+	PA2.curvX <- x2 - xy*p21 + y2*p21^2
+	PA1.curv  <- PA1.curvX / p11^2
+	PA2.curv  <- PA2.curvX / p21^2
 
-	# Calculate stationary point (either minimum, maximum, or saddle point)
-	
-	# Calculate stationary point, matrix-style
-	SP0 <- NULL
-	
 	# calculate eigenvectors
 	b <- c(x, y)	# linear terms
 	B <- matrix(c(x2, xy, xy, y2), ncol=2, nrow=2) * matrix(c(1, .5, .5, 1), ncol=2)	# matrix of higher order terms
@@ -113,25 +117,20 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 	M <- eigen(B)$vectors	# normalized eigenvectors
 	l <- eigen(B)$values	# eigenvalues
 	L <- t(M)%*%B%*%M		# Lambda matrix
-	
-	try({
-		SP0 <- -.5*solve(B)%*%b
-		}, silent=TRUE)
-	
+
+	# Calculate stationary point, matrix-style
+	# The next calculations only work when the stationary point is defined
+	SP0 <- NULL
+	try({SP0 <- -.5*solve(B)%*%b}, silent=TRUE)	
 	if (!is.null(SP0)) {
 		
+		# Stationary point
 		X0 <- SP0[1]
-		Y0 <- SP0[2]
-		
-		X0 <- as.numeric((y*xy - 2*x*y2) / (4*x2*y2 - xy^2))
-		Y0 <- as.numeric((x*xy - 2*y*x2) / (4*x2*y2 - xy^2))
+		Y0 <- SP0[2]		
 		Z0 <- b0 + sum(c(x*X0, y*Y0, x2*X0^2, xy*X0*Y0, y2*Y0^2))
 	
-		# Calculate principal axes:
-		p11 <- as.numeric((y2 - x2 + sqrt(((x2 - y2)^2) + (xy^2))) / xy)
+		# Intercepts of principal axes
 		p10 <- as.numeric(Y0 - p11*X0)
-	
-		p21 <- as.numeric((y2 - x2 - sqrt(((x2 - y2)^2) + (xy^2))) / xy)
 		p20 <- as.numeric(Y0 - p21*X0)
 		
 		C1 <- -p10/(p11+1)
@@ -149,8 +148,10 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 		as3Y <- x/p21 + y - (2*x2*p20)/p21^2 - (xy*p20)/p21
 		as4Y <- x2/p21^2 + xy/p21 + y2
 	} else {
-		X0 <- Y0 <- Z0 <- p11 <- p10 <- p20 <- p21 <- C1 <- C2 <- as1X <- as2X <- as3X <- as4X <- as1Y <- as2Y <- as3Y <- as4Y <- NA
+		X0 <- Y0 <- Z0 <- p10 <- p20 <- C1 <- C2 <- as1X <- as2X <- as3X <- as4X <- as1Y <- as2Y <- as3Y <- as4Y <- NA
 	}
+	
+
 		
 	a1 <- as.numeric(x+y)
 	a2 <- as.numeric(x2+y2+xy)
@@ -161,7 +162,7 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 	## SEs of Surface parameters: if an RSA object is provided, just retrieve them from that
 	if (!is.null(fit)) {
 		p.all <- as.data.frame(parameterEstimates(fit$model[[model]]))
-		SP <- round(p.all[grepl("^a\\d", p.all$label), c("est", "se", "z", "pvalue")], 10)
+		SP <- round(p.all[grepl("^a\\d$", p.all$label), c("est", "se", "z", "pvalue")], 10)
 		colnames(SP) <- c("estimate", "SE", "z.value", "p.value")
 	} else if (!is.null(SE) & length(SE) == 5 & !is.null(COV) & length(COV) == 4 & !is.null(df)) {
 		## if SEs are provided: calculate confidence intervals and p values for a1 to a4
@@ -192,6 +193,6 @@ RSA.ST <- function(x, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, m
 	PA <- data.frame(estimate=c(as1X, as2X, as3X, as4X, as1Y, as2Y, as3Y, as4Y), SE=NA, t.value=NA, p.value=NA)
 	rownames(PA) <- c(paste0("as", 1:4, "X"), paste0("as", 1:4, "Y"))
 		
-	res <- list(X0=X0, Y0=Y0, Z0=Z0, p11=p11, p10=p10, p21=p21, p20=p20, C1=C1, C2=C2, SP=SP, PA=PA, M=M, l=l, L=L, PA1.curvature=l[1], PA2.curvature=l[2])
+	res <- list(X0=X0, Y0=Y0, Z0=Z0, p11=p11, p10=p10, p21=p21, p20=p20, C1=C1, C2=C2, SP=SP, PA=PA, M=M, l=l, L=L, PA1.curvX=PA1.curvX, PA2.curvX=PA2.curvX, PA1.curv=PA1.curv, PA2.curv=PA2.curv)
 	return(res)
 }

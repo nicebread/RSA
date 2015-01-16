@@ -44,7 +44,7 @@
 #' @param gridsize Number of grid nodes in each dimension
 #' @param bw Print surface in black and white instead of colors?
 #' @param legend Print color legend for z values?
-#' @param cex Font size factor for axes labels, axes titles, and the main title
+#' @param cex Font size factor for axes labels and axes titles
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot, "interactive" for interactive rotatable plot. Shortcuts (i.e., first letter of string) are sufficient
 #' @param points A list of parameters which define the appearance of the raw scatter points: 
 #'	\itemize{
@@ -256,10 +256,36 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	if (!model %in% c("absunc", "absdiff")) {
 		if (!is.null(fit) & model != "cubic" & model != "null") {
 			SP <- RSA.ST(fit, model=model)
+			PAR <- getPar(fit, "coef", model=model)
+			
+			SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="   ")
+			
+			a4rs_par <- PAR[PAR$label == "a4.rescaled", ]
+			if (nrow(a4rs_par) == 1) {
+				SP.text <- paste0(SP.text, "/ a4(rescaled): ", f2(a4rs_par$est, 2), p2star(a4rs_par$pvalue))
+			}
+			SP.text <- paste0(SP.text, "\n")
+			
+			
+			meanlevel <- PAR[PAR$label == "meaneffect", ]
+			if (nrow(meanlevel) == 1) {
+				SP.text <- paste0(SP.text, "mean-level effect = ", f2(meanlevel$est, 2), p2star(meanlevel$pvalue), "    ")
+			}
+			
+			C_par <- PAR[PAR$label == "C", ]
+			if (nrow(C_par) == 1) {
+				SP.text <- paste0(SP.text, "C = ", f2(C_par$est, 2), p2star(C_par$pvalue), "    ")
+			}
+			
+			S_par <- PAR[PAR$label == "S", ]
+			if (nrow(S_par) == 1) {
+				SP.text <- paste0(SP.text, "S = ", f2(S_par$est, 2), p2star(S_par$pvalue), "    ")
+			}
+			
 		} else {
 			SP <- RSA.ST(x=x, y=y, xy=xy, x2=x2, y2=y2)
-		}
-		SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")
+			SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")			
+		}		
 	} else {
 		SP <- NULL
 		param <- FALSE
@@ -456,9 +482,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		col2 <- as.character(cut(1:(R[2] - R[1] + 1), breaks=length(pal), labels=pal))
 		
 		rgl::open3d(cex=cex)
-		rgl::rgl.viewpoint(-30, -90)
+		rgl::rgl.viewpoint(-30, -90, fov=0)
 		rgl::rgl.light(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
-		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main)
+		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main, ...)
 
 		if (contour$show == TRUE) {
 		    contours <- contourLines(P, z=DV2)
@@ -654,11 +680,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					   }
 										  
 						  if (param == TRUE) {
-							  grid::grid.text(SPs, .02, .95, just="left", gp=grid::gpar(cex=cex))
+							  grid::grid.text(SPs, .02, .95, just="left", gp=grid::gpar(cex=cex*0.8))
 						  }  
 						  
 						  if (coefs == TRUE) {
-							  grid::grid.text(COEFS, .80, .87, just="left", gp=grid::gpar(cex=cex))
+							  grid::grid.text(COEFS, .80, .87, just="left", gp=grid::gpar(cex=cex*0.8))
 						  }  
 						  
 						

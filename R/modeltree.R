@@ -20,10 +20,12 @@
 #' @seealso \code{\link{RSA}}, \code{\link{compare}}
 #'
 #' @examples
+#' \dontrun{
 #' data(motcon)
 #' r.m <- RSA(postVA~ePow*iPow, motcon)
 #' c1 <- compare(r.m)
 #' modeltree(c1)
+#' }
 modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 	if (!requireNamespace("qgraph", quietly = TRUE)) {
 		stop('`qgraph` package needed for modeltrees. Please install with install.packages("qgraph")', call. = FALSE)

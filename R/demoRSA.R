@@ -6,10 +6,11 @@
 #' @details
 #' No details so far. Just play around with the interface!
 #'
-#' @aliases demoSRR
+#' @aliases demoSRR demoSRRR
 #'
 #' @export
 #' @import tkrplot
+#' @import tcltk
 #' @param x Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor
 #' @param y Y coefficient
 #' @param x2 X^2 coefficient
@@ -31,7 +32,8 @@
 #' @param zlab Label of the z axis
 
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot. Shortcuts (i.e., first letter of string) are sufficient; be careful: "contour" is very slow at the moment
-#' @param points A list of parameters which define the appearance of the raw scatter points: show = TRUE: Should the original data points be overplotted? value="raw": Plot the original z value, "predicted": plot the predicted z value. jitter=0: Amount of jitter for the raw data points. cex = .5: multiplication factor for point size.
+#' @param points A list of parameters which define the appearance of the raw scatter points: show = TRUE: Should the original data points be overplotted? value="raw": Plot the original z value, "predicted": plot the predicted z value. jitter=0: Amount of jitter for the raw data points. cex = .5: multiplication factor for point size. See ?plotRSA for details.
+#' @param project Which geatures should be projected on the floor? See ?plotRSA for details.
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param extended Show additional controls (not implemented yet)
 #' @param ... Other parameters passed through to plot.RSA (e.g., xlab, ylab, zlab, cex, legend)
@@ -131,7 +133,13 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 		
 			zlim <- c(min(fit$data[, fit$DV], na.rm=TRUE)*0.8, max(fit$data[, fit$DV], na.rm=TRUE)*1.2)
 			
-			# define raw data
+			# define the defaults
+			if (is.null(points) || (typeof(points) == "logical" && points == TRUE)) {
+				points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
+			}
+			if (is.null(points) || (typeof(points) == "logical" && points == FALSE)) {
+				points <- list(show=FALSE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
+			}
 			if (is.null(points$out.mark)) points$out.mark <- FALSE
 
 			if (points$out.mark == FALSE) {data.used <- fit$data[fit$data$out==FALSE, ]}
@@ -176,6 +184,9 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	}
 
 	update <- function(...) {
+		
+		# hack to please CRAN ...
+		#if(getRversion() >= "2.15.1")  {utils::globalVariables('tclvalue')}
 				
 		# read parameters from sliders
         type <- as.character(tclvalue(TYPE))
