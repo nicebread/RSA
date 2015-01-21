@@ -22,5 +22,5 @@ after_failure:
 
 notifications:
     email:
-        on_success: change
-        on_failure: change
+        on_success: felix@nicebrad.de
+        on_failure: felix@nicebrad.de

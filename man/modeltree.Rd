@@ -28,10 +28,12 @@ Or it can be plotted from a cRSA object (= output from the \code{\link{compare}}
 \code{plot(c1)}
 }
 \examples{
+\dontrun{
 data(motcon)
 r.m <- RSA(postVA~ePow*iPow, motcon)
 c1 <- compare(r.m)
 modeltree(c1)
+}
 }
 \seealso{
 \code{\link{RSA}}, \code{\link{compare}}

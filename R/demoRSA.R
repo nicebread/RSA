@@ -149,6 +149,10 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 		}
 	} else {
 		fit <- NULL
+		points <- FALSE
+		if (is.null(xlab)) {xlab <- "X"}
+		if (is.null(ylab)) {ylab <- "Y"}
+		if (is.null(zlab)) {zlab <- "Z"}
 	}
 	
 

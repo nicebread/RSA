@@ -5,6 +5,8 @@
 
 \section{Version 0.9.6}{
 
+This version has been uploaded to CRAN.
+
 \subsection{New features and improvements}{
 	\itemize{
 		\item Removed dependency \code{gridExtra}, added dependency \code{tcltk}
@@ -13,6 +15,7 @@
 	}
 }
 }
+
 
 \section{Version 0.9.5}{
 
