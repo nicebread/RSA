@@ -54,7 +54,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		cat(paste0("Test on model significance: R^2 = ", round(R, 3), ", ", p0(R2.p), "\n"))
 	}
 
-	cat(paste0("\n\nNumber of obervations: n = ", nobs(x$models[[model]]), "\n----------------------------\n"))
+	cat(paste0("\n\nNumber of observations: n = ", nobs(x$models[[model]]), "\n----------------------------\n"))
 
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
 	if (model != "cubic") {
@@ -70,25 +70,6 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	RC$sig <- p2star(eff[eff$label %in% coef.sel, "pvalue"])
 	print(RC)	
 	
-	if (!model %in% c("diff", "mean", "onlyx", "onlyy","onlyx2", "onlyy2", "additive", "cubic")) {
-		cat(paste0("\n\nEigenvalues and shape of surface for model <", model, ">\n----------------------------\n"))
-		cat("Eigenvalues:\n")
-		EV <- eff[eff$label %in% c("l1", "l2"), c("label", "est", "se", "ci.lower", "ci.upper")]
-		EV[, 2:5] <- round(EV[, 2:5], digits)
-		EV$pvalue <- p(eff[eff$label %in% c("l1", "l2"), "pvalue"])
-		EV$sig <- p2star(eff[eff$label %in% c("l1", "l2"), "pvalue"])
-		rownames(EV) <- NULL
-		EV$label[1:2] <- c("lambda_1", "lambda_2")
-		print(EV)
-		
-		shape <- "undefined"
-		if (!any(EV$est == 0)) {
-			if (all(EV$est < 0)) shape <- "Dome shaped (stationary point = maximum response)"
-			if (all(EV$est > 0)) shape <- "Bowl shaped (stationary point = minimum response)"
-			if ((EV$est[1] > 0 & EV$est[2] < 0) | (EV$est[2] > 0 & EV$est[1] < 0)) shape <- "Saddle shaped"
-			cat(paste0("--> ", shape))
-		}
-	}
 	
 		
 	if (!model %in% c("onlyx", "onlyy", "cubic")) {

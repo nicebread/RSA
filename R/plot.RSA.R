@@ -368,7 +368,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		}
 		
 		tpsfit <- fields::Tps(points$data[, 1:2], points$data[, 3], scale.type="unscaled", lambda=lambda)
-		new2$z <- predict(tpsfit, new[, c("x", "y")])
+		new2$z <- fields::predict.Krig(tpsfit, new[, c("x", "y")])
 		param <- FALSE
 		axes <- ""
 	}

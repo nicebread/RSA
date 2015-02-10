@@ -5,7 +5,8 @@
 #'
 #' @details
 #' Even if the main variables of the model are normally distirbuted, their squared terms and interaction terms are necessarily non-normal. By default, the RSA function uses a scaled test statistic (\code{test="Satorra-Bentler"}) and robust standard errors (\code{se="robust"}), which are robust against violations of the normality assumption.
-#' You can also fit binary outcome variables with a probit link function. For that purpose, the response variable has to be defined as "ordered": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
+#'
+#' You can also fit \strong{binary outcome variables} with a probit link function. For that purpose, the response variable has to be defined as "ordered", and the \code{lavaan} estimator changed to "WLSMV": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary", estimator="WLSMV")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
 #'
 #' @export
 #' @import lavaan
@@ -18,12 +19,12 @@
 #' @param scale Should predictor variables be scales on the SD of \emph{each variable} before analyses? You should think carefully about this option, as different scaling of the predictor variables can affect the commensurability of the predictor scales.
 #' @param na.rm Remove missings before proceeding?
 #' @param add Additional syntax that is added to the lavaan model. Can contain, for example, additional constraints, like "p01 == 0; p11 == 0"
-#' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from analyses? In large data sets this analysis is the speed bottleneck. If you are sure that no outliers exist, set this option to FALSE for speed improvements.
+#' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from the analyses? In large data sets this analysis is the speed bottleneck. If you are sure that no outliers exist, set this option to FALSE for speed improvements.
 #' @param breakline Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...). Defaults to \code{FALSE}
 #' @param verbose Should additional information during the computation process be printed?
 #' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
-#' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
-#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is very beta, and seems to break model comparison. Use with caution (or better: don't use it at all, yet).
+#' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included? WARNING: This is experimental, and not all functions will treat the cubic extension properly yet.
+#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is very beta, and seems to break some model comparisons. Use with caution (or better: don't use it at all, yet).
 #' @param estimator Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values.
 #' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).
 #' @param missing Handling of missing values. By default (\code{NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If families with missing values should be excluded, use \code{missing = "listwise"}
@@ -82,7 +83,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
 	#if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy", "weak", "strong")}
-	if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
+	if (length(models)==1 & models[1]=="default") {models <- c("additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
 	if (any(!models %in% validmodels))
 		stop("Unknown model name provided in parameter 'models'.")
 	
@@ -156,7 +157,10 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	if (is.null(out.rm) || (typeof(out.rm) == "logical" && out.rm == TRUE)) {
 		out.rm <- "bj1980"
 	}
-	out.rm <- match.arg(out.rm, c("bj1980", "robust"))
+	if ((typeof(out.rm) == "logical" && out.rm == FALSE)) {
+		out.rm <- "none"
+	}
+	out.rm <- match.arg(out.rm, c("bj1980", "robust", "none"))
 	df$out <- FALSE
 
 	#...according to Bollen & Jackman, 1980
@@ -431,8 +435,6 @@ withCallingHandlers({
 				"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
 				"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
 				"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
-				"PA1.curv := PA1.curv / (p11^2)",
-				"PA2.curv := PA2.curv / (p21^2)",
 				"meaneffect := (b2*b4 - 2*b1*b5) / b4",
 				"C := (-2*b1*b5 - b2*b4) / (4*b4*b5)",
 				"S := (-b4) / (2*b5)",
@@ -458,8 +460,6 @@ withCallingHandlers({
 				"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
 				"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
 				"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
-				"PA1.curv := PA1.curv / (p11^2)",
-				"PA2.curv := PA2.curv / (p21^2)",
 				"meaneffect := (b2*b4 - 2*b1*b5) / b4",
 				"C := (-2*b1*b5 - b2*b4) / (4*b4*b5)",
 				"S := (-b4) / (2*b5)",
@@ -499,7 +499,7 @@ withCallingHandlers({
 			"b1 == (b2*b4)/(2*b5)",
 			"b3 > 0.000001",
 			"b5 > 0.000001",
-			"b4^2 == 4*b3*b5",
+			"b4^2 == 4*b3*b5",	# this is a different (but algebraically equivalent) formulation of the constraints
 			
 			"C := -.5*(b2/b5)",
 			"S := (-b4) / (2*b5)",
@@ -710,7 +710,7 @@ withCallingHandlers({
 	
 },	  # end of "withCallingHandlers"
 
-# suppress two types of warning
+# suppress several types of warning
   warning=function(w) {
 	   W <- as.character(w$call)
 	   if (

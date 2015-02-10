@@ -4,20 +4,46 @@
 \alias{aictab}
 \title{Show a table of AIC model comparisons}
 \usage{
-aictab(x, plot = FALSE, models = names(x$models)[!names(x$models) \%in\%
-  c("absdiff", "absunc")])
+aictab(x, plot = FALSE, bw = FALSE,
+  models = names(x$models)[!names(x$models) \%in\% c("absdiff", "absunc")],
+  digits = NA)
 }
 \arguments{
 \item{x}{An RSA object}
 
-\item{plot}{Should a plot of the AICc table be plotted? (Experimental)}
+\item{plot}{Should a plot of the AICc table be plotted?}
+
+\item{bw}{Should the plot be black & white?}
 
 \item{models}{A vector with all model names of the candidate set. Defaults to all polynomial models in the RSA object.}
+
+\item{digits}{The output is rounded to this number of digits. No rounding if NA (default).}
+}
+\value{
+\describe{
+ \item{Modnames}{Model names.}
+ \item{K}{Number of estimated parameters (without intercept).}
+ \item{AICc}{Akaike Information Criterion (corrected)}
+ \item{Delta_AICc}{Difference in AICc between this model and the best model.}
+ \item{AICcWt}{The Akaike weights, also termed "model probabilities" by Burnham and Anderson (2002). Indicates the level of support (i.e., weight of evidence) of a model being the most parsimonious among the candidate model set.}
+ \item{Cum.Wt}{Cumulative Akaike weight. Models with a Cum.Wt > .95 can be discarded.}
+ \item{evidence.ratio}{Likelihood ratio of this model vs. the best model.}
+}
 }
 \description{
 Show a table of AIC model comparisons
 }
 \details{
-TODO
+For detailed information on the function, see the help file for \code{\link[AICcmodavg]{aictab}}
+}
+\examples{
+\dontrun{
+data(motcon)
+r.m <- RSA(postVA~ePow*iPow, motcon, verbose=FALSE)
+aictab(r.m, plot=TRUE)
+}
+}
+\references{
+Burnham, K. P., & Anderson, D. R. (2002). \emph{Model selection and multimodel inference: A practical information-theoretic approach.} Springer Science & Business Media.
 }
 

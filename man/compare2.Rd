@@ -4,7 +4,7 @@
 \alias{compare2}
 \title{Compare two specific RSA models}
 \usage{
-compare2(x, m1 = "", m2 = "full", verbose = TRUE)
+compare2(x, m1 = "", m2 = "full", digits = 3, verbose = TRUE)
 }
 \arguments{
 \item{x}{An RSA object}

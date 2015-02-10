@@ -5,14 +5,36 @@
 #' Show a table of AIC model comparisons
 #'
 #' @details
-#' TODO
+#' For detailed information on the function, see the help file for \code{\link[AICcmodavg]{aictab}}
 #'
+#' @return
+#' \describe{
+#'  \item{Modnames}{Model names.}
+#'  \item{K}{Number of estimated parameters (without intercept).}
+#'  \item{AICc}{Akaike Information Criterion (corrected)}
+#'  \item{Delta_AICc}{Difference in AICc between this model and the best model.}
+#'  \item{AICcWt}{The Akaike weights, also termed "model probabilities" by Burnham and Anderson (2002). Indicates the level of support (i.e., weight of evidence) of a model being the most parsimonious among the candidate model set.}
+#'  \item{Cum.Wt}{Cumulative Akaike weight. Models with a Cum.Wt > .95 can be discarded.}
+#'  \item{evidence.ratio}{Likelihood ratio of this model vs. the best model.}
+#' }                       
+#'
+#' @references
+#' Burnham, K. P., & Anderson, D. R. (2002). \emph{Model selection and multimodel inference: A practical information-theoretic approach.} Springer Science & Business Media.
 #' @export
 #' @param x An RSA object
 #' @param models A vector with all model names of the candidate set. Defaults to all polynomial models in the RSA object.
-#' @param plot Should a plot of the AICc table be plotted? (Experimental)
+#' @param plot Should a plot of the AICc table be plotted?
+#' @param bw Should the plot be black & white?
+#' @param digits The output is rounded to this number of digits. No rounding if NA (default).
 
-aictab <- function(x, plot=FALSE, models=names(x$models)[!names(x$models) %in% c("absdiff", "absunc")]) {
+#' @examples
+#' \dontrun{
+#' data(motcon)
+#' r.m <- RSA(postVA~ePow*iPow, motcon, verbose=FALSE)
+#' aictab(r.m, plot=TRUE)
+#' }
+
+aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$models) %in% c("absdiff", "absunc")], digits=NA) {
 	cand.set.models <- x$models[models]
 	
 	# remove NULL models
@@ -22,29 +44,50 @@ aictab <- function(x, plot=FALSE, models=names(x$models)[!names(x$models) %in% c
 	cand.set.models <- cand.set.models[unlist(lapply(cand.set.models, inspect, "converged"))]
 	
 	a1 <- aictab.lavaan(cand.set.models, modnames=names(cand.set.models))
+	class(a1) <- "data.frame"
+	a1 <- a1[, c("Modnames", "K", "AICc", "Delta_AICc", "AICcWt", "Cum.Wt")]
+	a1$evidence.ratio <- evidenceRatio(a1$Delta_AICc)
+	a1$evidence.ratio[1] <- NA
+	if (!is.na(digits)) {
+		a1[, -c(1:2)] <- round(a1[, -c(1:2)], digits)
+	}
 	
 	if (plot==TRUE) {
 		a2 <- a1
 		a2$Modnames <- factor(a2$Modnames, levels=a2$Modnames, ordered=TRUE)
 		a2$ValidModels <- as.character(a2$Modnames)
 		a2$ValidModels[a2$Delta_AICc > 2] <- ""
-		a2$color <- ifelse(a2$Delta_AICc <= 2, "green", "orange")
-		a2$color[a2$Cum.Wt > .95] <- "gray"
-		a2$color <- factor(a2$color, levels=c("green", "orange", "gray"))
+		a2$color <- ifelse(a2$Delta_AICc <= 2, "green", "yellow")
+		a2$color[a2$Cum.Wt > .95] <- "red"
+		a2$color[a2$Delta_AICc > 10] <- "red"
 		
-		p1 <- ggplot(a2, aes_string(y="AICcWt", x="Delta_AICc", group=1)) + geom_line() + theme_bw() + geom_vline(xintercept=2, linetype="dashed") + geom_vline(xintercept=7, linetype="dotted") + geom_point(aes_string(color="color"), size=3) + coord_cartesian(xlim=c(-0.5, max(a2$Delta_AICc)+1)) + xlab("Delta AIC") + ylab("Model weight") + geom_text(aes_string(label="ValidModels"), size=3, hjust=-0.3) + scale_x_continuous(breaks=c(2, 7, 10))
+		if (bw==TRUE) {
+			col_scale <- c("green"="grey10", "yellow"="grey10", "red"="grey10")
+			shape_scale <- c("green"=19, "yellow"=1, "red"=4)
+		} else {			
+			col_scale <- c("green"="green2", "yellow"="darkgoldenrod1", "red"="firebrick3")
+			shape_scale <- c("green"=19, "yellow"=19, "red"=19)
+		}
 		
-		p1 <- p1 + geom_hline(yintercept=a2$AICcWt[max(which(a2$Cum.Wt < .95))], linetype="solid", color="grey") + annotate("text", label="Cumulative weight > .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3, hjust=1, vjust=-.4) + annotate("text", label="Cumulative weight < .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3, hjust=1, vjust=1.4) 
 		
-		p1 <- p1 + annotate("text", label="Practically equivalent models", x=1, y=0, size=3, hjust=0, vjust=0, angle=90) + annotate("text", label="Implausible models", x=10, y=0, size=3, hjust=0, vjust=0, angle=90)
+		p1 <- ggplot(a2, aes_string(y="AICcWt", x="Delta_AICc", group=1)) + geom_line(color="grey30") + theme_bw() + geom_vline(xintercept=2, linetype="dotted", color="grey30") + geom_vline(xintercept=7, linetype="dotted", color="grey30") + geom_point(aes_string(color="color", shape="color"), size=3) + coord_cartesian(xlim=c(-0.5, max(a2$Delta_AICc)+1)) + xlab(bquote(Delta~"AICc")) + ylab("Model weight") + geom_text(aes_string(label="ValidModels"), size=3.7, hjust=-0.2) + scale_x_continuous(breaks=c(2, 7, 10)) + scale_color_manual(values=col_scale, guide="none") + scale_shape_manual(values=shape_scale, guide="none")		
 		
-		# + scale_color_discrete("", levels=1:3, values=c("green", "orange", "gray"))
+		p1 <- p1 + 
+			geom_hline(yintercept=a2$AICcWt[max(which(a2$Cum.Wt < .95))], linetype="dotted", color="grey30") + 
+			annotate("text", label="Cumulative weight < .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3.3, hjust=1, vjust=-.4) + 
+			annotate("text", label="Cumulative weight > .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3.3, hjust=1, vjust=1.4) 
+		
+		p1 <- p1 + 
+			annotate("text", label="Practically equivalent models", x=0.5, y=0.03, size=3.3, hjust=0, vjust=0, angle=90) + 
+			annotate("text", label="Implausible models", x=7.5, y=0.03, size=3.3, hjust=0, vjust=0, angle=90)
 		
 		print(p1)
 	}
 	return(a1)
 }
 
+
+evidenceRatio <- function(Delta.AICc) {1/exp(-0.5*Delta.AICc)}
 
 # from: http://byrneslab.net/classes/lavaan_materials/lavaan.modavg.R
 AICc.lavaan<-function(object, second.ord=TRUE, c.hat = 1, return.K = FALSE){
@@ -65,7 +108,7 @@ aictab.lavaan<-function(cand.set, modnames, sort = TRUE, c.hat = 1, second.ord =
     Results <- NULL
     Results <- data.frame(Modnames = modnames)
     Results$K <- unlist(lapply(X = cand.set, FUN = AICc.lavaan, return.K = TRUE, c.hat = c.hat, second.ord = second.ord))
-    Results$AICc <- unlist(lapply(X = cand.set, FUN = AICc.lavaan, return.K = FALSE, c.hat = c.hat,second.ord = second.ord))
+    Results$AICc <- unlist(lapply(X = cand.set, FUN = AICc.lavaan, return.K = FALSE, c.hat = c.hat, second.ord = second.ord))
     Results$Delta_AICc <- Results$AICc - min(Results$AICc)
     Results$ModelLik <- exp(-0.5 * Results$Delta_AICc)
     Results$AICcWt <- Results$ModelLik/sum(Results$ModelLik)

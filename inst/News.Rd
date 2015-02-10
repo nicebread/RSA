@@ -3,6 +3,31 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.7}{
+
+
+\subsection{New features and improvements}{
+	\itemize{
+		\item Improved aictab-plot
+		\item Fixed wrong label in \code{aictab} plot
+		\item Added evidence ratio to the \code{aictab} output: How much more likely is the best model (in first row) compared to each other model in the set?
+		\item \code{compare}, \code{compare2}, and \code{aictab} gained a \code{digits} argument
+		\item Reduced the set of models that is computed by default in the \code{RSA} function. Uncommon models, such as the \code{mean} model or the \code{diff} model have been removed.
+		\item Removed eigenvalues from standard summary. Most users will never need them.
+	}
+}
+
+\subsection{Bug fixes}{
+	\itemize{
+		\item Fixed a bug that broke the \code{surface="smooth"} option in plotRSA
+		\item Fixed a bug that \code{out.rm=FALSE} did not work any more.
+	}
+}
+
+}
+
+
+
 \section{Version 0.9.6}{
 
 This version has been uploaded to CRAN.

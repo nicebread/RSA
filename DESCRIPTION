@@ -2,8 +2,8 @@ Encoding: UTF-8
 Package: RSA
 Type: Package
 Title: Response Surface Analysis
-Version: 0.9.6
-Date: 2015-01-13
+Version: 0.9.7
+Date: 2015-02-10
 Author: Felix Schönbrodt
 Maintainer: Felix Schönbrodt <felix@nicebread.de>
 Description: Advanced response surface analysis. The main function RSA computes

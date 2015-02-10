@@ -4,7 +4,7 @@
 \alias{compare}
 \title{Compare a full list of RSA models}
 \usage{
-compare(x, verbose = TRUE, plot = FALSE, ...)
+compare(x, verbose = TRUE, plot = FALSE, digits = 3, ...)
 }
 \arguments{
 \item{x}{An RSA object}
@@ -12,6 +12,8 @@ compare(x, verbose = TRUE, plot = FALSE, ...)
 \item{verbose}{Should the summary be printed?}
 
 \item{plot}{Should the comparison be plotted (using the \code{\link{modeltree}} function)?}
+
+\item{digits}{Digits of the output}
 
 \item{...}{Additional parameters passed to the \code{\link{modeltree}} function}
 }

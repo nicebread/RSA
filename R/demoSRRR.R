@@ -1,9 +1,6 @@
 #' @export
 demoSRRR <- function(a4rs=0, C=0, S=1, bm=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), xlab="X", ylab="Y", zlab="Z", points = TRUE, model="full", project=c("PA1", "PA2"), legend=FALSE, coefs=TRUE, ...) {
 	
-	# hack to please CRAN ...
-	if(getRversion() >= "2.15.1")  {utils::globalVariables('tclvalue')}
-
 	type <- match.arg(type, c("interactive", "3d", "contour"))
 	type2 <- type
 	if (type2 == "interactive") stop("demoRSA only works with type == '3d' or 'contour'!")
@@ -84,3 +81,6 @@ demoSRRR <- function(a4rs=0, C=0, S=1, bm=0, type="3d", zlim=c(-2, 2), xlim=c(-2
 
     return(invisible(NULL))
 }
+
+# hack to please CRAN ...
+if(getRversion() >= "2.15.1")  {utils::globalVariables('tclvalue')}

@@ -10,10 +10,11 @@
 #' @param x An RSA object
 #' @param verbose Should the summary be printed?
 #' @param plot Should the comparison be plotted (using the \code{\link{modeltree}} function)?
+#' @param digits Digits of the output
 #' @param ... Additional parameters passed to the \code{\link{modeltree}} function
 
 
-compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
+compare <- function(x, verbose=TRUE, plot=FALSE, digits=3, ...) {
 	
 	if (table(sapply(x$models, is.null))["FALSE"] <= 1) {
 		stop("You need more than one models for comparison!")
@@ -36,21 +37,21 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res1)) {
 			cat("Testing directed difference models: Interaction, additive main effects, difference model :\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res1[, 1:13], 3))
+			print(round(res1[, 1:13], digits))
 		}
 			
 		res2 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRSQD=SRSQD, SSQD=SSQD, SQD=SQD, null=null), set="flat_sq", free.max)
 		if (verbose==TRUE & !is.null(res2)) {
 			cat("\n\nTesting 'flat ridge' discrepancy models against SRRR and full polynomial model:\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res2[, 1:13], 3))
+			print(round(res2[, 1:13], digits))
 		}
 	
 		res3 <- cModels(list(cubic=cubic, full=full, SRRR=SRRR, SRR=SRR, RR=RR, SQD=SQD, null=null), set="RR", free.max)
 		if (verbose==TRUE & !is.null(res3)) {
 			cat("\n\nTesting 'rising ridge' against full polynomial model:\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res3[, 1:13], 3))
+			print(round(res3[, 1:13], digits))
 		}
 		
 		## compute additional comparisons
@@ -58,7 +59,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res4)) {
 			cat("\n\nTesting transition from SRR to SSQD model (i.e., removing the mean level effect from SRR):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res4[, 1:13], 3))
+			print(round(res4[, 1:13], digits))
 		}
 		
 		## single variable models (only x + x2, or y + y2)
@@ -66,13 +67,13 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		if (verbose==TRUE & !is.null(res5)) {
 			cat("\n\nSingle variable models (only x + x^2):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res5[, 1:13], 3))
+			print(round(res5[, 1:13], digits))
 		}
 		res6 <- cModels(list(full=full, onlyy2=onlyy2, onlyy=onlyy), set="onlyy", free.max)
 		if (verbose==TRUE & !is.null(res6)) {
 			cat("\n\nSingle variable models (only y + y^2):\n")
 			cat("-------------------------------------------------------------------------\n")
-			print(round(res6[, 1:13], 3))
+			print(round(res6[, 1:13], digits))
 		}
 		
 		
@@ -104,7 +105,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 		a3$k <- free.max2 - a3$Df
 		a3$R2.adj <- 1 - ((1-a3$R2))*((lavaan::nobs(absunc)-1)/(lavaan::nobs(absunc)-a3$k-1))
 		a3$delta.R2 <- c(NA, a3$R2[1:(nrow(a3)-1)] - a3$R2[2:(nrow(a3))])
-		if (verbose==TRUE) print(round(a3, 3))
+		if (verbose==TRUE) print(round(a3, digits))
 		a3$model <- rownames(a3)
 		a3$set <- "abs"
 		res <- rbind(res, a3)
@@ -135,8 +136,9 @@ compare <- function(x, verbose=TRUE, plot=FALSE, ...) {
 #' @param x An RSA object
 #' @param m1 Name of first model
 #' @param m2 Name of second model
+#' @param digits Digits of the output
 #' @param verbose Should the summary be printed?
-compare2 <- function(x, m1="", m2="full", verbose=TRUE) {
+compare2 <- function(x, m1="", m2="full", digits=3, verbose=TRUE) {
 
 	if (is.null(x$models[[m1]]) | is.null(x$models[[m2]])) {
 		stop("You need two models for comparison! At least one of the models has not been fit.")
@@ -148,7 +150,7 @@ compare2 <- function(x, m1="", m2="full", verbose=TRUE) {
 	names(mL) <- c(m1, m2)
 	res <- cModels(mL, set="two_models", free.max)
 	if (verbose==TRUE & !is.null(res)) {
-		print(round(res[, 1:13], 3))
+		print(round(res[, 1:13], digits))
 	}
 
 	invisible(res)
