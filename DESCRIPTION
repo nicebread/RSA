@@ -3,7 +3,7 @@ Package: RSA
 Type: Package
 Title: Response Surface Analysis
 Version: 0.9.7
-Date: 2015-02-10
+Date: 2015-03-03
 Author: Felix Schönbrodt
 Maintainer: Felix Schönbrodt <felix@nicebread.de>
 Description: Advanced response surface analysis. The main function RSA computes

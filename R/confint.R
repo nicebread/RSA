@@ -71,15 +71,28 @@ confint.RSA <- function(object, parm, level = 0.95, ..., model = "full", digits=
 				return(c1)
 			} , R = R, ...))
 		
-		CIs <- apply(b1, 2, function(x) {
-			p <- sum(x<0)/length(x)
+		CIs <- data.frame()
+		for (i in 1:ncol(b1)) {
+			x <- b1[, i]
+			if (colnames(b1)[i] != "S") {
+				# default: test against 0
+				p <- sum(x<0)/length(x)	
+			} else {
+				# Parameter S: test against 1 (this is the null)
+				p <- sum(x<1)/length(x)	
+				message("Note: p value for parameter S indicates whether 1 (not zero!) is inside the CI.")
+			}
+			
 			qu <- quantile(x, probs=c((1-level)/2, 1-(1-level)/2))
 			res <- c(qu, pvalue=min(p, 1-p)*2)	# *2 to make p-values two-sided
-			return(res)
-		})
+			CIs <- rbind(CIs, res)
+		}
 	
-		CIs <- t(CIs)
-		attr(CIs, "type") <- paste0("Bootstrapped CIs from ", R, " replications.")
+		rownames(CIs) <- colnames(b1)
+		colnames(CIs) <- c("LL", "UL", "pvalue")
+		attr(CIs, "type") <- paste0("Bootstrapped CIs from ", R, " replications.\n", 
+			ifelse("S" %in% colnames(b1), "Note: p value for parameter S indicates whether 1 (not zero!) is inside the CI.", "")
+		)
 		if (!is.na(digits)) CIs <- round(CIs, digits)
 		return(CIs)
 	}	

@@ -94,10 +94,13 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	
 		PA <- eff[eff$label %in% c("p10", "p11", "p20", "p21"), c(1:3, 6:7)]
 		
-		if (nrow(PA) > 0 & (!any(EV$est == 0))) {
+		if (nrow(eff[eff$label %in% c("X0", "Y0"), ]) > 0) {
 			
-			cat(paste0("\n\nLocation of stationary point: ", shape, " for model <", model, ">\n----------------------------\n"))
+			cat(paste0("\n\nLocation of stationary point for model <", model, ">\n----------------------------\n"))
 			cat(paste0(IV1, " = ", round(eff[eff$label %in% "X0", "est"], 3), "; ", IV2, " = ", round(eff[eff$label %in% "Y0", "est"], 3), "; predicted ", DV, " = ", round(predictRSA(x, eff[eff$label %in% "X0", "est"], eff[eff$label %in% "Y0", "est"], model=model), 3), "\n\n"))
+		}
+		
+		if (nrow(PA) > 0) {
 		
 			cat(paste0("\nPrincipal axes for model <", model, ">\n----------------------------\n"))
 			PA[, 2:5] <- round(PA[, 2:5], digits)

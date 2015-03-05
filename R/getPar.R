@@ -8,7 +8,7 @@
 #'
 #' @export
 #' @param x RSA object
-#' @param type One of: "syntax", "coef", "R2", "R2.adj", "free", "summary"
+#' @param type One of: "syntax", "coef", "R2", "R2.adj", "free", "summary", "p.value"
 #' @param model A string specifying the model; defaults to "full"
 #' @param digits Number of digits the output is rounded to; if NA, digits are unconstrained
 #' @param ... Additional parameters passed to the extraction function
@@ -38,7 +38,7 @@
 
 getPar <- function(x, type="coef", model="full", digits=NA, ...) {
 	type <- tolower(type)
-	type <- match.arg(type, c("syntax", "coef", "r2", "rsquared", "r.squared", "r2.p", "rsquared.p", "r.squared.p", "r2.adj", "rsquared.adj", "r.squared.adj", "npar", "free", "summary"))
+	type <- match.arg(type, c("syntax", "coef", "r2", "rsquared", "r.squared", "r2.p", "rsquared.p", "r.squared.p", "r2.adj", "rsquared.adj", "r.squared.adj", "npar", "free", "summary", "p", "p.value"))
 	if (type=="syntax") {
 		return(x$models[[model]]@Options$model)
 	}
@@ -55,11 +55,14 @@ getPar <- function(x, type="coef", model="full", digits=NA, ...) {
 	if (type %in% c("r2", "rsquared", "r.squared")) {
 		return(inspect(x$models[[model]], "R2", ...))
 	}
-	if (type %in% c("r2.p", "rsquared.p", "r.squared.p")) {
+	if (type %in% c("r2.p", "rsquared.p", "r.squared.p", "p", "p.value")) {
+		F <- fitmeasures(x$models[[model]])
 		R <- inspect(x$models[[model]], "R2", ...)
 		n <- lavaan::nobs(x$models[[model]])
-		k <- fitmeasures(x$models[[model]], "npar")
-		return(pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
+		k <- F["baseline.df"] - F["df"]
+		r2.p <- pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE)
+		names(r2.p) <- NULL
+		return(r2.p)
 	}
 	
 	if (type %in% c("r2.adj", "rsquared.adj", "r.squared.adj")) {

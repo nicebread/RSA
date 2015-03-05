@@ -47,19 +47,43 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 	class(a1) <- "data.frame"
 	a1 <- a1[, c("Modnames", "K", "AICc", "Delta_AICc", "AICcWt", "Cum.Wt")]
 	a1$evidence.ratio <- evidenceRatio(a1$Delta_AICc)
-	a1$evidence.ratio[1] <- NA
+	a1$evidence.ratio[1] <- NA	
+	
+	# compute CFI, R2.adj
+	free.max <- getFreeParameters(x$models[["full"]])
+	N <- lavaan::nobs(x$models[[1]])
+	c1 <- plyr::ldply(cand.set.models, function(X) {
+		F <- fitmeasures(X, fit.measures = c("df", "cfi"))
+		R <- inspect(X, "r2")
+		names(R) <- "R2"
+		n <- lavaan::nobs(X)
+		k <- free.max - F["df"]				
+		R2.p <- ifelse(k==0,
+			NA,
+			pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
+		names(R2.p) <- "R2.p"
+		
+		return(c(F[c("cfi", "srmr")], R, R2.p, k))
+	})
+	colnames(c1)[1] <- "Modnames"
+	c1$R2.adj <- 1 - ((1-c1$R2))*((N-1)/(N-c1$df-1))
+	
+	# merge aic and other fit indices
+	a2 <- merge(a1, c1[, c("Modnames", "cfi", "R2", "R2.p", "R2.adj")], by="Modnames")
+	a2 <- a2[order(a2$Delta_AICc), ]
 	if (!is.na(digits)) {
-		a1[, -c(1:2)] <- round(a1[, -c(1:2)], digits)
+		a2[, -c(1:2)] <- round(a2[, -c(1:2)], digits)
 	}
 	
+	
 	if (plot==TRUE) {
-		a2 <- a1
-		a2$Modnames <- factor(a2$Modnames, levels=a2$Modnames, ordered=TRUE)
-		a2$ValidModels <- as.character(a2$Modnames)
-		a2$ValidModels[a2$Delta_AICc > 2] <- ""
-		a2$color <- ifelse(a2$Delta_AICc <= 2, "green", "yellow")
-		a2$color[a2$Cum.Wt > .95] <- "red"
-		a2$color[a2$Delta_AICc > 10] <- "red"
+		a3 <- a2
+		a3$Modnames <- factor(a3$Modnames, levels=a3$Modnames, ordered=TRUE)
+		a3$ValidModels <- as.character(a3$Modnames)
+		a3$ValidModels[a3$Delta_AICc > 2] <- ""
+		a3$color <- ifelse(a3$Delta_AICc <= 2, "green", "yellow")
+		a3$color[a3$Cum.Wt > .95] <- "red"
+		a3$color[a3$Delta_AICc > 10] <- "red"
 		
 		if (bw==TRUE) {
 			col_scale <- c("green"="grey10", "yellow"="grey10", "red"="grey10")
@@ -70,12 +94,12 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 		}
 		
 		
-		p1 <- ggplot(a2, aes_string(y="AICcWt", x="Delta_AICc", group=1)) + geom_line(color="grey30") + theme_bw() + geom_vline(xintercept=2, linetype="dotted", color="grey30") + geom_vline(xintercept=7, linetype="dotted", color="grey30") + geom_point(aes_string(color="color", shape="color"), size=3) + coord_cartesian(xlim=c(-0.5, max(a2$Delta_AICc)+1)) + xlab(bquote(Delta~"AICc")) + ylab("Model weight") + geom_text(aes_string(label="ValidModels"), size=3.7, hjust=-0.2) + scale_x_continuous(breaks=c(2, 7, 10)) + scale_color_manual(values=col_scale, guide="none") + scale_shape_manual(values=shape_scale, guide="none")		
+		p1 <- ggplot(a3, aes_string(y="AICcWt", x="Delta_AICc", group=1)) + geom_line(color="grey30") + theme_bw() + geom_vline(xintercept=2, linetype="dotted", color="grey30") + geom_vline(xintercept=7, linetype="dotted", color="grey30") + geom_point(aes_string(color="color", shape="color"), size=3) + coord_cartesian(xlim=c(-0.5, max(a3$Delta_AICc)+1)) + xlab(bquote(Delta~"AICc")) + ylab("Model weight") + geom_text(aes_string(label="ValidModels"), size=3.7, hjust=-0.2) + scale_x_continuous(breaks=c(2, 7, 10)) + scale_color_manual(values=col_scale, guide="none") + scale_shape_manual(values=shape_scale, guide="none")		
 		
 		p1 <- p1 + 
-			geom_hline(yintercept=a2$AICcWt[max(which(a2$Cum.Wt < .95))], linetype="dotted", color="grey30") + 
-			annotate("text", label="Cumulative weight < .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3.3, hjust=1, vjust=-.4) + 
-			annotate("text", label="Cumulative weight > .95", x=max(a2$Delta_AICc), y=a2$AICcWt[max(which(a2$Cum.Wt < .95))], size=3.3, hjust=1, vjust=1.4) 
+			geom_hline(yintercept=a3$AICcWt[max(which(a3$Cum.Wt < .95))], linetype="dotted", color="grey30") + 
+			annotate("text", label="Cumulative weight < .95", x=max(a3$Delta_AICc), y=a3$AICcWt[max(which(a3$Cum.Wt < .95))], size=3.3, hjust=1, vjust=-.4) + 
+			annotate("text", label="Cumulative weight > .95", x=max(a3$Delta_AICc), y=a3$AICcWt[max(which(a3$Cum.Wt < .95))], size=3.3, hjust=1, vjust=1.4) 
 		
 		p1 <- p1 + 
 			annotate("text", label="Practically equivalent models", x=0.5, y=0.03, size=3.3, hjust=0, vjust=0, angle=90) + 
@@ -83,7 +107,8 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 		
 		print(p1)
 	}
-	return(a1)
+
+	return(a2)
 }
 
 

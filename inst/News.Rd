@@ -8,12 +8,15 @@
 
 \subsection{New features and improvements}{
 	\itemize{
-		\item Improved aictab-plot
-		\item Fixed wrong label in \code{aictab} plot
+		\item Improved aictab-plot; now also has a black/white option (\code{bw=TRUE})		
 		\item Added evidence ratio to the \code{aictab} output: How much more likely is the best model (in first row) compared to each other model in the set?
 		\item \code{compare}, \code{compare2}, and \code{aictab} gained a \code{digits} argument
 		\item Reduced the set of models that is computed by default in the \code{RSA} function. Uncommon models, such as the \code{mean} model or the \code{diff} model have been removed.
 		\item Removed eigenvalues from standard summary. Most users will never need them.
+		\item When CIs and p values are bootstrapped, S is automatically tested against 1 (which is the null hypothesis).
+		\item Improved contour plot (bag plot is now better visible; if xlim and ylim are set, the range is not extended anymore to include all points).
+		\item New option in plotRSA: \code{showSP} (TRUE/FALSE) controls the display of the stationary point in contour plots, \code{showSP.CI} (TRUE/FALSE) controls the display of the stationary point's confidence interval.
+		\item New demo data set: \code{motcon2}
 	}
 }
 
@@ -21,6 +24,8 @@
 	\itemize{
 		\item Fixed a bug that broke the \code{surface="smooth"} option in plotRSA
 		\item Fixed a bug that \code{out.rm=FALSE} did not work any more.
+		\item Fixed a bug where \code{getPar(..., type="r2.p")} returned a wrong p value (the output in \code{print} and model comparisons always was correct.)
+		\item Fixed wrong label in \code{aictab} plot
 	}
 }
 

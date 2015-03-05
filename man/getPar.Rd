@@ -9,7 +9,7 @@ getPar(x, type = "coef", model = "full", digits = NA, ...)
 \arguments{
 \item{x}{RSA object}
 
-\item{type}{One of: "syntax", "coef", "R2", "R2.adj", "free", "summary"}
+\item{type}{One of: "syntax", "coef", "R2", "R2.adj", "free", "summary", "p.value"}
 
 \item{model}{A string specifying the model; defaults to "full"}
 

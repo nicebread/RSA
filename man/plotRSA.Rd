@@ -17,8 +17,8 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   "black", cex = 0.5, out.mark = FALSE), fit = NULL, link = "identity",
   tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3, 1.4), border = FALSE,
   contour = list(show = FALSE, color = "grey40", highlight = c()),
-  hull = NA, SP.CI = FALSE, pal = NULL, pal.range = "box", pad = 0,
-  demo = FALSE, ...)
+  hull = NA, showSP = FALSE, showSP.CI = FALSE, pal = NULL,
+  pal.range = "box", pad = 0, demo = FALSE, ...)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}
@@ -129,7 +129,9 @@ As a shortcut, you can also set \code{points=TRUE} to set the defaults.}
 
 \item{hull}{Plot a bag plot on the surface (This is a bivariate extension of the boxplot. 50\% of points are in the inner bag, 50\% in the outer region). See Rousseeuw, Ruts, & Tukey (1999).}
 
-\item{SP.CI}{Plot the CI of the stationary point (only relevant for \code{type="contour"})}
+\item{showSP}{Plot the stationary point? (only relevant for \code{type="contour"})}
+
+\item{showSP.CI}{Plot the CI of the stationary point? (only relevant for \code{type="contour"})}
 
 \item{pal}{A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}. If \code{pal="flip"}, the default palette is used, but reversed (so that red is on top and green on the bottom).}
 

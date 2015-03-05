@@ -13,6 +13,8 @@ compare2(x, m1 = "", m2 = "full", digits = 3, verbose = TRUE)
 
 \item{m2}{Name of second model}
 
+\item{digits}{Digits of the output}
+
 \item{verbose}{Should the summary be printed?}
 }
 \description{

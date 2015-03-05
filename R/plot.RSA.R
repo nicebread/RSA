@@ -78,7 +78,8 @@
 #' @param border Should a thicker border around the surface be plotted? Sometimes this border leaves the surrounding box, which does not look good. In this case the border can be suppressed by setting \code{border=FALSE}.
 #' @param contour A list defining the appearance of contour lines (aka. height lines). show=TRUE: Should the contour lines be plotted on the 3d wireframe plot? (Parameter only relevant for \code{type="3d"}). color = "grey40": Color of the contour lines. highlight = c(): A vector of heights which should be highlighted (i.e., printed in bold). Be careful: the highlighted line is not necessarily exactly at the specified height; instead the nearest height line is selected.
 #' @param hull Plot a bag plot on the surface (This is a bivariate extension of the boxplot. 50\% of points are in the inner bag, 50\% in the outer region). See Rousseeuw, Ruts, & Tukey (1999).
-#' @param SP.CI Plot the CI of the stationary point (only relevant for \code{type="contour"})
+#' @param showSP Plot the stationary point? (only relevant for \code{type="contour"})
+#' @param showSP.CI Plot the CI of the stationary point? (only relevant for \code{type="contour"})
 #' @param distance A vector of three values defining the distance of labels to the axes
 #' @param tck A vector of three values defining the position of labels to the axes (see ?wireframe)
 #' @param pal A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}. If \code{pal="flip"}, the default palette is used, but reversed (so that red is on top and green on the bottom).
@@ -149,7 +150,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=FALSE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
-	hull=NA, SP.CI=FALSE, 
+	hull=NA, showSP=FALSE, showSP.CI=FALSE, 
 	pal=NULL, pal.range="box", 
 	pad=0, demo=FALSE, ...) {
 	
@@ -385,6 +386,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		new2$z <- invlogit(new2$z)
 	}
 
+
 	# determine zlim
 	if (!is.null(points$data) & demo==FALSE & is.null(zlim)) {
 		# old: set zlim according to fitted surface
@@ -431,10 +433,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			pal <- colorRampPalette(c("#FFFFFF", "#AAAAAA", "#030303"), bias=2)(11)
 			if (flip==TRUE) {pal <- rev(pal)}
 		}
-		gridCol <- ifelse(contour$show == TRUE, "grey30", "grey30")
+		gridCol <- ifelse(contour$show == TRUE, "grey10", "grey10")
 		
 		LOC.col <- LOIC.col <- "black"
-		PA1.col <- PA2.col <- "grey50"
+		PA1.col <- PA2.col <- "black"
 	}
 	if (length(pal) < 2) {legend <- FALSE}
 	
@@ -630,7 +632,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					  if (suppress.surface==FALSE) {
 						  panel.3dwire(x = x, y = y, z = z, xlim = xlim, ylim = ylim, zlim = zlim,
 		                           xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-								   col=gridCol, lwd=0.3, ...)
+								   col=gridCol, lwd=0.5, ...)
 								   
 					   }
 								   
@@ -836,7 +838,6 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	## ======================================================================
 	## Contour plot
 	## ======================================================================
-	
 	if (type == "contour") {
 		if (!all(C == 0)) {
 			
@@ -867,19 +868,19 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				
 			# (in)congruence lines
 			if ("LOC" %in% axes) {
-				p1 <- p1 + geom_abline(aes(xintercept=0, slope=1), color="grey")
+				p1 <- p1 + geom_abline(aes(xintercept=0, slope=1), color="grey20")
 			}
 			if ("LOIC" %in% axes) {
-				p1 <- p1 + geom_abline(aes(xintercept=0, slope=-1), linetype="dotted", color="grey50")
+				p1 <- p1 + geom_abline(aes(xintercept=0, slope=-1), linetype="dotted", size=1, color="grey20")
 			}
 			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
-				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"))
+				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
 			}
 			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
-				p1 <- p1+ geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted")
+				p1 <- p1+ geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
 			}
 			
-			if (param==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR")) {
+			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR")) {
 				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
 			}
 				
@@ -898,12 +899,12 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			}
 			
 			if (hull==TRUE & !is.null(points$data)) {
-				p1 <- p1 + annotate("path", x=bag$X, y=bag$Y, linetype="dashed", color="grey10")
-				p1 <- p1 + annotate("path", x=loop$X, y=loop$Y, linetype="dotted", color="grey10")
+				p1 <- p1 + annotate("path", x=bag$X, y=bag$Y, linetype="solid", size=1, color="grey10")
+				p1 <- p1 + annotate("path", x=loop$X, y=loop$Y, linetype="dashed", size=1, color="grey10")
 			}
 			
 			# plot CI of SP
-			if (param==TRUE & SP.CI==TRUE & !is.null(fit)) {
+			if (showSP==TRUE & showSP.CI==TRUE & !is.null(fit)) {
 				PAR <- getPar(fit, "coef", model=model)
 				p1 <- p1 + annotate("errorbar", x=SP$X0, y=SP$Y0, ymin=PAR[PAR$label=="Y0", "ci.lower"], ymax=PAR[PAR$label=="Y0", "ci.upper"], z=max(new2$z), width=.3)
 				p1 <- p1 + annotate("errorbarh", x=SP$X0, y=SP$Y0, xmin=PAR[PAR$label=="X0", "ci.lower"], xmax=PAR[PAR$label=="X0", "ci.upper"], z=max(new2$z), height=.3)
@@ -911,6 +912,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			
 			# Title
 			if (main != "") p1 <- p1 + ggtitle(main)
+				
+			p1 <- p1 + coord_cartesian(xlim=xlim, ylim=ylim)
 			
 		}
 	}
