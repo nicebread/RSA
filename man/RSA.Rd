@@ -40,7 +40,7 @@ RSA(formula, data = NULL, center = FALSE, scale = FALSE, na.rm = FALSE,
 
 \item{...}{Additional parameters passed to the \code{lavaan} \code{\link{sem}} function.}
 
-\item{control.variables}{A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is very beta, and seems to break some model comparisons. Use with caution (or better: don't use it at all, yet).}
+\item{control.variables}{A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is not implemented yet!}
 }
 \description{
 Performs several RSA model tests on a data set with two predictors

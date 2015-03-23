@@ -3,6 +3,19 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.8}{
+
+
+\subsection{Bug fixes}{
+	\itemize{
+		\item Removed the beta version of the control.variables feature - this broke some functions.
+		\item Removed some unnecessary warning that might confuse users.
+	}
+}
+
+}
+
+
 \section{Version 0.9.7}{
 
 

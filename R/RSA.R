@@ -24,7 +24,7 @@
 #' @param verbose Should additional information during the computation process be printed?
 #' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should a cubic model with the additional terms Y^3, XY^2, YX^2, and X^3 be included? WARNING: This is experimental, and not all functions will treat the cubic extension properly yet.
-#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is very beta, and seems to break some model comparisons. Use with caution (or better: don't use it at all, yet).
+#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is not implemented yet!
 #' @param estimator Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values.
 #' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).
 #' @param missing Handling of missing values. By default (\code{NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If families with missing values should be excluded, use \code{missing = "listwise"}
@@ -78,6 +78,9 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
 	verbose=TRUE, add = "", estimator="MLR",
 	se = "robust", missing=NA, ..., control.variables=c()) {
+
+
+	if (length(control.variables) > 0) stop("Control.variables feature not implemented yet!")
 
 	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong")
 	
@@ -716,7 +719,8 @@ withCallingHandlers({
 	   if (
 		   (W[1] == "sqrt" & W[2] == "diag(def.cov)" & grepl("NaNs", w$message)) |
 		   (W[1] == "sqrt" & W[2] == "b3 * b5") |
-		   (W[1] == "nlminb" & W[2] == "x.par")
+		   (W[1] == "nlminb" & W[2] == "x.par") |
+		   (W[2] %in% c("m.SRRR.up", "m.SRRR.down", "m.SRSQD.up", "m.SRSQD.down") & grepl("model has NOT converged", w$message))
 		  ) {invokeRestart("muffleWarning")}
 } )
 
