@@ -3,6 +3,18 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.9}{
+
+
+\subsection{New features and improvements}{
+	\itemize{
+		\item Better documentation for RSA.ST function.
+	}
+}
+
+}
+
+
 \section{Version 0.9.8}{
 
 
