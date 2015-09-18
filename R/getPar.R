@@ -45,6 +45,11 @@ getPar <- function(x, type="coef", model="full", digits=NA, ...) {
 	if (type=="coef") {
 		p1 <- parameterEstimates(x$models[[model]], ...)
 		p1$label[p1$lhs==x$DV & p1$op=="~1"] <- "b0"
+
+		if (length(x$CV) > 0) {
+		    p1$label[p1$lhs==x$DV & p1$rhs %in% x$CV] <- paste0("bc", 1:length(x$CV))
+		}
+
 		p1 <- data.frame(p1[p1$label != "", ])
 		
 		rownames(p1) <- paste0(p1$lhs, p1$op, p1$rhs)

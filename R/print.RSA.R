@@ -62,7 +62,11 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	} else {
 		coef.sel <- paste0("b", c(0:5, 9:12))
 	}
-	
+
+	if (length(CV) > 0) {
+	    coef.sel <- c(coef.sel, paste0("bc", 1:length(CV)))
+	}
+
 	RC <- eff[eff$label %in% coef.sel, c(1:3, 6:7)]
 	RC[, 2:5] <- round(RC[, 2:5], digits)
 	RC$beta <- round(eff[eff$label %in% coef.sel, "std.all"], digits)

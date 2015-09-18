@@ -69,6 +69,7 @@
 #' @param fit Do not change that parameter (internal use only)
 #' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.
 #' @param coefs Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)
+#' @param control.variables Should the control variables be shown on the plot? (Only for 3d plot)
 #' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis
 #' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
@@ -142,7 +143,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	surface="predict", lambda=NULL, 
 	suppress.surface=FALSE, suppress.box = FALSE,
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
-	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, coefs=FALSE,
+	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, coefs=FALSE, control.variables=FALSE,
 	axes=c("LOC", "LOIC", "PA1", "PA2"), 
 	project=c("contour"), maxlines=FALSE,
 	cex=1, cex.main=1, 
@@ -298,8 +299,13 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	if (coefs == TRUE) {
 		COEFS <- paste0("b1 = ", f2(x, 3), "\n", "b2 = ", f2(y, 3), "\n", "b3 = ", f2(x2, 3), "\n", "b4 = ", f2(xy, 3), "\n", "b5 = ", f2(y2, 3), "\n")
 	}
-	
-	
+
+	CVS <- ""
+	if (control.variables == TRUE & !is.null(fit)) {
+	    CVS <- paste0('Control Variables: ', ifelse(length(fit$CV) > 0, paste(fit$CV, collapse = ", "), "None"))
+	}
+
+
 	# ---------------------------------------------------------------------
 	# Calculate positions of raw points
 
@@ -687,10 +693,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 						  
 						  if (coefs == TRUE) {
 							  grid::grid.text(COEFS, .80, .87, just="left", gp=grid::gpar(cex=cex*0.8))
-						  }  
-						  
-						
-						
+						  }
+
+			              if (control.variables == TRUE) {
+			                  grid::grid.text(CVS, .02, .93, just="left", gp=grid::gpar(cex=cex*0.8))
+			              }
+
+
+
 						# ---------------------------------------------------------------------
 						# 6a: The bag plot, if requested
 					
@@ -1001,7 +1011,21 @@ plot.RSA <- function(x, ...) {
 		extras$xlim[1] <- extras$ylim[1] <- min(extras$xlim[1], extras$ylim[1])
 		extras$xlim[2] <- extras$ylim[2] <- max(extras$xlim[2], extras$ylim[2])
 	}
-	
+
+	# Adjust the default z-axis if control variables are present, as the surface may not be visible
+	if (is.null(extras$zlim) && length(fit$CV)) {
+	    control.coefs <- C[paste0(fit$DV, '~', fit$CV)]
+	    dv.corrected <- data.used[, fit$DV] - rowSums(mapply(`*`, data.used[, fit$CV], control.coefs))
+
+	    if (extras$points$show == TRUE) {
+	        extras$zlim <- c(min(data.used[, fit$DV], dv.corrected, na.rm=TRUE), max(data.used[, fit$DV], dv.corrected, na.rm=TRUE))
+	        extras$zlim[1] <- extras$zlim[1]*ifelse(extras$zlim[1]<0, 1.1, 0.9)
+	        extras$zlim[2] <- extras$zlim[2]*ifelse(extras$zlim[2]<0, 0.9, 1.1)
+	    } else {
+	        extras$zlim <- c(min(dv.corrected, na.rm=TRUE), max(dv.corrected, na.rm=TRUE))
+	    }
+	}
+
 	do.call(plotRSA, as.list(extras), envir = parent.frame())
 }
 

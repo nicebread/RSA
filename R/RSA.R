@@ -82,7 +82,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	se = "robust", missing=NA, ..., control.variables=c()) {
 
 
-	if (length(control.variables) > 0) stop("Control.variables feature not implemented yet!")
+	if (length(control.variables) > 0) warning("Some RSA functions do not support control variables.")
 
 	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong")
 	
@@ -772,6 +772,7 @@ withCallingHandlers({
 		SRSQD.rot = SRSQD.rot, SRRR.rot = SRRR.rot, LM=summary(lm.full), formula=formula, 
 		data=df, out.rm = out.rm, outliers = which(df$out == TRUE), DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, 
 		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
+		CV=control.variables,
 		r.squared = summary(lm.full)$r.squared)
 	
 	attr(res, "class") <- "RSA"

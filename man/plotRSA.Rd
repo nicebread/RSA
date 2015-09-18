@@ -11,14 +11,15 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   lambda = NULL, suppress.surface = FALSE, suppress.box = FALSE,
   rotation = list(x = -63, y = 32, z = 15), label.rotation = list(x = 19, y
   = -40, z = 92), gridsize = 21, bw = FALSE, legend = TRUE,
-  param = TRUE, coefs = FALSE, axes = c("LOC", "LOIC", "PA1", "PA2"),
-  project = c("contour"), maxlines = FALSE, cex = 1, cex.main = 1,
-  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color =
-  "black", cex = 0.5, out.mark = FALSE), fit = NULL, link = "identity",
-  tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3, 1.4), border = FALSE,
-  contour = list(show = FALSE, color = "grey40", highlight = c()),
-  hull = NA, showSP = FALSE, showSP.CI = FALSE, pal = NULL,
-  pal.range = "box", pad = 0, demo = FALSE, ...)
+  param = TRUE, coefs = FALSE, control.variables = FALSE,
+  axes = c("LOC", "LOIC", "PA1", "PA2"), project = c("contour"),
+  maxlines = FALSE, cex = 1, cex.main = 1, points = list(data = NULL,
+  show = NA, value = "raw", jitter = 0, color = "black", cex = 0.5, out.mark =
+  FALSE), fit = NULL, link = "identity", tck = c(1.5, 1.5, 1.5),
+  distance = c(1.3, 1.3, 1.4), border = FALSE, contour = list(show =
+  FALSE, color = "grey40", highlight = c()), hull = NA, showSP = FALSE,
+  showSP.CI = FALSE, pal = NULL, pal.range = "box", pad = 0,
+  demo = FALSE, ...)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}
@@ -86,6 +87,8 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 \item{param}{Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.}
 
 \item{coefs}{Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)}
+
+\item{control.variables}{Should the control variables be shown on the plot? (Only for 3d plot)}
 
 \item{axes}{A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis}
 
