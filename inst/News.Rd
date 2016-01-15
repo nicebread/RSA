@@ -12,6 +12,13 @@
 	}
 }
 
+\subsection{Bug fixes}{
+	\itemize{
+		\item Made necessary changes due to lavaan update.
+		\item Fixed issue due to ggplot2 update.
+	}
+}
+
 }
 
 

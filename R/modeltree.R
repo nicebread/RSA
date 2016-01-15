@@ -157,6 +157,7 @@ modeltree <- function(x, digits=3, sig=.05, borderline=.10, ...) {
 	invisible(p1)
 }
 
+#' @method plot cRSA
 #' @export
 plot.cRSA <- function(x, ...) {
 	modeltree(x, ...)

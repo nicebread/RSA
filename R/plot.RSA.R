@@ -85,7 +85,7 @@
 #' @param pal A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}. If \code{pal="flip"}, the default palette is used, but reversed (so that red is on top and green on the bottom).
 #' @param pal.range Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.
 #' @param pad Pad controls the margin around the figure (positive numbers: larger margin, negative numbers: smaller margin)
-#'#' @param ... Additional parameters passed to the plotting function (e.g., sub="Title"). A useful title might be the R squared of the plotted model: \code{sub = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))}
+#' @param ... Additional parameters passed to the plotting function (e.g., sub="Title"). A useful title might be the R squared of the plotted model: \code{sub = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))}
 #'
 #' @references
 #' Rousseeuw, P. J., Ruts, I., & Tukey, J. W. (1999). The Bagplot: A Bivariate Boxplot. The American Statistician, 53(4), 382-387. doi:10.1080/00031305.1999.10474494
@@ -868,10 +868,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				
 			# (in)congruence lines
 			if ("LOC" %in% axes) {
-				p1 <- p1 + geom_abline(aes(xintercept=0, slope=1), color="grey20")
+				p1 <- p1 + geom_abline(aes(intercept=0, slope=1), color="grey20")
 			}
 			if ("LOIC" %in% axes) {
-				p1 <- p1 + geom_abline(aes(xintercept=0, slope=-1), linetype="dotted", size=1, color="grey20")
+				p1 <- p1 + geom_abline(aes(intercept=0, slope=-1), linetype="dotted", size=1, color="grey20")
 			}
 			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
 				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
@@ -923,6 +923,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 }
 
 
+#' @method plot RSA
 #' @export
 
 # Purpose: Extract the model parameters, xlim, xlab, etc. from the fitted object and give it to the plotRSA function

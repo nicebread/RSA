@@ -5,6 +5,7 @@
 #' @details
 #' There are two ways of getting bootstrapped CIs and p-values in the RSA package If you use the option \code{se="boot"} in the \code{\link{RSA}} function, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error (\emph{not} percentile bootstraps). If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap.
 #'
+#' @method confint RSA
 #' @export
 #' @aliases confint
 

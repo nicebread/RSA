@@ -22,13 +22,14 @@ Suggests:
     AICcmodavg
 Depends:
     R (>= 2.15.0),
-    lavaan (>= 0.5.11),
+    lavaan (>= 0.5.20),
     ggplot2,
     lattice,
     tkrplot,
-	tcltk
+    tcltk
 Imports:
     plyr,
     RColorBrewer,
     aplpack
 License: GPL (>= 2)
+RoxygenNote: 5.0.1

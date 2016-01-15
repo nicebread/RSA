@@ -12,11 +12,11 @@ citEntry(entry = "Manual",
   title = title.bibtex,
   author = personList(as.person("Felix D. Schönbrodt")),
   year = year,
-  url = "http://cran.r-project.org/web/packages/RSA/index.html",
+  url = "https://cran.r-project.org/package=RSA",
 
   textVersion =
   paste("Schönbrodt, F.D.",
        sprintf("(%s).", year),
        title,
-        "Retrieved from http://cran.r-project.org/web/packages/RSA/index.html")
+        "Retrieved from https://cran.r-project.org/package=RSA")
 )

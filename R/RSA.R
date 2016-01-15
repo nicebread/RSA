@@ -4,7 +4,9 @@
 #' Performs several RSA model tests on a data set with two predictors
 #'
 #' @details
-#' Even if the main variables of the model are normally distirbuted, their squared terms and interaction terms are necessarily non-normal. By default, the RSA function uses a scaled test statistic (\code{test="Satorra-Bentler"}) and robust standard errors (\code{se="robust"}), which are robust against violations of the normality assumption.
+#' Even if the main variables of the model are normally distirbuted, their squared terms and interaction terms are necessarily non-normal. By default, the RSA function uses a scaled test statistic (\code{test="Satorra-Bentler"}) and robust standard errors (\code{se="robust"}), which are robust against violations of the normality assumption. 
+#'
+#' \emph{Why does my standard polynomial regression give different p-values and SEs than the RSA package? Shouldn't they be the same?} This is due to the robust standard errors employed in the RSA package. If you set \code{estimator="ML"} and \code{se="standard"}, you get p-values that are very close to the standard approach. (They might still not be identical because the standard regression approach usually uses an OLS estimator and RSA uses an ML estimator).
 #'
 #' You can also fit \strong{binary outcome variables} with a probit link function. For that purpose, the response variable has to be defined as "ordered", and the \code{lavaan} estimator changed to "WLSMV": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary", estimator="WLSMV")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
 #'
@@ -27,7 +29,7 @@
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is not implemented yet!
 #' @param estimator Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values.
 #' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).
-#' @param missing Handling of missing values. By default (\code{NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If families with missing values should be excluded, use \code{missing = "listwise"}
+#' @param missing Handling of missing values. By default (\code{NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If cases with missing values should be excluded, use \code{missing = "listwise"}.
 #' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function.
 #'
 #'
