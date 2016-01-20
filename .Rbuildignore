@@ -6,3 +6,4 @@ LICENSE
 checks
 .Rapp.history
 .travis.yml
+cran-comments.md
