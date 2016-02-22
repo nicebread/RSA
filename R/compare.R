@@ -33,7 +33,7 @@ compare <- function(x, verbose=TRUE, plot=FALSE, digits=3, ...) {
 			cat("-------------------------------------------------------------------------\n")
 		}
 	
-		res1 <- cModels(list(cubic=cubic, full=full, IA=IA, additive=additive, diff=diff, null=null), set="directed", free.max)
+		res1 <- cModels(mL=list(cubic=cubic, full=full, IA=IA, additive=additive, diff=diff, null=null), set="directed", free.max=free.max)
 		if (verbose==TRUE & !is.null(res1)) {
 			cat("Testing directed difference models: Interaction, additive main effects, difference model :\n")
 			cat("-------------------------------------------------------------------------\n")

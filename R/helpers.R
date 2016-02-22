@@ -64,7 +64,8 @@ anovaList <- function(modellist) {
 			paste("force(mods[[",x,"]])",sep = "")
 		}
 	})
-	pStr2 <- paste0("anova(", paste(pStr, collapse=", "), ")")
+	#pStr2 <- paste0("lavTestLRT(", paste(pStr, collapse=", "), ", method='satorra.bentler.2010')")
+	pStr2 <- paste0("lavTestLRT(", paste(pStr, collapse=", "), ", method='default')")
 	
 	a1 <- eval(parse(text = pStr2))
 	
@@ -89,10 +90,14 @@ cModels <- function(mL, set, free.max) {
 			R <- inspect(X, "r2")
 			names(R) <- "R2"
 			n <- lavaan::nobs(X)
-			k <- free.max - F["df"]				
-			R2.p <- ifelse(k==0,
-				NA,
-				pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
+			k <- free.max - F["df"]		
+			
+			suppressWarnings({		
+				R2.p <- ifelse(k==0,
+					NA,
+					pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
+			})
+			
 			names(R2.p) <- "R2.p"
 			
 			# compute AICc

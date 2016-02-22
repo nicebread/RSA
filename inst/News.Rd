@@ -3,6 +3,19 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.10}{
+
+
+
+\subsection{Bug fixes}{
+	\itemize{
+		\item Fixed a wrong sign in the C parameter of the SRR model (thanks to Sarah Humberg for detecting the bug.)
+	}
+}
+
+}
+
+
 \section{Version 0.9.9}{
 
 
