@@ -1015,7 +1015,12 @@ plot.RSA <- function(x, ...) {
 	# Adjust the default z-axis if control variables are present, as the surface may not be visible
 	if (is.null(extras$zlim) && length(fit$CV)) {
 	    control.coefs <- C[paste0(fit$DV, '~', fit$CV)]
-	    dv.corrected <- data.used[, fit$DV] - rowSums(mapply(`*`, data.used[, fit$CV], control.coefs))
+	    correction <- mapply(`*`, data.used[, fit$CV], control.coefs)
+	    if (length(fit$CV) > 1) {
+	        correction <- rowSums(correction)
+	    }
+	    
+	    dv.corrected <- data.used[, fit$DV] - correction
 
 	    if (extras$points$show == TRUE) {
 	        extras$zlim <- c(min(data.used[, fit$DV], dv.corrected, na.rm=TRUE), max(data.used[, fit$DV], dv.corrected, na.rm=TRUE))
