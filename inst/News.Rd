@@ -3,6 +3,19 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.11}{
+
+
+
+\subsection{New features}{
+	\itemize{
+		\item New param in \code{plotRSA}: \code{suppress.grid}.
+	}
+}
+
+}
+
+
 \section{Version 0.9.10}{
 
 

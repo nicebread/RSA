@@ -75,6 +75,7 @@
 #' @param link Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"
 #' @param suppress.surface Should the surface be suppressed (only for \code{type="3d"})? Useful for only showing the data points, or for didactic purposes (e.g., first show the cube, then fade in the surface).
 #' @param suppress.box Should the surrounding box be suppressed (only for \code{type="3d"})?
+#' @param suppress.grid Should the grid lines be suppressed (only for \code{type="3d"})?
 #' @param border Should a thicker border around the surface be plotted? Sometimes this border leaves the surrounding box, which does not look good. In this case the border can be suppressed by setting \code{border=FALSE}.
 #' @param contour A list defining the appearance of contour lines (aka. height lines). show=TRUE: Should the contour lines be plotted on the 3d wireframe plot? (Parameter only relevant for \code{type="3d"}). color = "grey40": Color of the contour lines. highlight = c(): A vector of heights which should be highlighted (i.e., printed in bold). Be careful: the highlighted line is not necessarily exactly at the specified height; instead the nearest height line is selected.
 #' @param hull Plot a bag plot on the surface (This is a bivariate extension of the boxplot. 50\% of points are in the inner bag, 50\% in the outer region). See Rousseeuw, Ruts, & Tukey (1999).
@@ -140,7 +141,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	xlim=NULL, ylim=NULL, zlim=NULL, 
 	xlab=NULL, ylab=NULL, zlab=NULL, main="",
 	surface="predict", lambda=NULL, 
-	suppress.surface=FALSE, suppress.box = FALSE,
+	suppress.surface=FALSE, suppress.box = FALSE, suppress.grid = FALSE,
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, coefs=FALSE,
 	axes=c("LOC", "LOIC", "PA1", "PA2"), 
@@ -440,7 +441,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	if (length(pal) < 2) {legend <- FALSE}
 	
-	
+	if (suppress.grid == TRUE) {
+		gridCol <- "transparent"
+	}
 	
 	# ---------------------------------------------------------------------
 	#  calculate bag plot: bag = outer, loop = inner

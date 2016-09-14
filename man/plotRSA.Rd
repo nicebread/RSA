@@ -9,16 +9,17 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   model = "full", xlim = NULL, ylim = NULL, zlim = NULL, xlab = NULL,
   ylab = NULL, zlab = NULL, main = "", surface = "predict",
   lambda = NULL, suppress.surface = FALSE, suppress.box = FALSE,
-  rotation = list(x = -63, y = 32, z = 15), label.rotation = list(x = 19, y
-  = -40, z = 92), gridsize = 21, bw = FALSE, legend = TRUE,
-  param = TRUE, coefs = FALSE, axes = c("LOC", "LOIC", "PA1", "PA2"),
-  project = c("contour"), maxlines = FALSE, cex = 1, cex.main = 1,
-  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color =
-  "black", cex = 0.5, out.mark = FALSE), fit = NULL, link = "identity",
-  tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3, 1.4), border = FALSE,
-  contour = list(show = FALSE, color = "grey40", highlight = c()),
-  hull = NA, showSP = FALSE, showSP.CI = FALSE, pal = NULL,
-  pal.range = "box", pad = 0, demo = FALSE, ...)
+  suppress.grid = FALSE, rotation = list(x = -63, y = 32, z = 15),
+  label.rotation = list(x = 19, y = -40, z = 92), gridsize = 21,
+  bw = FALSE, legend = TRUE, param = TRUE, coefs = FALSE,
+  axes = c("LOC", "LOIC", "PA1", "PA2"), project = c("contour"),
+  maxlines = FALSE, cex = 1, cex.main = 1, points = list(data = NULL,
+  show = NA, value = "raw", jitter = 0, color = "black", cex = 0.5, out.mark =
+  FALSE), fit = NULL, link = "identity", tck = c(1.5, 1.5, 1.5),
+  distance = c(1.3, 1.3, 1.4), border = FALSE, contour = list(show =
+  FALSE, color = "grey40", highlight = c()), hull = NA, showSP = FALSE,
+  showSP.CI = FALSE, pal = NULL, pal.range = "box", pad = 0,
+  demo = FALSE, ...)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}
@@ -72,6 +73,8 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 \item{suppress.surface}{Should the surface be suppressed (only for \code{type="3d"})? Useful for only showing the data points, or for didactic purposes (e.g., first show the cube, then fade in the surface).}
 
 \item{suppress.box}{Should the surrounding box be suppressed (only for \code{type="3d"})?}
+
+\item{suppress.grid}{Should the grid lines be suppressed (only for \code{type="3d"})?}
 
 \item{rotation}{Rotation of the 3d surface plot (when type == "3d")}
 
