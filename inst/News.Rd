@@ -10,6 +10,8 @@
 \subsection{New features}{
 	\itemize{
 		\item New param in \code{plotRSA}: \code{suppress.grid}.
+		\item If \code{link="probit"} in \code{plotRSA}, the 3d automatically scales the z-axis to c(0, 1)
+		\item If \code{link="probit"} in \code{plotRSA}, the raw data points now can take the predicted probability (\code{plotRSA(..., points=list(value="predicted"))})
 	}
 }
 

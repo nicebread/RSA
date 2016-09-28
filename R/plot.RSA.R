@@ -359,7 +359,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	new <- data.frame(x = rep(seq(xlim[1], xlim[2], length.out=grid), grid), y = rep(seq(ylim[1], ylim[2], length.out=grid), each=grid))
 	new2 <- add.variables(z~x+y, new)
 		
-	# calculate z values
+	# calculate z values of the surface
 	if (surface == "predict") {
 		new2$z <- b0 + colSums(C*t(new2[, c(1:5, 9:11, 15:18)]))
 	}
@@ -375,16 +375,20 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		axes <- ""
 	}
 	
-	# impose link functions
+	# impose link functions, both to the surface and the raw values
 	logit <- function (x) {log(x/(1-x))}
 	invlogit <- function (x) {1/(1+exp(-x))}
 	link <- match.arg(link, c("identity", "logit", "probit"))
 	if (link == "probit") {
 		z.trans <- 1.7 * new2$z
 		new2$z <- invlogit(z.trans)
+
+		zpoints.trans <- 1.7 * zpoints
+		zpoints <- invlogit(zpoints.trans)
 	}
 	if (link == "logit") {
 		new2$z <- invlogit(new2$z)
+		zpoints <- invlogit(zpoints)
 	}
 
 
@@ -396,7 +400,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		# new: set zlim according to actual data range
 		zlim <- c(min(points$data[, 3], na.rm=TRUE), max(points$data[, 3], na.rm=TRUE))
 	} else {
-		if (is.null(zlim)) zlim <- c(min(new2$z), max(new2$z))
+		if (is.null(zlim) & link != "probit") zlim <- c(min(new2$z), max(new2$z))
+		if (is.null(zlim) & link == "probit") zlim <- c(0, 1)
 	}
 	zlim.final <- zlim
 	
