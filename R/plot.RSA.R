@@ -382,16 +382,25 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	logit <- function (x) {log(x/(1-x))}
 	invlogit <- function (x) {1/(1+exp(-x))}
 	link <- match.arg(link, c("identity", "logit", "probit"))
-	if (link == "probit") {
+	if (link == "probit") {	
+		# surface
 		z.trans <- 1.7 * new2$z
 		new2$z <- invlogit(z.trans)
 
-		zpoints.trans <- 1.7 * zpoints
-		zpoints <- invlogit(zpoints.trans)
+		# raw data points
+		if (points$value == "predicted") {
+			zpoints.trans <- 1.7 * zpoints
+			zpoints <- invlogit(zpoints.trans)
+		}
 	}
 	if (link == "logit") {
+		# surface
 		new2$z <- invlogit(new2$z)
-		zpoints <- invlogit(zpoints)
+		
+		# raw data points
+		if (points$value == "predicted") {
+			zpoints <- invlogit(zpoints)
+		}
 	}
 
 
