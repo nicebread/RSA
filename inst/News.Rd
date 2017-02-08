@@ -10,8 +10,9 @@
 \subsection{New features}{
 	\itemize{
 		\item New param in \code{plotRSA}: \code{suppress.grid}.
-		\item If \code{link="probit"} in \code{plotRSA}, the 3d automatically scales the z-axis to c(0, 1)
+		\item If \code{link="probit"} in \code{plotRSA}, the 3d plot automatically scales the z-axis to c(0, 1)
 		\item If \code{link="probit"} in \code{plotRSA}, the raw data points now can take the predicted probability (\code{plotRSA(..., points=list(value="predicted"))})
+		\item \code{cex} params in plotRSA slightly changed: now we have three cex parameters to independently control the font size of the main title (\code{cex.main}), the axes labels (\code{cex.axesLabel}), and the tick labels (cex.tickLabel)
 	}
 }
 
