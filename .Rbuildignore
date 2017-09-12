@@ -7,3 +7,4 @@ checks
 .Rapp.history
 .travis.yml
 cran-comments.md
+internal_files

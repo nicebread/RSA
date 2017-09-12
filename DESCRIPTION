@@ -4,7 +4,10 @@ Type: Package
 Title: Response Surface Analysis
 Version: 0.9.11
 Date: 2016-09-14
-Author: Felix Schönbrodt
+Authors@R: c(
+		person(c("Felix", "D."), "Schönbrodt", email = "felix@nicebread.de", role = c("aut", "cre")),
+		person("Sarah", "Humberg", role = c("ctb"))
+	)
 Maintainer: Felix Schönbrodt <felix@nicebread.de>
 Description: Advanced response surface analysis. The main function RSA computes
     and compares several nested polynomial regression models (full polynomial,
@@ -32,4 +35,4 @@ Imports:
     RColorBrewer,
     aplpack
 License: GPL (>= 2)
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

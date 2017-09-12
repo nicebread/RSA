@@ -215,6 +215,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 		add, sep="\n")
 		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
@@ -229,6 +230,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 		add, sep="\n")
 		s.onlyx2 <- sem(m.onlyx2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
@@ -243,6 +245,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 		add, sep="\n")
 		s.onlyy2 <- sem(m.onlyy2, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
@@ -258,6 +261,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 		add, sep="\n")
 		s.onlyx <- sem(m.onlyx, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
@@ -273,6 +277,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 		add, sep="\n")
 		s.onlyy <- sem(m.onlyy, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
@@ -319,14 +324,15 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"X0 := (b2*b4 - 2*b1*b5) / (4*b3*b5 - b4^2)",
 			"Y0 := (b1*b4 - 2*b2*b3) / (4*b3*b5 - b4^2)",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
 			"p10 := Y0 - p11*X0",			
 			"p20 := Y0 - p21*X0",
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
@@ -346,10 +352,11 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
@@ -367,10 +374,11 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			"C := b1 / (2*b3)",
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
@@ -389,11 +397,12 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"meaneffect := b1+b2",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
@@ -411,10 +420,11 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			"meaneffect := a1",
 			"C := (b1-b2) / (4*b3)",
 			# eigenvalues
@@ -436,10 +446,11 @@ withCallingHandlers({
 				"a2 := b3+b4+b5",
 				"a3 := b1-b2",
 				"a4 := b3-b4+b5",
+				"a5 := b3-b5",
 				"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 				"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-				"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-				"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+				"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+				"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 				"meaneffect := (b2*b4 - 2*b1*b5) / b4",
 				"C := (-2*b1*b5 - b2*b4) / (4*b4*b5)",
 				"S := (-b4) / (2*b5)",
@@ -461,10 +472,11 @@ withCallingHandlers({
 				"a2 := b3+b4+b5",
 				"a3 := b1-b2",
 				"a4 := b3-b4+b5",
+				"a5 := b3-b5",
 				"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 				"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-				"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-				"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+				"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+				"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 				"meaneffect := (b2*b4 - 2*b1*b5) / b4",
 				"C := (-2*b1*b5 - b2*b4) / (4*b4*b5)",
 				"S := (-b4) / (2*b5)",
@@ -512,6 +524,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"a4.rescaled := b3/S^2 - b4/S + b5",
 			"X0 := (b2*b4 - 2*b1*b5) / (4*b3*b5 - b4^2)",
 			"Y0 := (b1*b4 - 2*b2*b3) / (4*b3*b5 - b4^2)",
@@ -519,8 +532,8 @@ withCallingHandlers({
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
 			"p10 := Y0 - p11*X0",			
 			"p20 := Y0 - p21*X0",
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
@@ -540,6 +553,7 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"a4.rescaled := b3/S^2 - b4/S + b5",
 			"X0 := (b2*b4 - 2*b1*b5) / (4*b3*b5 - b4^2)",
 			"Y0 := (b1*b4 - 2*b2*b3) / (4*b3*b5 - b4^2)",
@@ -547,8 +561,8 @@ withCallingHandlers({
 			"p10 := Y0 - p11*X0",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
 			"p20 := Y0 - p21*X0",
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
 			add, sep="\n")
@@ -584,14 +598,15 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"X0 := (b2*b4 - 2*b1*b5) / (4*b3*b5 - b4^2)",
 			"Y0 := (b1*b4 - 2*b2*b3) / (4*b3*b5 - b4^2)",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p10 := Y0 - p11*X0",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
 			"p20 := Y0 - p21*X0",
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
@@ -612,14 +627,15 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"X0 := (b2*b4 - 2*b1*b5) / (4*b3*b5 - b4^2)",
 			"Y0 := (b1*b4 - 2*b2*b3) / (4*b3*b5 - b4^2)",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p10 := Y0 - p11*X0",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
 			"p20 := Y0 - p21*X0",
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
@@ -639,10 +655,11 @@ withCallingHandlers({
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
 			"a4 := b3-b4+b5",
+			"a5 := b3-b5",
 			"p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
 			"p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-			"PA1.curv := b3 - b4*p11 + b5*(p11^2)",
-			"PA2.curv := b3 - b4*p21 + b5*(p21^2)",
+			"PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+			"PA2.curv := b3 + b4*p21 + b5*(p21^2)",
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
@@ -720,7 +737,8 @@ withCallingHandlers({
 	   W <- as.character(w$call)
 	   if (
 		   (W[1] == "sqrt" & W[2] == "diag(def.cov)" & grepl("NaNs", w$message)) |
-		   (W[1] == "sqrt" & W[2] == "b3 * b5") |
+		   #(W[1] == "sqrt" & W[2] == "b3 * b5") |
+			 (W[1] == "sqrt") |
 		   (W[1] == "nlminb" & W[2] == "x.par") |
 		   (W[2] %in% c("m.SRRR.up", "m.SRRR.down", "m.SRSQD.up", "m.SRSQD.down") & grepl("model has NOT converged", w$message))
 		  ) {invokeRestart("muffleWarning")}

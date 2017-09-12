@@ -46,4 +46,3 @@ getPar(r1, "coef")
 \seealso{
 \code{\link{RSA}}
 }
-

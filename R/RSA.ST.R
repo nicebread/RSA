@@ -19,7 +19,7 @@
 #' @param model If x is an RSA object, this parameter specifies the model from which to extract the coefficients
 
 #' @return
-#' Returns surface parameters a1 to a4. If an RSA object or SE, COV and df are provided, also significance test and standard errors of a1 to a4 are reported.
+#' Returns surface parameters a1 to a5. If an RSA object or SE, COV and df are provided, also significance test and standard errors of a1 to a5 are reported.
 #' The stationary point (X0, Y0, and Z0). 
 #' First principal axis (PA) relative to the X-Y plane (p10 = intercept, p11 = slope), second PA (p20 = intercept, p21 = slope). 
 #' M = eigenvectors, l = eigenvalues, L = lambda matrix
@@ -32,6 +32,7 @@
 #'
 #' @references
 #' Shanock, L. R., Baran, B. E., Gentry, W. A., Pattison, S. C., & Heggestad, E. D. (2010). Polynomial Regression with Response Surface Analysis: A Powerful Approach for Examining Moderation and Overcoming Limitations of Difference Scores. \emph{Journal of Business and Psychology, 25}, 543-554. doi:10.1007/s10869-010-9183-4
+#' Shanock, L. R., Baran, B. E., Gentry, W. A., & Pattison, S. C. (2014). Erratum to: Polynomial regression with response surface analysis: A powerful approach for examining moderation and overcoming limitations of difference scores. Journal of Business and Psychology, 29, . http://doi.org/10.1007/s10869-013-9317-6
 #'
 #' @seealso \code{\link{RSA}}
 #'
@@ -70,8 +71,6 @@
 #' 
 #' r1 <- RSA(z.sq~x*y, df, models="full")
 #' RSA.ST(r1)
-
-
 
 
 RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL, model="full"){
@@ -115,8 +114,8 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 	# Calculate slopes of principal axes (you can do that even when the stationary point is undefined)
 	p11 <- (y2 - x2 + sqrt(((x2 - y2)^2) + xy^2)) / xy
 	p21 <- (y2 - x2 - sqrt(((x2 - y2)^2) + xy^2)) / xy
-	PA1.curvX <- x2 - xy*p11 + y2*p11^2
-	PA2.curvX <- x2 - xy*p21 + y2*p21^2
+	PA1.curvX <- x2 + xy*p11 + y2*p11^2
+	PA2.curvX <- x2 + xy*p21 + y2*p21^2
 	PA1.curv  <- PA1.curvX / p11^2
 	PA2.curv  <- PA2.curvX / p21^2
 
@@ -160,13 +159,12 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 	} else {
 		X0 <- Y0 <- Z0 <- p10 <- p20 <- C1 <- C2 <- as1X <- as2X <- as3X <- as4X <- as1Y <- as2Y <- as3Y <- as4Y <- NA
 	}
-	
-
 		
 	a1 <- as.numeric(x+y)
 	a2 <- as.numeric(x2+y2+xy)
 	a3 <- as.numeric(x-y)
 	a4 <- as.numeric(x2-xy+y2)
+	a5 <- as.numeric(x2-y2)
 
 	
 	## SEs of Surface parameters: if an RSA object is provided, just retrieve them from that
@@ -179,7 +177,6 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 		se.a1 <- (sqrt(SE["x"]^2 + SE["y"]^2 + 2*COV["x_y"]))
 		t.a1 <- a1 / se.a1
 		p.a1 <- 2 * pt(-abs(t.a1), df)
-		#se.a1 <- 
     
 		se.a2 <- (sqrt(SE["x2"]^2 + SE["y2"]^2 + SE["xy"]^2 + 2*COV["x2_y2"] + 2*COV["x2_xy"] + 2*COV["y2_xy"]))
 		t.a2 <- a2 / se.a2
@@ -189,16 +186,21 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 		t.a3 <- a3 / se.a3
 		p.a3 <- 2 * pt(-abs(t.a3), df)
 
-		se.a4 <- (sqrt(SE["x2"]^2 + SE["y2"]^2 + SE["xy"]^2 - 2*COV["x2_xy"] + 2*COV["y2_xy"] - 2*COV["x2_y2"]))
+		se.a4 <- (sqrt(SE["x2"]^2 + SE["y2"]^2 + SE["xy"]^2 - 2*COV["x2_xy"] - 2*COV["y2_xy"] + 2*COV["x2_y2"]))
 		t.a4 <- a4 / se.a4
 		p.a4 <- 2 * pt(-abs(t.a4), df)
+		
+		se.a5 <- NULL	# set to NULL to please "no global binding"" warning
+		se.a5 <- (sqrt(SE["x2"]^2 + SE["y2"]^2 - 2*COV["x2_y2"]))
+		t.a5 <- a5 / se.a5
+		p.a5 <- 2 * pt(-abs(t.a5), df)
 	
-		SP <- data.frame(estimate=c(a1, a2, a3, a4), SE=c(se.a1, se.a2, se.a3, se.a4), t.value=c(t.a1, t.a2, t.a3, t.a4), p.value=c(p.a1, p.a2, p.a3, p.a4))
+		SP <- data.frame(estimate=c(a1, a2, a3, a4, a5), SE=c(se.a1, se.a2, se.a3, se.a4, se.a5), t.value=c(t.a1, t.a2, t.a3, t.a4, t.a5), p.value=c(p.a1, p.a2, p.a3, p.a4, p.a5))
 		} else {
-			SP <- data.frame(estimate=c(a1, a2, a3, a4), t.value=rep(NA, 4), p.value=rep(NA, 4))
+			SP <- data.frame(estimate=c(a1, a2, a3, a4, a5), t.value=rep(NA, 5), p.value=rep(NA, 5))
 		}
 	
-	rownames(SP) <- paste0("a", 1:4)
+	rownames(SP) <- paste0("a", 1:5)
 	
 	PA <- data.frame(estimate=c(as1X, as2X, as3X, as4X, as1Y, as2Y, as3Y, as4Y), SE=NA, t.value=NA, p.value=NA)
 	rownames(PA) <- c(paste0("as", 1:4, "X"), paste0("as", 1:4, "Y"))

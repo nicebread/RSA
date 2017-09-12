@@ -16,4 +16,3 @@
 \description{
 Return fitted values of a RSA model
 }
-

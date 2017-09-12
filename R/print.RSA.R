@@ -73,11 +73,11 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	
 		
 	if (!model %in% c("onlyx", "onlyy", "cubic")) {
-		cat(paste0("\n\n\nSurface tests (a1 to a4) for model <", model, ">\n----------------------------\n"))
-		as <- eff[eff$label %in% paste0("a", 1:4), c(1:3, 6:7)]
+		cat(paste0("\n\n\nSurface tests (a1 to a5) for model <", model, ">\n----------------------------\n"))
+		as <- eff[eff$label %in% paste0("a", 1:5), c(1:3, 6:7)]
 		as[, 2:5] <- round(as[, 2:5], digits)
-		as$pvalue <- p(eff[eff$label %in% paste0("a", 1:4), "pvalue"])
-		as$sig <- p2star(eff[eff$label %in% paste0("a", 1:4), "pvalue"])
+		as$pvalue <- p(eff[eff$label %in% paste0("a", 1:5), "pvalue"])
+		as$sig <- p2star(eff[eff$label %in% paste0("a", 1:5), "pvalue"])
 		rownames(as) <- NULL
 		print(as)
 	

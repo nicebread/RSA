@@ -104,4 +104,3 @@ demoRSA(r1, points=TRUE, model="SQD")
 \seealso{
 \code{\link{plotRSA}}, \code{\link{RSA}}
 }
-

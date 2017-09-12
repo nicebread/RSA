@@ -175,6 +175,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	
 	
 	# define the defaults
+	
+	if (!is.null(points$data)) {
+		points$data <- data.frame(points$data)	# a tibble causes an error ...
+	}
+	
 	if (is.null(points) || (typeof(points) == "logical" && points == TRUE)) {
 		points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
 	}

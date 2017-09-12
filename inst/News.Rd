@@ -6,13 +6,20 @@
 \section{Version 0.9.11}{
 
 
-
 \subsection{New features}{
 	\itemize{
 		\item New param in \code{plotRSA}: \code{suppress.grid}.
 		\item If \code{link="probit"} in \code{plotRSA}, the 3d plot automatically scales the z-axis to c(0, 1)
 		\item If \code{link="probit"} in \code{plotRSA}, the raw data points now can take the predicted probability (\code{plotRSA(..., points=list(value="predicted"))})
 		\item \code{cex} params in plotRSA slightly changed: now we have three cex parameters to independently control the font size of the main title (\code{cex.main}), the axes labels (\code{cex.axesLabel}), and the tick labels (cex.tickLabel)
+		\item New surface parameter for testing strict congruence patterns ("a5"). Thanks to Sarah Humberg for implementation.
+	}
+}
+
+\subsection{Bug fixes}{
+	\itemize{
+		\item Fixed a wrong formula in the standard error of a4 (the formula was corrected in an erratum of Shanock, L. R., Baran, B. E., Gentry, W. A., & Pattison, S. C. (2014). Erratum to: Polynomial regression with response surface analysis: A powerful approach for examining moderation and overcoming limitations of difference scores. Journal of Business and Psychology, 29, 161. http://doi.org/10.1007/s10869-013-9317-6. Thanks to Sarah Humberg for pointing to the erratum).
+		\item Fixed a bug in the curvature of the principal axes (closing issue 2 on Github; thanks to scith for reporting the bug).
 	}
 }
 

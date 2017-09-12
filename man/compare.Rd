@@ -23,4 +23,3 @@ Compare several fit indexes of all models computed from the RSA function
 \details{
 No details so far.
 }
-

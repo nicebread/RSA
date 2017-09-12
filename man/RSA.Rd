@@ -96,4 +96,3 @@ plot(r.m, model="RR", xlab="Explicit power motive",
 \seealso{
 \code{\link{demoRSA}}, \code{\link{plotRSA}}, \code{\link{RSA.ST}}, \code{\link{confint.RSA}}, \code{\link{compare}}
 }
-

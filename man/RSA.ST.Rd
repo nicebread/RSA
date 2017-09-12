@@ -29,7 +29,7 @@ RSA.ST(x = 0, y = 0, x2 = 0, xy = 0, y2 = 0, b0 = 0, SE = NULL,
 \item{model}{If x is an RSA object, this parameter specifies the model from which to extract the coefficients}
 }
 \value{
-Returns surface parameters a1 to a4. If an RSA object or SE, COV and df are provided, also significance test and standard errors of a1 to a4 are reported.
+Returns surface parameters a1 to a5. If an RSA object or SE, COV and df are provided, also significance test and standard errors of a1 to a5 are reported.
 The stationary point (X0, Y0, and Z0). 
 First principal axis (PA) relative to the X-Y plane (p10 = intercept, p11 = slope), second PA (p20 = intercept, p21 = slope). 
 M = eigenvectors, l = eigenvalues, L = lambda matrix
@@ -84,8 +84,8 @@ RSA.ST(r1)
 }
 \references{
 Shanock, L. R., Baran, B. E., Gentry, W. A., Pattison, S. C., & Heggestad, E. D. (2010). Polynomial Regression with Response Surface Analysis: A Powerful Approach for Examining Moderation and Overcoming Limitations of Difference Scores. \emph{Journal of Business and Psychology, 25}, 543-554. doi:10.1007/s10869-010-9183-4
+Shanock, L. R., Baran, B. E., Gentry, W. A., & Pattison, S. C. (2014). Erratum to: Polynomial regression with response surface analysis: A powerful approach for examining moderation and overcoming limitations of difference scores. Journal of Business and Psychology, 29, . http://doi.org/10.1007/s10869-013-9317-6
 }
 \seealso{
 \code{\link{RSA}}
 }
-

@@ -46,4 +46,3 @@ aictab(r.m, plot=TRUE)
 \references{
 Burnham, K. P., & Anderson, D. R. (2002). \emph{Model selection and multimodel inference: A practical information-theoretic approach.} Springer Science & Business Media.
 }
-

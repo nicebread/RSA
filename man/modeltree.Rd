@@ -38,4 +38,3 @@ modeltree(c1)
 \seealso{
 \code{\link{RSA}}, \code{\link{compare}}
 }
-

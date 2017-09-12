@@ -50,4 +50,3 @@ movieRSA(name="SD0",
 \seealso{
 \code{\link{plotRSA}}
 }
-

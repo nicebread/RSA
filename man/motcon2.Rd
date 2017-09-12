@@ -22,4 +22,3 @@ Schallberger, U. (2005). \emph{Kurzskala zur Erfassung der Positiven Aktivierung
 Schönbrodt, F. D., & Gerstenberg, F. X. R. (2012). An IRT analysis of motive questionnaires: The Unified Motive Scales. \emph{Journal of Research in Personality, 46}, 725-742. doi:10.1016/j.jrp.2012.08.010
 }
 \keyword{datasets}
-
