@@ -97,14 +97,13 @@
 #' @examples
 #' # Plot response surfaces from known parameters
 #' # example of Edwards (2002), Figure 3
+#' \dontrun{
 #' # Default: 3d plot:
 #' plotRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628)
 #' # Contour plot:
 #' plotRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628, type="c")
-#' \dontrun{
 #' # Interactive plot (try the mouse!):
 #' plotRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628, type="i")
-#' }
 #'
 #' # Plot response surface from an RSA object
 #' set.seed(0xBEEF)
@@ -127,6 +126,7 @@
 #' r1 <- RSA(z.sq~x*y, df, models=c("SQD", "full", "IA"))
 #' plot(r1)	# default: model = "full"
 #' plot(r1, model="SQD", points=list(show=TRUE, value="predicted"))
+#' }
 
 
 

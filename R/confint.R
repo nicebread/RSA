@@ -22,6 +22,7 @@
 #'
 #' @examples
 #'
+#' \dontrun{
 #' set.seed(0xBEEF)
 #' n <- 300
 #' err <- 2
@@ -40,7 +41,6 @@
 #'
 #' # Dummy example with 10 bootstrap replications - better use >= 5000!
 #' (c2 <- confint(r1, model="SSQD", method="boot", R=10))
-#' \dontrun{
 #' # multicore version
 #' confint(r1, model="SSQD", R=5000, parallel="multicore", ncpus=2)
 #' }
