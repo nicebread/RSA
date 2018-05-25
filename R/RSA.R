@@ -152,7 +152,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 
 	## Run polynomial regression as a OLS linear model
 	addcubic <- ""
-	if (cubic==TRUE) addcubic <- paste0(" + ", paste(IV13, IV_IA2, IV_IA3, IV23, sep=" + ")) #SH Reihenfolge der kubischen Variablen ge?ndert zu "X3 + X2_Y + X_Y2 + Y3" (Um Verwirrung zu vermeiden, da ich bei der Herleitung der Modelle immer diese Reihenfolge hatte, sie auch so im Paper ist und konsistent ist zur Reihenfolge der Terme von Grad 2.) 
+	if (cubic==TRUE) addcubic <- paste0(" + ", paste(IV13, IV_IA2, IV_IA3, IV23, sep=" + "))
 	f <- paste0(paste0(DV, " ~ ", paste(IV1, IV2, IV12, IV_IA, IV22, sep=" + ")), addcubic, CV)
 	lm.full <- lm(f, df, na.action=na.exclude)
 	
@@ -676,17 +676,17 @@ withCallingHandlers({
 	
 	
 	#m.absdiff.JRE <-  paste(
-	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + 0*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
+	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + 0*W.JRE + w2*W.JRE_", IV1, " + w3*W.JRE_", IV2),
 	#	"b1 == -b2",
-	#	"b7 == -b8",
-	#	"b7 == -2*b1",
+	#	"w2 == -w3",
+	#	"w2 == -2*b1",
 	#	add, sep="\n")
 	#s.absdiff.JRE <-  sem(m.absdiff.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	#summary(s.absdiff.JRE, fit.measures=TRUE)
 	
 	# the unconstrained absolute difference model - Edwards (2002) formula
 	#m.absunc.JRE <-  paste(
-	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + b6*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
+	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + w1*W.JRE + w2*W.JRE_", IV1, " + w3*W.JRE_", IV2),
 	#	add, sep="\n")
 	#s.absunc.JRE <-  sem(m.absunc.JRE, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	#summary(s.absunc.JRE, fit.measures=TRUE)
@@ -695,11 +695,11 @@ withCallingHandlers({
 	if ("absdiff" %in% models) {
 		if (verbose==TRUE) print("Computing constrained absolute difference model (absdiff) ...")
 		m.absdiff <-  paste(
-			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b6*W + b7*W_", IV1, " + b8*W_", IV2),
+			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + w1*W + w2*W_", IV1, " + w3*W_", IV2),
 			"b1 == 0",
 			"b2 == 0",
-			"b6 == 0",
-			"b7 == -b8",
+			"w1 == 0",
+			"w2 == -w3",
 			add, sep="\n")
 			
 			s.absdiff <- sem(m.absdiff, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
@@ -709,8 +709,8 @@ withCallingHandlers({
 		# the unconstrained absolute difference model - new formula
 		if (verbose==TRUE) print("Computing unconstrained absolute difference model (absunc) ...")
 		m.absunc <-  paste(
-			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b6*W + b7*W_", IV1, " + b8*W_", IV2),
-			ifelse(breakline==FALSE, "b6==0", ""),
+			paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + w1*W + w2*W_", IV1, " + w3*W_", IV2),
+			ifelse(breakline==FALSE, "w1==0", ""),
 			add, sep="\n")
 			
 			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
@@ -720,39 +720,7 @@ withCallingHandlers({
 	## Test all models of third degree
 	
 	# Standard full polynomial of third degree
-	polycubic <- paste0(poly, " + cub6*", IV13, " + cub7*", IV_IA2, " + cub8*", IV_IA3, " + cub9*", IV23) #SH Ich ändere die kubischen Koeffizienten auf cub6 bis cub9, da du b6 bis b9 in absdiff und absunc schon genutzt hast und ich beim Implementieren vermutlich durcheinander käme wenn die kubischen Koeffizienten b9 bis b12 heißen. Falls du wieder zu b9 bis b12 zurück willst können wir später cub6 bis cub9 dann einfach suchen + ersetzen. 
-	
-	
-	
-	# TEMP: SQD as constraint CUBIC model 
-	# (um zu sehen, dass das AIC-Problem nicht auftritt, wenn die Grad-2-Modelle durch Einschränkung des kubischen Full Models definiert werden, 
-	# siehe Script zum Check der nötigen Anpassungen im RSA Paket)
-	# if ("SQD" %in% models) {
-	#   if (verbose==TRUE) print("Computing squared difference model (SQD) ...")
-	#   m.SQD <- paste(polycubic,
-	#                  "b1==0",
-	#                  "b2==0",
-	#                  "b3==b5",
-	#                  "b3+b4+b5==0",
-	#                  "cub6==0",
-	#                  "cub7==0",
-	#                  "cub8==0",
-	#                  "cub9==0",
-	#                  "a1 := b1+b2",
-	#                  "a2 := b3+b4+b5",
-	#                  "a3 := b1-b2",
-	#                  "a4 := b3-b4+b5",
-	#                  "a5 := b3-b5",
-	#                  "p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
-	#                  "p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
-	#                  "PA1.curv := b3 + b4*p11 + b5*(p11^2)",
-	#                  "PA2.curv := b3 + b4*p21 + b5*(p21^2)",
-	#                  # eigenvalues
-	#                  "l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
-	#                  "l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
-	#                  add, sep="\n")			
-	#   s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
-	# }
+	polycubic <- paste0(poly, " + b6*", IV13, " + b7*", IV_IA2, " + b8*", IV_IA3, " + b9*", IV23) 
 	
 	
 	
@@ -761,12 +729,12 @@ withCallingHandlers({
 		if (verbose==TRUE) print("Computing full cubic model (cubic) ...")
 		m.cubic <-  paste(polycubic,
 			# description of surface above LOC and LOIC
-			"u1 := b1 + b2",				# linear part of LOC
-			"u2 := b3 + b4 + b5",			# quadratic part of LOC
-			"u3 := cub6 + cub7 + cub8 + cub9",	# cubic part of LOC
-			"v1 := b1 - b2",				# linear part of LOIC
-			"v2 := b3 - b4 + b5",			# quadratic part of LOIC
-			"v3 := cub6 - cub7 + cub8 - cub9",	# cubic part of LOIC: If v3 != 0, then there is an asymmetry effect (i.e., the slope is different on both sides of the optimum) #SH Umbenennung des Effekts zu asymmetry effect statt enhancement effect
+			"u1 := b1 + b2",				# linear term coefficient of LOC
+			"u2 := b3 + b4 + b5",			# quadratic term coefficient of LOC
+			"u3 := b6 + b7 + b8 + b9",	# cubic term coefficient of LOC
+			"v1 := b1 - b2",				# linear term coefficient of LOIC
+			"v2 := b3 - b4 + b5",			# quadratic term coefficient of LOIC
+			"v3 := b6 - b7 + b8 - b9",	# cubic term coefficient of LOIC
 			# user-defined syntax
 			add,
 			sep="\n"
@@ -783,16 +751,16 @@ withCallingHandlers({
       "b2 == 0",
 			"b4 == -2*b3",
       "b5 == b3",
-			"cub7 == -3*cub6",
-			"cub8 == 3*cub6",
-			"cub9 == -cub6",
+			"b7 == -3*b6",
+			"b8 == 3*b6",
+			"b9 == -b6",
 			# description of surface above LOC and LOIC
 			"u1 := b1 + b2",
 			"u2 := b3 + b4 + b5",
-			"u3 := cub6 + cub7 + cub8 + cub9",
+			"u3 := b6 + b7 + b8 + b9",
 			"v1 := b1 - b2",
 			"v2 := b3 - b4 + b5",
-			"v3 := cub6 - cub7 + cub8 - cub9",
+			"v3 := b6 - b7 + b8 - b9",
 			# user-defined syntax
 			add,
 			sep="\n"
@@ -809,16 +777,16 @@ withCallingHandlers({
        "b2 == 0",
        "b4 == -2*b3",
        "b5 == b3",
-       "cub7 == -cub6",
-       "cub8 == -cub6",
-       "cub9 == cub6",
+       "b7 == -b6",
+       "b8 == -b6",
+       "b9 == b6",
        # description of surface above LOC and LOIC
        "u1 := b1 + b2",
        "u2 := b3 + b4 + b5",
-       "u3 := cub6 + cub7 + cub8 + cub9",
+       "u3 := b6 + b7 + b8 + b9",
        "v1 := b1 - b2",
        "v2 := b3 - b4 + b5",
-       "v3 := cub6 - cub7 + cub8 - cub9",
+       "v3 := b6 - b7 + b8 - b9",
        # user-defined syntax
        add,
        sep="\n"
@@ -834,16 +802,16 @@ withCallingHandlers({
 			"b1 == b2",
 			"b4 == -2*b3",
       "b5 == b3",
-			"cub7 == -3*cub6",
-			"cub8 == 3*cub6",
-			"cub9 == -cub6",
+			"b7 == -3*b6",
+			"b8 == 3*b6",
+			"b9 == -b6",
 			# description of surface above LOC and LOIC
 			"u1 := b1 + b2",
 			"u2 := b3 + b4 + b5",
-			"u3 := cub6 + cub7 + cub8 + cub9",
+			"u3 := b6 + b7 + b8 + b9",
 			"v1 := b1 - b2",
 			"v2 := b3 - b4 + b5",
-			"v3 := cub6 - cub7 + cub8 - cub9",
+			"v3 := b6 - b7 + b8 - b9",
 			# special parameters in this model
 			"meaneffect := u1",
 			# user-defined syntax
@@ -861,16 +829,16 @@ withCallingHandlers({
 	                   "b1 == b2",
 	                   "b4 == -2*b3",
 	                   "b5 == b3",
-	                   "cub7 == -cub6",
-	                   "cub8 == -cub6",
-	                   "cub9 == cub6",
+	                   "b7 == -b6",
+	                   "b8 == -b6",
+	                   "b9 == b6",
 	                   # description of surface above LOC and LOIC
 	                   "u1 := b1 + b2",
 	                   "u2 := b3 + b4 + b5",
-	                   "u3 := cub6 + cub7 + cub8 + cub9",
+	                   "u3 := b6 + b7 + b8 + b9",
 	                   "v1 := b1 - b2",
 	                   "v2 := b3 - b4 + b5",
-	                   "v3 := cub6 - cub7 + cub8 - cub9",
+	                   "v3 := b6 - b7 + b8 - b9",
 	                   # special parameters in this model
 	                   "meaneffect := u1",
 	                   # user-defined syntax
@@ -937,13 +905,13 @@ withCallingHandlers({
 	# ---------------------------------------------------------------------
 	# Build results object
 	modellist <- list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, SQD=s.SQD, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSQD=s.SSQD, SRSQD=s.SRSQD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2, weak=s.weak, strong=s.strong, 
-	CA=s.CA, CL=s.CL, RRCA=s.RRCA, RRCL=s.RRCL) #SH Erg?nzung der kubischen Modelle
+	CA=s.CA, CL=s.CL, RRCA=s.RRCA, RRCL=s.RRCL)
 	
 	res <- list(
 		models = modellist, 
 		SRSQD.rot = SRSQD.rot, SRRR.rot = SRRR.rot, LM=summary(lm.full), formula=formula, 
 		data=df, out.rm = out.rm, outliers = which(df$out == TRUE), DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, 
-		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV_IA2=IV_IA2, IV_IA3=IV_IA3, IV23=IV23, #SH Kubische Variablen umsortiert, s.o.
+		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV_IA2=IV_IA2, IV_IA3=IV_IA3, IV23=IV23, 
 		r.squared = summary(lm.full)$r.squared)
 	
 	attr(res, "class") <- "RSA"

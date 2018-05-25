@@ -225,15 +225,15 @@ predictRSA <- function(object, X, Y, model="full") {
 	x2 <- as.numeric(ifelse(is.na(C["b3"]), 0, C["b3"]))
 	y2 <- as.numeric(ifelse(is.na(C["b5"]), 0, C["b5"]))
 	xy <- as.numeric(ifelse(is.na(C["b4"]), 0, C["b4"]))
-	w <- as.numeric(ifelse(is.na(C["b6"]), 0, C["b6"]))
-	wx <- as.numeric(ifelse(is.na(C["b7"]), 0, C["b7"]))
-	wy <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
+	w <- as.numeric(ifelse(is.na(C["w1"]), 0, C["w1"]))
+	wx <- as.numeric(ifelse(is.na(C["w2"]), 0, C["w2"]))
+	wy <- as.numeric(ifelse(is.na(C["w3"]), 0, C["w3"]))
 	
 	# cubic parameters
-	x3 <- as.numeric(ifelse(is.na(C["cub6"]), 0, C["cub6"]))
-	x2y <- as.numeric(ifelse(is.na(C["cub7"]), 0, C["cub7"]))
-	xy2 <- as.numeric(ifelse(is.na(C["cub8"]), 0, C["cub8"]))
-	y3 <- as.numeric(ifelse(is.na(C["cub9"]), 0, C["cub9"]))
+	x3 <- as.numeric(ifelse(is.na(C["b6"]), 0, C["b6"]))
+	x2y <- as.numeric(ifelse(is.na(C["b7"]), 0, C["b7"]))
+	xy2 <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
+	y3 <- as.numeric(ifelse(is.na(C["b9"]), 0, C["b9"]))
 	
 	
 	C <- c(x, y, x2, y2, xy, w, wx, wy,x3, x2y, xy2, y3)

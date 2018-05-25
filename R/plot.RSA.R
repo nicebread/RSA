@@ -972,15 +972,15 @@ plot.RSA <- function(x, ...) {
 	extras$x2 <- as.numeric(ifelse(is.na(C["b3"]), 0, C["b3"]))
 	extras$y2 <- as.numeric(ifelse(is.na(C["b5"]), 0, C["b5"]))
 	extras$xy <- as.numeric(ifelse(is.na(C["b4"]), 0, C["b4"]))
-	extras$w <- as.numeric(ifelse(is.na(C["b6"]), 0, C["b6"]))
-	extras$wx <- as.numeric(ifelse(is.na(C["b7"]), 0, C["b7"]))
-	extras$wy <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
+	extras$w <- as.numeric(ifelse(is.na(C["w1"]), 0, C["w1"]))
+	extras$wx <- as.numeric(ifelse(is.na(C["w2"]), 0, C["w2"]))
+	extras$wy <- as.numeric(ifelse(is.na(C["w3"]), 0, C["w3"]))
 	
 	# cubic parameters
-	extras$x3 <- as.numeric(ifelse(is.na(C["cub6"]), 0, C["cub6"]))
-	extras$x2y <- as.numeric(ifelse(is.na(C["cub7"]), 0, C["cub7"]))
-	extras$xy2 <- as.numeric(ifelse(is.na(C["cub8"]), 0, C["cub8"]))
-	extras$y3 <- as.numeric(ifelse(is.na(C["cub9"]), 0, C["cub9"]))
+	extras$x3 <- as.numeric(ifelse(is.na(C["b6"]), 0, C["b6"]))
+	extras$x2y <- as.numeric(ifelse(is.na(C["b7"]), 0, C["b7"]))
+	extras$xy2 <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
+	extras$y3 <- as.numeric(ifelse(is.na(C["b9"]), 0, C["b9"]))
 	
 	if (is.null(extras[["xlab"]])) {extras[["xlab"]] <- fit$IV1}
 	if (is.null(extras[["ylab"]])) {extras[["ylab"]] <- fit$IV2}
