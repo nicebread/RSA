@@ -84,18 +84,19 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 
 	if (length(control.variables) > 0) stop("Control.variables feature not implemented yet!")
 
-	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong")
+	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong", "cubic", "CA", "CL", "RRCA", "RRCL")
 	
 	if (length(models)==1 & models[1]=="all") {models <- validmodels}
 	#if (length(models)==1 & models[1]=="default") {models <- c("diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy", "weak", "strong")}
-	if (length(models)==1 & models[1]=="default") {models <- c("additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")}
+	if (length(models)==1 & models[1]=="default" & cubic==FALSE) {models <- c("additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy")} 
+	if (length(models)==1 & models[1]=="default" & cubic==TRUE) {models <- c("additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx2", "onlyy2", "onlyx", "onlyy", "cubic", "CA", "CL", "RRCA", "RRCL")}
 	if (any(!models %in% validmodels))
 		stop("Unknown model name provided in parameter 'models'.")
 	
 
 	
 	# set all result objects to NULL as default
-	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.SQD <- s.SSQD <- s.SRSQD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- s.weak <- s.strong <-  NULL
+	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.SQD <- s.SSQD <- s.SRSQD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- s.weak <- s.strong <- s.CA <- s.CL <- s.RRCA <- s.RRCL <- NULL
 	SRSQD.rot <- ""
 	SRRR.rot <- ""
 	
@@ -141,8 +142,8 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	IV13 <- paste0(IV1, "3")
 	IV23 <- paste0(IV2, "3")
 	IV_IA <- paste0(IV1, "_", IV2)
-	IV_IA2 <- paste0(IV1, "_", IV2, "2")
-	IV_IA3 <- paste0(IV1, "2", "_", IV2)
+	IV_IA2 <- paste0(IV1, "2", "_", IV2)
+	IV_IA3 <- paste0(IV1, "_", IV2, "2")
 	W_IV1 <- paste0("W_", IV1)
 	W_IV2 <- paste0("W_", IV2)
 
@@ -151,7 +152,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 
 	## Run polynomial regression as a OLS linear model
 	addcubic <- ""
-	if (cubic==TRUE) addcubic <- paste0(" + ", paste(IV13, IV23, IV_IA2, IV_IA3, sep=" + "))
+	if (cubic==TRUE) addcubic <- paste0(" + ", paste(IV13, IV_IA2, IV_IA3, IV23, sep=" + ")) #SH Reihenfolge der kubischen Variablen ge?ndert zu "X3 + X2_Y + X_Y2 + Y3" (Um Verwirrung zu vermeiden, da ich bei der Herleitung der Modelle immer diese Reihenfolge hatte, sie auch so im Paper ist und konsistent ist zur Reihenfolge der Terme von Grad 2.) 
 	f <- paste0(paste0(DV, " ~ ", paste(IV1, IV2, IV12, IV_IA, IV22, sep=" + ")), addcubic, CV)
 	lm.full <- lm(f, df, na.action=na.exclude)
 	
@@ -193,7 +194,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	df$out[is.na(df$out)] <- FALSE
 
 
-	## Test all models
+	## Test all models of second degree
 	
 # suppress some types of lavaan warning, which cannot be ruled out analytically ...
 withCallingHandlers({	
@@ -673,21 +674,6 @@ withCallingHandlers({
 		s.strong <- sem(m.strong, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
-	if (cubic==TRUE) {
-		if (verbose==TRUE) print("Computing full cubic model (cubic) ...")
-		m.cubic <-  paste(paste0(poly, " + b9*", IV13, " + b10*", IV_IA2, " + b11*", IV_IA3, " + b12*", IV23),
-			"u1 := b1 + b2",				# linear part of LOC
-			"u2 := b3 + b4 + b5",			# quadratic part of LOC
-			"u3 := b9 + b10 + b11 + b12",	# cubic part of LOC
-			"v1 := b1 - b2",				# linear part of LOIC
-			"v2 := b3 - b4 + b5",			# quadratic part of LOIC
-			"v3 := b9 + b10 - b11 - b12",	# cubic part of LOIC: If v3 != 0, then there is an enhancement effect (i.e., the slope is different on both sides of the optimum)
-			add,
-			sep="\n"
-		)
-		#print(m.cubic)
-		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)		
-	}
 	
 	#m.absdiff.JRE <-  paste(
 	#	paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + 0*W.JRE + b7*W.JRE_", IV1, " + b8*W.JRE_", IV2),
@@ -729,8 +715,175 @@ withCallingHandlers({
 			
 			s.absunc <- sem(m.absunc, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
+
 	
-},	  # end of "withCallingHandlers"
+	## Test all models of third degree
+	
+	# Standard full polynomial of third degree
+	polycubic <- paste0(poly, " + cub6*", IV13, " + cub7*", IV_IA2, " + cub8*", IV_IA3, " + cub9*", IV23) #SH Ich ändere die kubischen Koeffizienten auf cub6 bis cub9, da du b6 bis b9 in absdiff und absunc schon genutzt hast und ich beim Implementieren vermutlich durcheinander käme wenn die kubischen Koeffizienten b9 bis b12 heißen. Falls du wieder zu b9 bis b12 zurück willst können wir später cub6 bis cub9 dann einfach suchen + ersetzen. 
+	
+	
+	
+	# TEMP: SQD as constraint CUBIC model 
+	# (um zu sehen, dass das AIC-Problem nicht auftritt, wenn die Grad-2-Modelle durch Einschränkung des kubischen Full Models definiert werden, 
+	# siehe Script zum Check der nötigen Anpassungen im RSA Paket)
+	# if ("SQD" %in% models) {
+	#   if (verbose==TRUE) print("Computing squared difference model (SQD) ...")
+	#   m.SQD <- paste(polycubic,
+	#                  "b1==0",
+	#                  "b2==0",
+	#                  "b3==b5",
+	#                  "b3+b4+b5==0",
+	#                  "cub6==0",
+	#                  "cub7==0",
+	#                  "cub8==0",
+	#                  "cub9==0",
+	#                  "a1 := b1+b2",
+	#                  "a2 := b3+b4+b5",
+	#                  "a3 := b1-b2",
+	#                  "a4 := b3-b4+b5",
+	#                  "a5 := b3-b5",
+	#                  "p11 := (b5 - b3 + sqrt(((b3 - b5)^2) + (b4^2))) / b4",
+	#                  "p21 :=  (b5 - b3 - sqrt((b3 - b5)^2 + b4^2)) / b4", 
+	#                  "PA1.curv := b3 + b4*p11 + b5*(p11^2)",
+	#                  "PA2.curv := b3 + b4*p21 + b5*(p21^2)",
+	#                  # eigenvalues
+	#                  "l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
+	#                  "l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
+	#                  add, sep="\n")			
+	#   s.SQD <- sem(m.SQD, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
+	# }
+	
+	
+	
+	# Full model of third degree
+	if ("cubic" %in% models) {
+		if (verbose==TRUE) print("Computing full cubic model (cubic) ...")
+		m.cubic <-  paste(polycubic,
+			# description of surface above LOC and LOIC
+			"u1 := b1 + b2",				# linear part of LOC
+			"u2 := b3 + b4 + b5",			# quadratic part of LOC
+			"u3 := cub6 + cub7 + cub8 + cub9",	# cubic part of LOC
+			"v1 := b1 - b2",				# linear part of LOIC
+			"v2 := b3 - b4 + b5",			# quadratic part of LOIC
+			"v3 := cub6 - cub7 + cub8 - cub9",	# cubic part of LOIC: If v3 != 0, then there is an asymmetry effect (i.e., the slope is different on both sides of the optimum) #SH Umbenennung des Effekts zu asymmetry effect statt enhancement effect
+			# user-defined syntax
+			add,
+			sep="\n"
+		)
+		s.cubic <- sem(m.cubic, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)		
+	}
+	
+	# "Cubic Difference" models of third degree
+	if ("CA" %in% models) {
+		if (verbose==TRUE) print("Computing cubic asymmetry model (CA) ...")
+		m.CA <-  paste(polycubic,
+      # constraints
+			"b1 == 0",
+      "b2 == 0",
+			"b4 == -2*b3",
+      "b5 == b3",
+			"cub7 == -3*cub6",
+			"cub8 == 3*cub6",
+			"cub9 == -cub6",
+			# description of surface above LOC and LOIC
+			"u1 := b1 + b2",
+			"u2 := b3 + b4 + b5",
+			"u3 := cub6 + cub7 + cub8 + cub9",
+			"v1 := b1 - b2",
+			"v2 := b3 - b4 + b5",
+			"v3 := cub6 - cub7 + cub8 - cub9",
+			# user-defined syntax
+			add,
+			sep="\n"
+		)
+		s.CA <- sem(m.CA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)		
+	}
+	
+	
+	if ("CL" %in% models) {
+	  if (verbose==TRUE) print("Computing cubic level model (CL) ...")
+	  m.CL <-  paste(polycubic,
+       # constraints
+       "b1 == 0",
+       "b2 == 0",
+       "b4 == -2*b3",
+       "b5 == b3",
+       "cub7 == -cub6",
+       "cub8 == -cub6",
+       "cub9 == cub6",
+       # description of surface above LOC and LOIC
+       "u1 := b1 + b2",
+       "u2 := b3 + b4 + b5",
+       "u3 := cub6 + cub7 + cub8 + cub9",
+       "v1 := b1 - b2",
+       "v2 := b3 - b4 + b5",
+       "v3 := cub6 - cub7 + cub8 - cub9",
+       # user-defined syntax
+       add,
+       sep="\n"
+	  )
+	  s.CL <- sem(m.CL, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)		
+	}
+
+	
+	if ("RRCA" %in% models) {
+		if (verbose==TRUE) print("Computing rising ridge cubic asymmetry model (RRCA) ...")
+		m.RRCA <-  paste(polycubic,
+      # constraints
+			"b1 == b2",
+			"b4 == -2*b3",
+      "b5 == b3",
+			"cub7 == -3*cub6",
+			"cub8 == 3*cub6",
+			"cub9 == -cub6",
+			# description of surface above LOC and LOIC
+			"u1 := b1 + b2",
+			"u2 := b3 + b4 + b5",
+			"u3 := cub6 + cub7 + cub8 + cub9",
+			"v1 := b1 - b2",
+			"v2 := b3 - b4 + b5",
+			"v3 := cub6 - cub7 + cub8 - cub9",
+			# special parameters in this model
+			"meaneffect := u1",
+			# user-defined syntax
+			add,
+			sep="\n"
+		)
+		s.RRCA <- sem(m.RRCA, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)		
+	}	
+	
+	
+	if ("RRCL" %in% models) {
+	  if (verbose==TRUE) print("Computing rising ridge cubic level model (RRCL) ...")
+	  m.RRCL <-  paste(polycubic,
+	                   # constraints
+	                   "b1 == b2",
+	                   "b4 == -2*b3",
+	                   "b5 == b3",
+	                   "cub7 == -cub6",
+	                   "cub8 == -cub6",
+	                   "cub9 == cub6",
+	                   # description of surface above LOC and LOIC
+	                   "u1 := b1 + b2",
+	                   "u2 := b3 + b4 + b5",
+	                   "u3 := cub6 + cub7 + cub8 + cub9",
+	                   "v1 := b1 - b2",
+	                   "v2 := b3 - b4 + b5",
+	                   "v3 := cub6 - cub7 + cub8 - cub9",
+	                   # special parameters in this model
+	                   "meaneffect := u1",
+	                   # user-defined syntax
+	                   add,
+	                   sep="\n"
+	  )
+	  s.RRCL <- sem(m.RRCL, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)		
+	}	
+	
+	
+	},	  # end of "withCallingHandlers"
+
+
 
 # suppress several types of warning
   warning=function(w) {
@@ -783,13 +936,14 @@ withCallingHandlers({
 	
 	# ---------------------------------------------------------------------
 	# Build results object
-	modellist <- list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, SQD=s.SQD, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSQD=s.SSQD, SRSQD=s.SRSQD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2, weak=s.weak, strong=s.strong)
+	modellist <- list(null=s.NULL, full=s.full, IA=s.IA, diff=s.diff, mean=s.mean, absdiff=s.absdiff, additive=s.additive, SQD=s.SQD, SRRR=s.SRRR, SRR=s.SRR, RR=s.RR, SSQD=s.SSQD, SRSQD=s.SRSQD, absunc=s.absunc, cubic=s.cubic, onlyx=s.onlyx, onlyy=s.onlyy, onlyx2=s.onlyx2, onlyy2=s.onlyy2, weak=s.weak, strong=s.strong, 
+	CA=s.CA, CL=s.CL, RRCA=s.RRCA, RRCL=s.RRCL) #SH Erg?nzung der kubischen Modelle
 	
 	res <- list(
 		models = modellist, 
 		SRSQD.rot = SRSQD.rot, SRRR.rot = SRRR.rot, LM=summary(lm.full), formula=formula, 
 		data=df, out.rm = out.rm, outliers = which(df$out == TRUE), DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, 
-		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV23=IV23, IV_IA2=IV_IA2, IV_IA3=IV_IA3, 
+		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV_IA2=IV_IA2, IV_IA3=IV_IA3, IV23=IV23, #SH Kubische Variablen umsortiert, s.o.
 		r.squared = summary(lm.full)$r.squared)
 	
 	attr(res, "class") <- "RSA"

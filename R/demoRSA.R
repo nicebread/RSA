@@ -18,8 +18,8 @@
 #' @param xy XY interaction coefficient
 #' @param y3 Y^3 coefficient
 #' @param x3 X^3 coefficient
-#' @param xy2 XY^2 coefficient
 #' @param x2y X^2Y coefficient
+#' @param xy2 XY^2 coefficient
 #' @param w W coefficient (for (un)constrained absolute difference model)
 #' @param wx WX coefficient (for (un)constrained absolute difference model)
 #' @param wy WY coefficient (for (un)constrained absolute difference model)
@@ -109,10 +109,10 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			wx.0 <- wx <- as.numeric(ifelse(is.na(C["b7"]), wx, C["b7"]))
 			wy.0 <- wy <- as.numeric(ifelse(is.na(C["b8"]), wy, C["b8"]))
 			
-			x3.0 <- x3 <- as.numeric(ifelse(is.na(C["b9"]), x3, C["b9"]))
-			xy2.0 <- xy2 <- as.numeric(ifelse(is.na(C["b10"]), xy2, C["b10"]))
-			x2y.0 <- x2y <- as.numeric(ifelse(is.na(C["b11"]), x2y, C["b11"]))
-			y3.0 <- y3 <- as.numeric(ifelse(is.na(C["b12"]), y3, C["b12"]))
+			x3.0 <- x3 <- as.numeric(ifelse(is.na(C["cub6"]), x3, C["cub6"]))
+			x2y.0 <- x2y <- as.numeric(ifelse(is.na(C["cub7"]), x2y, C["cub7"]))
+			xy2.0 <- xy2 <- as.numeric(ifelse(is.na(C["cub8"]), xy2, C["cub8"]))
+			y3.0 <- y3 <- as.numeric(ifelse(is.na(C["cub9"]), y3, C["cub9"]))
 		
 			xlim <- c(min(fit$data[, fit$IV1], na.rm=TRUE), max(fit$data[, fit$IV1], na.rm=TRUE))
 			ylim <- c(min(fit$data[, fit$IV2], na.rm=TRUE), max(fit$data[, fit$IV2], na.rm=TRUE))

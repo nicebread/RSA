@@ -11,8 +11,9 @@ add.variables <- function(formula, df) {
 	IV13 <- paste0(IV1, "3")
 	IV23 <- paste0(IV2, "3")
 	IV_IA <- paste0(IV1, "_", IV2)
-	IV_IA2 <- paste0(IV1, "_", IV2, "2")
-	IV_IA3 <- paste0(IV1, "2", "_", IV2)
+	IV_IA2 <- paste0(IV1, "2", "_", IV2)
+	IV_IA3 <- paste0(IV1, "_", IV2, "2")
+	
 	
 	
 	df[, IV12] <- df[, IV1]^2
@@ -36,8 +37,8 @@ add.variables <- function(formula, df) {
 	
 	# cubic terms
 	df[, IV13] <- df[, IV1]^3
-	df[, IV_IA2] <- df[, IV1]*df[, IV2]^2
-	df[, IV_IA3] <- df[, IV1]^2*df[, IV2]
+	df[, IV_IA2] <- df[, IV1]^2*df[, IV2]
+	df[, IV_IA3] <- df[, IV1]*df[, IV2]^2
 	df[, IV23] <- df[, IV2]^3
 	
 	return(df)
@@ -229,16 +230,16 @@ predictRSA <- function(object, X, Y, model="full") {
 	wy <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
 	
 	# cubic parameters
-	x3 <- as.numeric(ifelse(is.na(C["b9"]), 0, C["b9"]))
-	xy2 <- as.numeric(ifelse(is.na(C["b10"]), 0, C["b10"]))
-	x2y <- as.numeric(ifelse(is.na(C["b11"]), 0, C["b11"]))
-	y3 <- as.numeric(ifelse(is.na(C["b12"]), 0, C["b12"]))
+	x3 <- as.numeric(ifelse(is.na(C["cub6"]), 0, C["cub6"]))
+	x2y <- as.numeric(ifelse(is.na(C["cub7"]), 0, C["cub7"]))
+	xy2 <- as.numeric(ifelse(is.na(C["cub8"]), 0, C["cub8"]))
+	y3 <- as.numeric(ifelse(is.na(C["cub9"]), 0, C["cub9"]))
 	
 	
-	C <- c(x, y, x2, y2, xy, w, wx, wy,x3, xy2, x2y, y3)
+	C <- c(x, y, x2, y2, xy, w, wx, wy,x3, x2y, xy2, y3)
 	
 	# compute predicted value
-	Z <- b0 + colSums(C*t(cbind(X, Y, X^2, Y^2, X*Y, 0, 0, 0, X^3, X*Y^2, X^2*Y, Y^3)))
+	Z <- b0 + colSums(C*t(cbind(X, Y, X^2, Y^2, X*Y, 0, 0, 0, X^3, X^2*Y, X*Y^2, Y^3)))
 	return(Z)
 }
 

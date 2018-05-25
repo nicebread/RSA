@@ -25,9 +25,9 @@
 #' @param wx WX coefficient (for (un)constrained absolute difference model)
 #' @param wy WY coefficient (for (un)constrained absolute difference model)
 #' @param y3 Y^3 coefficient
-#' @param x3 X^3 coefficient
-#' @param xy2 XY^2 coefficient
 #' @param x2y X^2Y coefficient
+#' @param xy2 XY^2 coefficient
+#' @param x3 X^3 coefficient
 #' @param b0 Intercept
 #' @param xlim Limits of the x axis
 #' @param ylim Limits of the y axis
@@ -168,7 +168,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	
 	# remove LOC, LOIC etc. when they do not make sense.
-	if (any(c(x3, xy2, x2y, y3, w, wx, wy) != 0)) {
+	if (any(c(x3, x2y, xy2, y3, w, wx, wy) != 0)) {
 		axes <- ""
 		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
 	}
@@ -261,14 +261,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		surface <- "predict"
 	}
 	
-	C <- c(x, y, x2, y2, xy, w, wx, wy, x3, xy2, x2y, y3)
+	C <- c(x, y, x2, y2, xy, w, wx, wy, x3, x2y, xy2, y3)
 	
 	if (!model %in% c("absunc", "absdiff")) {
 		if (!is.null(fit) & model != "cubic" & model != "null") {
 			SP <- RSA.ST(fit, model=model)
 			PAR <- getPar(fit, "coef", model=model)
 			
-			SP.text <- paste0("a", 1:5, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="   ")
+			SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="   ")
 			
 			a4rs_par <- PAR[PAR$label == "a4.rescaled", ]
 			if (nrow(a4rs_par) == 1) {
@@ -294,7 +294,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			
 		} else {
 			SP <- RSA.ST(x=x, y=y, xy=xy, x2=x2, y2=y2)
-			SP.text <- paste0("a", 1:5, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")			
+			SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")			
 		}		
 	} else {
 		SP <- NULL
@@ -348,8 +348,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				paste0("W_", N[1]),
 				paste0("W_", N[2]),
 				paste0(N[1], "3"),
-				paste0(N[1], "_", N[2], "2"),
 				paste0(N[1], "2", "_", N[2]),
+				paste0(N[1], "_", N[2], "2"),
 				paste0(N[2], "3")
 			)]))
 			
@@ -977,10 +977,10 @@ plot.RSA <- function(x, ...) {
 	extras$wy <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
 	
 	# cubic parameters
-	extras$x3 <- as.numeric(ifelse(is.na(C["b9"]), 0, C["b9"]))
-	extras$xy2 <- as.numeric(ifelse(is.na(C["b10"]), 0, C["b10"]))
-	extras$x2y <- as.numeric(ifelse(is.na(C["b11"]), 0, C["b11"]))
-	extras$y3 <- as.numeric(ifelse(is.na(C["b12"]), 0, C["b12"]))
+	extras$x3 <- as.numeric(ifelse(is.na(C["cub6"]), 0, C["cub6"]))
+	extras$x2y <- as.numeric(ifelse(is.na(C["cub7"]), 0, C["cub7"]))
+	extras$xy2 <- as.numeric(ifelse(is.na(C["cub8"]), 0, C["cub8"]))
+	extras$y3 <- as.numeric(ifelse(is.na(C["cub9"]), 0, C["cub9"]))
 	
 	if (is.null(extras[["xlab"]])) {extras[["xlab"]] <- fit$IV1}
 	if (is.null(extras[["ylab"]])) {extras[["ylab"]] <- fit$IV2}

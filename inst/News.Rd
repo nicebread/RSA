@@ -2,6 +2,26 @@
 \title{News for package 'RSA'}
 \encoding{UTF-8}
 
+\section{Version 0.9.12}{
+
+
+\subsection{New features}{
+	\itemize{
+		\item 
+	}
+}
+
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item Changed the outlier detection, which was very liberal (i.e., flagging very few potential outliers). It now implements the recommendations from ... Please note: '[...] that the diagnostics cannot be employed mechanically. Instead, once a case is diagnosed as influential, remedial action requires a firm substantive grounding. Although case deletion may be warranted in some circumstances, it is an extreme remedy of last resort that should not be routinely followed. The more fruitful approach is to ask why a given case is influential' (Bollen & Jackman, 1985).
+		\item The newly introduced a5 parameter was displayed as a second 'a1' in the 3d plot - this has been fixed.
+	}
+}
+
+}
+
+
+
 
 \section{Version 0.9.11}{
 
