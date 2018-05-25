@@ -268,7 +268,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			SP <- RSA.ST(fit, model=model)
 			PAR <- getPar(fit, "coef", model=model)
 			
-			SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="   ")
+			SP.text <- paste0("a", 1:5, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="   ")
 			
 			a4rs_par <- PAR[PAR$label == "a4.rescaled", ]
 			if (nrow(a4rs_par) == 1) {
@@ -294,7 +294,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			
 		} else {
 			SP <- RSA.ST(x=x, y=y, xy=xy, x2=x2, y2=y2)
-			SP.text <- paste0("a", 1:4, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")			
+			SP.text <- paste0("a", 1:5, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")			
 		}		
 	} else {
 		SP <- NULL
