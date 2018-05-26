@@ -93,7 +93,9 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	if (any(!models %in% validmodels))
 		stop("Unknown model name provided in parameter 'models'.")
 	
-
+	# set cubic flag if any third-order model is contained in the models vector
+	cubicmodels <- c("cubic", "CA", "CL", "RRCA", "RRCL")
+	cubic <- any(models %in% cubicmodels)
 	
 	# set all result objects to NULL as default
 	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.SQD <- s.SSQD <- s.SRSQD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- s.weak <- s.strong <- s.CA <- s.CL <- s.RRCA <- s.RRCL <- NULL
@@ -202,31 +204,41 @@ withCallingHandlers({
 	# Standard full polynomial of second degree
 	poly <- paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b3*", IV12, " + b4*", IV_IA, " + b5*", IV22, CV)
 	
+	# Standard full polynomial of third degree
+	polycubic <- paste0(poly, " + b6*", IV13, " + b7*", IV_IA2, " + b8*", IV_IA3, " + b9*", IV23) 
+	
+	
 	if ("null" %in% models) {
-		s.NULL <- sem(paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV), data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
+		m.null <- ifelse(cubic, 
+		                 paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + 0*", IV13, " + 0*", IV_IA2, " + 0*", IV_IA3, " + 0*", IV23, CV),
+		                 paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV))
+	  s.NULL <- sem(m.null, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
+	
 	if ("additive" %in% models) {
-		if (verbose==TRUE) print("Computing additive model (additive) ...")
-		m.additive <-  paste(poly,
-			"b3==0",
-			"b4==0",
-			"b5==0",
-			"a1 := b1+b2",
-			"a2 := b3+b4+b5",
-			"a3 := b1-b2",
-			"a4 := b3-b4+b5",
-			"a5 := b3-b5",
-		add, sep="\n")
-		s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
+	  if (verbose==TRUE) print("Computing additive model (additive) ...")
+	  m.additive <-  paste(ifelse(cubic,polycubic,poly),
+	                       "b3==0",
+	                       "b4==0",
+	                       "b5==0",
+	                       ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
+	                       "a1 := b1+b2",
+	                       "a2 := b3+b4+b5",
+	                       "a3 := b1-b2",
+	                       "a4 := b3-b4+b5",
+	                       "a5 := b3-b5",
+	                       add, sep="\n")
+	  s.additive <- sem(m.additive, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
 	}
 	
 	if ("onlyx2" %in% models) {
 		if (verbose==TRUE) print("Computing x + x^2 model (onlyx2) ...")
-		m.onlyx2 <-  paste(poly,
+		m.onlyx2 <-  paste(ifelse(cubic,polycubic,poly),
 			"b2==0",
 			"b4==0",
 			"b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -238,10 +250,11 @@ withCallingHandlers({
 	
 	if ("onlyy2" %in% models) {
 		if (verbose==TRUE) print("Computing y + y^2 model (onlyy2) ...")
-		m.onlyy2 <-  paste(poly,
+		m.onlyy2 <-  paste(ifelse(cubic,polycubic,poly),
 			"b1==0",
 			"b3==0",
 			"b4==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -253,11 +266,12 @@ withCallingHandlers({
 
 	if ("onlyx" %in% models) {
 		if (verbose==TRUE) print("Computing x model (onlyx) ...")
-		m.onlyx <-  paste(poly,
+		m.onlyx <-  paste(ifelse(cubic,polycubic,poly),
 			"b2==0",
 			"b3==0",
 			"b4==0",
 			"b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -269,11 +283,12 @@ withCallingHandlers({
 	
 	if ("onlyy" %in% models) {
 		if (verbose==TRUE) print("Computing y model (onlyy) ...")
-		m.onlyy <-  paste(poly,
+		m.onlyy <-  paste(ifelse(cubic,polycubic,poly),
 			"b1==0",
 			"b3==0",
 			"b4==0",
 			"b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -286,10 +301,11 @@ withCallingHandlers({
 
 	if ("diff" %in% models) {
 		if (verbose==TRUE) print("Computing difference model (diff) ...")
-		m.diff <- paste(poly,
+		m.diff <- paste(ifelse(cubic,polycubic,poly),
 			"b3==0",
 			"b4==0",
 			"b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"b1 == -b2",
 			"a1 := b1+b2",
 			"a2 := 0",
@@ -302,10 +318,11 @@ withCallingHandlers({
 	
 	if ("mean" %in% models) {
 		if (verbose==TRUE) print("Computing mean model (mean) ...")
-		m.mean <- paste(poly,
+		m.mean <- paste(ifelse(cubic,polycubic,poly),
 			"b3==0",
 			"b4==0",
 			"b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"b1 == b2",
 			"a1 := b1+b2",
 			"a2 := 0",
@@ -318,9 +335,10 @@ withCallingHandlers({
 
 	if ("IA" %in% models) {
 		if (verbose==TRUE) print("Computing interaction model (IA)...")
-		m.IA <- paste(poly,
+		m.IA <- paste(ifelse(cubic,polycubic,poly),
 			"b3==0",
 			"b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -344,11 +362,12 @@ withCallingHandlers({
 	
 	if ("SQD" %in% models) {
 		if (verbose==TRUE) print("Computing squared difference model (SQD) ...")
-		m.SQD <- paste(poly,
+		m.SQD <- paste(ifelse(cubic,polycubic,poly),
 			"b1==0",
 			"b2==0",
 			"b3==b5",
 			"b3+b4+b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -367,10 +386,11 @@ withCallingHandlers({
 	
 	if ("SSQD" %in% models) {
 		if (verbose==TRUE) print("Computing shifted squared difference model (SSQD) ...")
-		m.SSQD <- paste(poly,
+		m.SSQD <- paste(ifelse(cubic,polycubic,poly),
 			"b1==-b2",
 			"b3==b5",
 			"b3+b4+b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -390,10 +410,11 @@ withCallingHandlers({
 	
 	if (any(models %in% c("RR"))) {
 		if (verbose==TRUE) print("Computing rising ridge model (RR) ...")
-		m.RR <- paste(poly,
+		m.RR <- paste(ifelse(cubic,polycubic,poly),
 			"b1==b2",
 			"b3==b5",
 			"b3+b4+b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -414,9 +435,10 @@ withCallingHandlers({
 	
 	if (any(models %in% c("SRR"))) {
 		if (verbose==TRUE) print("Computing shifted rising ridge model (SRR) ...")
-		m.SRR <- paste(poly,
+		m.SRR <- paste(ifelse(cubic,polycubic,poly),
 			"b3==b5",
 			"b3+b4+b5==0",
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -439,10 +461,11 @@ withCallingHandlers({
 	
 	if (any(models %in% c("SRRR"))) {
 			if (verbose==TRUE) print("Computing rotated and shifted rising ridge model (SRRR), up ...")
-			m.SRRR.up <- paste(paste(poly, " + start(0.01)*", IV12, " + start(0.01)*", IV22),
+			m.SRRR.up <- paste(paste(ifelse(cubic,polycubic,poly), " + start(0.01)*", IV12, " + start(0.01)*", IV22),
 				"b3 > 0.000001",
 				"b5 > 0.000001",
 				"b4^2 == 4*b3*b5",
+				ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 				"a1 := b1+b2",
 				"a2 := b3+b4+b5",
 				"a3 := b1-b2",
@@ -464,11 +487,12 @@ withCallingHandlers({
 				s.SRRR.up <- sem(m.SRRR.up, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)	
 				
 			if (verbose==TRUE) print("Computing rotated and shifted rising ridge model (SRRR), down ...")
-			m.SRRR.down <- paste(paste(poly, " + start(-0.01)*", IV12, " + start(-0.01)*", IV22),
-			#m.SRRR <- paste(paste(poly, " + start(-0.001)*", IV22),
+			m.SRRR.down <- paste(paste(ifelse(cubic,polycubic,poly), " + start(-0.01)*", IV12, " + start(-0.01)*", IV22),
+			#m.SRRR <- paste(paste(ifelse(cubic,polycubic,poly), " + start(-0.001)*", IV22),
 				"b3 < -0.000001",
 				"b5 < -0.000001",
 				"b4^2 == 4*b3*b5",
+			  ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 				"a1 := b1+b2",
 				"a2 := b3+b4+b5",
 				"a3 := b1-b2",
@@ -513,12 +537,12 @@ withCallingHandlers({
 	
 	if (any(models %in% c("SRSQD"))) {
 		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), up ...")
-		m.SRSQD.up <- paste(paste(poly, " + start(0.001)*", IV22),
+		m.SRSQD.up <- paste(paste(ifelse(cubic,polycubic,poly), " + start(0.001)*", IV22),
 			"b1 == (b2*b4)/(2*b5)",
 			"b3 > 0.000001",
 			"b5 > 0.000001",
 			"b4^2 == 4*b3*b5",	# this is a different (but algebraically equivalent) formulation of the constraints
-			
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"C := -.5*(b2/b5)",
 			"S := (-b4) / (2*b5)",
 			"a1 := b1+b2",
@@ -542,12 +566,12 @@ withCallingHandlers({
 			
 			
 		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), down ...")
-		m.SRSQD.down <- paste(paste(poly, " + start(-0.001)*", IV22),
+		m.SRSQD.down <- paste(paste(ifelse(cubic,polycubic,poly), " + start(-0.001)*", IV22),
 			"b1 == (b2*b4)/(2*b5)",
 			"b3 < -0.000001",
 			"b5 < -0.000001",
 			"b4^2 == 4*b3*b5",
-		
+			ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"C := -.5*(b2/b5)",
 			"S := (-b4) / (2*b5)",
 			"a1 := b1+b2",
@@ -594,7 +618,8 @@ withCallingHandlers({
 	
 	if ("full" %in% models) {
 		if (verbose==TRUE) print("Computing polynomial model (full) ...")
-		m.full <-  paste(poly,
+		m.full <-  paste(ifelse(cubic,polycubic,poly),
+		  ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -623,7 +648,8 @@ withCallingHandlers({
 	
 	if ("weak" %in% models) {
 		if (verbose==TRUE) print("Computing weak fit pattern ...")
-		m.weak <-  paste(poly,
+		m.weak <-  paste(ifelse(cubic,polycubic,poly),
+		  ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -651,7 +677,8 @@ withCallingHandlers({
 	
 	if ("strong" %in% models) {
 		if (verbose==TRUE) print("Computing strong fit pattern ...")
-		m.strong <-  paste(poly,
+		m.strong <-  paste(ifelse(cubic,polycubic,poly),
+		  ifelse(cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
 			"a1 := b1+b2",
 			"a2 := b3+b4+b5",
 			"a3 := b1-b2",
@@ -717,13 +744,10 @@ withCallingHandlers({
 	}
 
 	
+	
+	
 	## Test all models of third degree
-	
-	# Standard full polynomial of third degree
-	polycubic <- paste0(poly, " + b6*", IV13, " + b7*", IV_IA2, " + b8*", IV_IA3, " + b9*", IV23) 
-	
-	
-	
+
 	# Full model of third degree
 	if ("cubic" %in% models) {
 		if (verbose==TRUE) print("Computing full cubic model (cubic) ...")
@@ -912,7 +936,8 @@ withCallingHandlers({
 		SRSQD.rot = SRSQD.rot, SRRR.rot = SRRR.rot, LM=summary(lm.full), formula=formula, 
 		data=df, out.rm = out.rm, outliers = which(df$out == TRUE), DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, 
 		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV_IA2=IV_IA2, IV_IA3=IV_IA3, IV23=IV23, 
-		r.squared = summary(lm.full)$r.squared)
+		r.squared = summary(lm.full)$r.squared, 
+		cubic=cubic)
 	
 	attr(res, "class") <- "RSA"
 	return(res)
