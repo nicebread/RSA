@@ -71,6 +71,7 @@
 #' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.
 #' @param coefs Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)
 #' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis
+#' @param axesStyles Define the visual styles of the axes LOC, LOIC, PA1, and PA2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue")). It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.}
 #' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
 #' @param link Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"
@@ -147,7 +148,13 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	suppress.ticklabels=FALSE,
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, coefs=FALSE,
-	axes=c("LOC", "LOIC", "PA1", "PA2"), 
+	axes=c("LOC", "LOIC", "PA1", "PA2"),
+	axesStyles=list(
+		LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue")),
+		LOIC= list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue")),
+		PA1 = list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30")),
+		PA2 = list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))
+	),
 	project=c("contour"), maxlines=FALSE,
 	cex.tickLabel=1, cex.axesLabel=1, cex.main=1, 
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
@@ -227,7 +234,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	type <- match.arg(type, c("interactive", "3d", "contour"))
 	surface <- match.arg(surface, c("predict", "smooth"))
 	points[["value"]] <- match.arg(points[["value"]], c("raw", "predicted"))
-
+	
+	# define defaults of axes styles
+	if (is.null(axesStyles[["LOC"]])) axesStyles[["LOC"]] <- list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))
+	if (is.null(axesStyles[["LOIC"]])) axesStyles[["LOIC"]] <- list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))
+	if (is.null(axesStyles[["PA1"]])) axesStyles[["PA1"]] <- list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))
+	if (is.null(axesStyles[["PA2"]])) axesStyles[["PA2"]] <- list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))	
+	
+	
 	if (demo == FALSE) {
 			if (is.null(xlab)) {
 				if (!is.null(points$data)) {
@@ -448,18 +462,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		}
 		
 		gridCol <- ifelse(contour$show == TRUE, "grey60", "grey30")
-		
-		LOC.col <- LOIC.col <- "blue"
-		PA1.col <- PA2.col <- "grey30"
 	} else {
+		
+		# B/W palette
 		if (is.null(pal)) {
 			pal <- colorRampPalette(c("#FFFFFF", "#AAAAAA", "#030303"), bias=2)(11)
 			if (flip==TRUE) {pal <- rev(pal)}
 		}
 		gridCol <- ifelse(contour$show == TRUE, "grey10", "grey10")
-		
-		LOC.col <- LOIC.col <- "black"
-		PA1.col <- PA2.col <- "black"
 	}
 	if (length(pal) < 2) {legend <- FALSE}
 	
@@ -572,12 +582,13 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				  for (p in project) {
 					  if (p %in% c("LOC", "LOIC", "PA1", "PA2")) {
 						  if (is.null(axesList[[p]])) break;
+								
 						  a0 <- RESCALE(getIntersect2(p0=axesList[[p]]$p0, p1=axesList[[p]]$p1))
 						  if (nrow(a0) <= 1) break;
 							  panel.3dscatter(x = a0$X, y = a0$Y, z = rep(RESCALE.Z(min(zlim.final) + .01), nrow(a0)), 
 						  				xlim = xlim, ylim = ylim, zlim = zlim,
-			                            xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
-										type="l", col.line=axesList[[p]]$col, lty=axesList[[p]]$lty, lwd=2, ...)
+			                xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
+										type="l", col.line=axesList[[p]]$style[["col"]], lty=axesList[[p]]$style[["lty"]], lwd=axesList[[p]]$style[["lwd"]], ...)
 					  }
 					  
 					  if (p == "hull") {
@@ -671,7 +682,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 								  if (nrow(a0) <= 1) break;
 					              panel.3dscatter(x = a0$X, y = a0$Y, z = a0$Z, xlim = xlim, ylim = ylim, zlim = zlim,
 					                      	xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
-											type="l", col.line=axesList[[a]]$col, lty=axesList[[a]]$lty, lwd=2, ...)
+											type="l", col.line=axesList[[a]]$style[["col"]], lty=axesList[[a]]$style[["lty"]], lwd=axesList[[a]]$style[["lwd"]], ...)
 							  }
 						  }   
 					  }
@@ -806,12 +817,12 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				}
 				
 				axesList <- list()
-				axesList[["LOC"]]  <- list(p0=0, p1=1, lty="solid", col=LOC.col)
-				axesList[["LOIC"]] <- list(p0=0, p1=-1, lty="solid", col=LOIC.col)
+				axesList[["LOC"]]  <- list(p0=0, p1=1, style=axesStyles[["LOC"]])
+				axesList[["LOIC"]] <- list(p0=0, p1=-1, style=axesStyles[["LOIC"]])
 				if (x2 != y2) {
-					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, lty="dotted", col=PA1.col)
-					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, lty="dotted", col=PA2.col)	
-				}			
+					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, style=axesStyles[["PA1"]])
+					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, style=axesStyles[["PA2"]])	
+				}	
 				
 				
 				# Define color range: Relative to surface min/max, or relative to box (zlim)?
