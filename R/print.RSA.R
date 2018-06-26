@@ -60,7 +60,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	if (!model %in% c("cubic", "CA", "RRCA", "CL", "RRCL")) {
 		coef.sel <- paste0("b", 0:5)
 	} else {
-		coef.sel <- paste0("b", c(0:5, 9:12))
+		coef.sel <- paste0("b", c(0:9))
 	}
 	
 	RC <- eff[eff$label %in% coef.sel, c(1:3, 6:7)]
