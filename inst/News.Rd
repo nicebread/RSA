@@ -7,7 +7,7 @@
 
 \subsection{New features}{
 	\itemize{
-		\item 
+		\item New parameter \code{axesStyles} in \code{plotRSA}: Define custom styles for LOC, LOIC, PA1, and PA2. Recognizes \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.
 	}
 }
 
