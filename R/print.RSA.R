@@ -19,7 +19,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		eff <- getPar(x, model=model, standardized=TRUE)
 		eff <- eff[order(eff$label), ]
 		
-		if (!model %in% c("cubic", "absunc", "absdiff")) {
+		if (!model %in% c("cubic", "CA", "RRCA", "CL", "RRCL", "absunc", "absdiff")) {
 			ST <- RSA.ST(x, model=model)
 		} else {
 			ST <- NULL
@@ -57,7 +57,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	cat(paste0("\n\nNumber of observations: n = ", nobs(x$models[[model]]), "\n----------------------------\n"))
 
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
-	if (model != "cubic") {
+	if (!model %in% c("cubic", "CA", "RRCA", "CL", "RRCL")) {
 		coef.sel <- paste0("b", 0:5)
 	} else {
 		coef.sel <- paste0("b", c(0:5, 9:12))
@@ -72,7 +72,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	
 	
 		
-	if (!model %in% c("onlyx", "onlyy", "cubic")) {
+	if (!model %in% c("onlyx", "onlyy", "cubic", "CA", "RRCA", "CL", "RRCL")) {
 		cat(paste0("\n\n\nSurface tests (a1 to a5) for model <", model, ">\n----------------------------\n"))
 		as <- eff[eff$label %in% paste0("a", 1:5), c(1:3, 6:7)]
 		as[, 2:5] <- round(as[, 2:5], digits)
