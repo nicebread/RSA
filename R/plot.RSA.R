@@ -175,11 +175,13 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	
 	# remove LOC, LOIC etc. when they do not make sense.
-	if (any(c(x3, x2y, xy2, y3, w, wx, wy) != 0)) {
+  if (any(c(x3, x2y, xy2, y3, w, wx, wy) != 0)) {
 		axes <- ""
 		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
 	}
 	
+  # is the model a cubic model?
+  cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
 	
 	# define the defaults
 	
@@ -277,8 +279,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	
 	C <- c(x, y, x2, y2, xy, w, wx, wy, x3, x2y, xy2, y3)
 	
-	if (!model %in% c("absunc", "absdiff")) {
-		if (!is.null(fit) & model != "cubic" & model != "null") {
+	if (!model %in% c("absunc", "absdiff")  & !cubicmodel) {
+		if (!is.null(fit) & model != "null") {
 			SP <- RSA.ST(fit, model=model)
 			PAR <- getPar(fit, "coef", model=model)
 			
@@ -320,6 +322,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	COEFS <- ""
 	if (coefs == TRUE) {
 		COEFS <- paste0("b1 = ", f2(x, 3), "\n", "b2 = ", f2(y, 3), "\n", "b3 = ", f2(x2, 3), "\n", "b4 = ", f2(xy, 3), "\n", "b5 = ", f2(y2, 3), "\n")
+		if (cubicmodel){
+		  COEFS <- paste0(COEFS, "b6 = ", f2(x3, 3), "\n", "b7 = ", f2(x2y, 3), "\n", "b8 = ", f2(xy2, 3), "\n", "b9 = ", f2(y3, 3), "\n")
+		}
 	}
 	
 	
