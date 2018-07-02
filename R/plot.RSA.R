@@ -834,7 +834,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				axesList <- list()
 				axesList[["LOC"]]  <- list(p0=0, p1=1, style=axesStyles[["LOC"]])
 				axesList[["LOIC"]] <- list(p0=0, p1=-1, style=axesStyles[["LOIC"]])
-				if (x2 != y2) {
+				if (x2 != y2 & !cubicmodel) {
 					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, style=axesStyles[["PA1"]])
 					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, style=axesStyles[["PA2"]])	
 				}	
