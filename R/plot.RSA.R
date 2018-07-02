@@ -174,14 +174,20 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the regression coefficients.")
 	}
 	
-	# remove LOC, LOIC etc. when they do not make sense.
-  if (any(c(x3, x2y, xy2, y3, w, wx, wy) != 0)) {
-		axes <- ""
-		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
-	}
-	
+  
   # is the model a cubic model?
   cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
+  
+	# remove LOC, LOIC etc. when they do not make sense.
+  if (any(c(w, wx, wy) != 0)) {
+		axes <- ""
+		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
+  }
+  
+  if (cubicmodel) {
+    axes <- axes[!axes %in% c("PA1", "PA2")]
+    project <- project[!project %in% c("PA1", "PA2")]
+  }
 	
 	# define the defaults
 	
@@ -816,7 +822,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					Y <- p0 + p1*X
 					n <- data.frame(X, Y)
 					n2 <- add.variables(z~X+Y, n)
-					n2$Z <- b0 + colSums(c(x, y, x2, y2, xy)*t(n2[, c(1:5)]))
+					n2$Z <- b0 + colSums(c(x, y, x2, y2, xy, x3, x2y, xy2, y3)*t(n2[, c("X","Y","X2","Y2","X_Y","X3","X2_Y","X_Y2","Y3")]))
 					if (!is.null(Z)) n2$Z <- Z
 					return(n2[, c("X", "Y", "Z")])
 				}
