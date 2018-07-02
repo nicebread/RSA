@@ -188,6 +188,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
     axes <- axes[!axes %in% c("PA1", "PA2")]
     project <- project[!project %in% c("PA1", "PA2")]
   }
+  
+  if (!model %in% c("CA","RRCA")) {
+    axes <- axes[!axes %in% c("E2")]
+    project <- project[!project %in% c("E2")]
+  }
 	
 	# define the defaults
 	
@@ -248,6 +253,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	if (is.null(axesStyles[["LOIC"]])) axesStyles[["LOIC"]] <- list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))
 	if (is.null(axesStyles[["PA1"]])) axesStyles[["PA1"]] <- list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))
 	if (is.null(axesStyles[["PA2"]])) axesStyles[["PA2"]] <- list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))	
+	if (is.null(axesStyles[["E2"]])) axesStyles[["E2"]] <- list(lty="solid", lwd=2, col=ifelse(bw==TRUE, "black", "deeppink"))	
 	
 	
 	if (demo == FALSE) {
@@ -591,7 +597,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			# 1. Projection on bottom of cube
 			  if (length(project) > 0) {
 				  for (p in project) {
-					  if (p %in% c("LOC", "LOIC", "PA1", "PA2")) {
+					  if (p %in% c("LOC", "LOIC", "PA1", "PA2", "E2")) {
 						  if (is.null(axesList[[p]])) break;
 								
 						  a0 <- RESCALE(getIntersect2(p0=axesList[[p]]$p0, p1=axesList[[p]]$p1))
@@ -834,6 +840,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, style=axesStyles[["PA1"]])
 					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, style=axesStyles[["PA2"]])	
 				}	
+				if (x2 != 0 & x3 != 0) {
+				  axesList[["E2"]] <- list(p0=(2*x2/(3*x3)), p1=1, style=axesStyles[["E2"]])
+				}
 				
 				
 				# Define color range: Relative to surface min/max, or relative to box (zlim)?
