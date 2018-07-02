@@ -183,13 +183,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		axes <- ""
 		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
   }
-  
   if (cubicmodel) {
     axes <- axes[!axes %in% c("PA1", "PA2")]
     project <- project[!project %in% c("PA1", "PA2")]
   }
-  
-  if (!model %in% c("CA","RRCA")) {
+  if ((!model %in% c("CA","RRCA")) | x2 == 0 | x3 == 0) {
     axes <- axes[!axes %in% c("E2")]
     project <- project[!project %in% c("E2")]
   }
@@ -840,10 +838,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, style=axesStyles[["PA1"]])
 					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, style=axesStyles[["PA2"]])	
 				}	
-				if (x2 != 0 & x3 != 0) {
-				  axesList[["E2"]] <- list(p0=(2*x2/(3*x3)), p1=1, style=axesStyles[["E2"]])
-				}
-				
+				axesList[["E2"]] <- list(p0=(2*x2/(3*x3)), p1=1, style=axesStyles[["E2"]])
+
 				
 				# Define color range: Relative to surface min/max, or relative to box (zlim)?
 				if (pal.range == "box") {
@@ -933,10 +929,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
 			}
 			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
-				p1 <- p1+ geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
+				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
+			}
+			if ("E2" %in% axes) {
+			  E20 <- 2*x2/(3*x3)
+			  p1 <- p1 + geom_abline(aes(intercept=E20, slope=1), color="deeppink")
 			}
 			
-			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR")) {
+			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR") & !cubicmodel) {
 				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
 			}
 				
@@ -960,7 +960,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			}
 			
 			# plot CI of SP
-			if (showSP==TRUE & showSP.CI==TRUE & !is.null(fit)) {
+			if (showSP==TRUE & showSP.CI==TRUE & !is.null(fit) & !cubicmodel) {
 				PAR <- getPar(fit, "coef", model=model)
 				p1 <- p1 + annotate("errorbar", x=SP$X0, y=SP$Y0, ymin=PAR[PAR$label=="Y0", "ci.lower"], ymax=PAR[PAR$label=="Y0", "ci.upper"], z=max(new2$z), width=.3)
 				p1 <- p1 + annotate("errorbarh", x=SP$X0, y=SP$Y0, xmin=PAR[PAR$label=="X0", "ci.lower"], xmax=PAR[PAR$label=="X0", "ci.upper"], z=max(new2$z), height=.3)
