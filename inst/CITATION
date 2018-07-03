@@ -10,12 +10,12 @@ title <- paste("RSA: An R package for response surface analysis (version ",meta$
     
 citEntry(entry = "Manual",
   title = title.bibtex,
-  author = personList(as.person("Felix D. Schönbrodt")),
+  author = personList(as.person("Felix D. Schönbrodt"), as.person("Sarah Humberg")),
   year = year,
   url = "https://cran.r-project.org/package=RSA",
 
   textVersion =
-  paste("Schönbrodt, F.D.",
+  paste("Schönbrodt, F. D. & Humberg, S.",
        sprintf("(%s).", year),
        title,
         "Retrieved from https://cran.r-project.org/package=RSA")

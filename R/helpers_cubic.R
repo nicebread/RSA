@@ -1,4 +1,3 @@
-
 # helpers_cubic.R
 # = functions needed for the interpretation of the cubic models
 
@@ -6,7 +5,6 @@
 # ---------------------------------------------------------------------
 # Range check function for strict and broad asymmetric congruence models
 # ---------------------------------------------------------------------
-
 
 # define function that, for a given point (x,y), computes the one-sided confidence interval of the model-prediction z at (x,y) according to the CA/RRCA model,
 
@@ -45,7 +43,29 @@ ci_pred <- function(obj, x, y, side, n, p, alpha, model){
   }
 
 
-# main function to identify data points behind E2 and test how many of them have outcome predictions that significantly differ from predictions for predictor combinations on E2 (that have the same level)
+
+
+
+#' @title Range check for the CA/RRCA model
+#'
+#' @description
+#' Main function to identify data points behind E2 and test how many of them have outcome predictions that significantly differ from predictions for predictor combinations on E2 (that have the same level)
+#'
+#' @details
+#' TODO
+#'
+#' @aliases caRange
+#'
+#' @importFrom stats pnorm
+#' @importFrom stats qnorm
+#' @importFrom stats qt
+#'
+#' @export
+#' @param object An RSA object
+#' @param alpha Alpha level
+#' @param verbose Should extra information be printed?
+#' @param model Either "CA" or "RRCA"
+
 caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA"){
       
   rsa = object
@@ -278,7 +298,29 @@ pick_a_point <- function(c1,c3,cov,k){
 
 
 
-# main function for computing the regions of significance and testing their intersection with the data
+
+
+
+#' @title Range check for the CL/RRCL model
+#'
+#' @description
+#' Compute the regions of significance and test their intersection with the data
+#'
+#' @details
+#' TODO
+#'
+#' @aliases clRange
+#'
+#' @importFrom stats pnorm
+#' @importFrom stats qnorm
+#' @importFrom stats qt
+#'
+#' @export
+#' @param object An RSA object
+#' @param alpha Alpha level
+#' @param verbose Should extra information be printed?
+#' @param model Either "CL" or "RRCL"
+
 clRange <- function(object, alpha=0.05, verbose=TRUE, model="CL"){
   
   rsa = object
