@@ -15,6 +15,7 @@
 	\itemize{
 		\item Changed the outlier detection, which was very liberal (i.e., flagging very few potential outliers). It now implements the recommendations from ... Please note: '[...] that the diagnostics cannot be employed mechanically. Instead, once a case is diagnosed as influential, remedial action requires a firm substantive grounding. Although case deletion may be warranted in some circumstances, it is an extreme remedy of last resort that should not be routinely followed. The more fruitful approach is to ask why a given case is influential' (Bollen & Jackman, 1985).
 		\item The newly introduced a5 parameter was displayed as a second 'a1' in the 3d plot - this has been fixed.
+		\item The cubic models CA, RRCA, CL, and RRCL have been implemented (see Humberg, Nestler, Schönbrodt, & Back, in preparation, for details on how to use these models) and the plot() function has been adapted respectively. The new functions caRange() and clRange() have been implemented. They should be applied when testing cubic models to ensure that the model is interpreted for the whole range of realistic predictor combinations.
 	}
 }
 
