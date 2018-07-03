@@ -95,7 +95,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	
 	# set cubic flag if any third-order model is contained in the models vector
 	cubicmodels <- c("cubic", "CA", "CL", "RRCA", "RRCL")
-	cubic <- any(models %in% cubicmodels)
+	is.cubic <- any(models %in% cubicmodels)
 	
 	# set all result objects to NULL as default
 	s.NULL <- s.full <- s.IA <- s.diff <- s.mean <- s.absdiff <- s.additive <- s.SQD <- s.SSQD <- s.SRSQD <- s.absunc <- s.cubic <- s.RR <- s.SRR <- s.SRRR <- s.onlyx <- s.onlyy <- s.onlyx2 <- s.onlyy2 <- s.weak <- s.strong <- s.CA <- s.CL <- s.RRCA <- s.RRCL <- NULL
@@ -218,7 +218,7 @@ withCallingHandlers({
 	
 	if ("additive" %in% models) {
 	  if (verbose==TRUE) print("Computing additive model (additive) ...")
-	  m.additive <-  paste(ifelse(cubic,polycubic,poly),
+	  m.additive <-  paste(ifelse(cubic, polycubic, poly),
 	                       "b3==0",
 	                       "b4==0",
 	                       "b5==0",
