@@ -10,7 +10,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	x <- object
 	
 	# is the model a cubic model?
-	cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
+	is.cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
 	
 	# Print model summary, also show package version
 	if(!exists("meta") || is.null(meta)) meta <- packageDescription("RSA")
@@ -22,7 +22,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		eff <- getPar(x, model=model, standardized=TRUE)
 		eff <- eff[order(eff$label), ]
 		
-		if (!model %in% c("absunc", "absdiff") & !cubicmodel) {
+		if (!model %in% c("absunc", "absdiff") & !is.cubicmodel) {
 			ST <- RSA.ST(x, model=model)
 		} else {
 			ST <- NULL
@@ -60,7 +60,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	cat(paste0("\n\nNumber of observations: n = ", nobs(x$models[[model]]), "\n----------------------------\n"))
 
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
-	if (!cubicmodel) {
+	if (!is.cubicmodel) {
 		coef.sel <- paste0("b", 0:5)
 	} else {
 		coef.sel <- paste0("b", c(0:9))
@@ -75,7 +75,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	
 	
 		
-	if (!model %in% c("onlyx", "onlyy") & !cubicmodel) {
+	if (!model %in% c("onlyx", "onlyy") & !is.cubicmodel) {
 		cat(paste0("\n\n\nSurface tests (a1 to a5) for model <", model, ">\n----------------------------\n"))
 		as <- eff[eff$label %in% paste0("a", 1:5), c(1:3, 6:7)]
 		as[, 2:5] <- round(as[, 2:5], digits)

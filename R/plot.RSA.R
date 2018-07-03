@@ -176,14 +176,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	
   
   # is the model a cubic model?
-  cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
+  is.cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
   
 	# remove LOC, LOIC etc. when they do not make sense.
   if (any(c(w, wx, wy) != 0)) {
 		axes <- ""
 		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
   }
-  if (cubicmodel) {
+  if (is.cubicmodel) {
     axes <- axes[!axes %in% c("PA1", "PA2")]
     project <- project[!project %in% c("PA1", "PA2")]
   }
@@ -294,7 +294,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	
 	C <- c(x, y, x2, y2, xy, w, wx, wy, x3, x2y, xy2, y3)
 	
-	if (!model %in% c("absunc", "absdiff")  & !cubicmodel) {
+	if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel) {
 		if (!is.null(fit) & model != "null") {
 			SP <- RSA.ST(fit, model=model)
 			PAR <- getPar(fit, "coef", model=model)
@@ -337,7 +337,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	COEFS <- ""
 	if (coefs == TRUE) {
 		COEFS <- paste0("b1 = ", f2(x, 3), "\n", "b2 = ", f2(y, 3), "\n", "b3 = ", f2(x2, 3), "\n", "b4 = ", f2(xy, 3), "\n", "b5 = ", f2(y2, 3), "\n")
-		if (cubicmodel){
+		if (is.cubicmodel){
 		  COEFS <- paste0(COEFS, "b6 = ", f2(x3, 3), "\n", "b7 = ", f2(x2y, 3), "\n", "b8 = ", f2(xy2, 3), "\n", "b9 = ", f2(y3, 3), "\n")
 		}
 	}
@@ -840,7 +840,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				axesList[["LOC"]]  <- list(p0=0, p1=1, style=axesStyles[["LOC"]])
 				axesList[["LOIC"]] <- list(p0=0, p1=-1, style=axesStyles[["LOIC"]])
 				
-				if (x2 != y2 & !cubicmodel) {
+				if (x2 != y2 & !is.cubicmodel) {
 					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, style=axesStyles[["PA1"]])
 					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, style=axesStyles[["PA2"]])	
 				}	
@@ -939,7 +939,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				p1 <- p1 + geom_abline(aes(intercept=0, slope=-1), linetype="dotted", size=1, color="grey20")
 			}
 			
-			if (!model %in% c("absunc", "absdiff")  & !cubicmodel){
+			if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel){
   			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
   				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
   			}
@@ -963,8 +963,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			  p1 <- p1 + geom_abline(aes(intercept=2*k2, slope=-1), color="deeppink")
 			}
 			
-			if (!model %in% c("absunc", "absdiff")  & !cubicmodel){
-  			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR") & !cubicmodel) {
+			if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel){
+  			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR") & !is.cubicmodel) {
   				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
   			}
 			}
@@ -989,7 +989,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			}
 			
 			# plot CI of SP
-			if (showSP==TRUE & showSP.CI==TRUE & !is.null(fit) & !cubicmodel) {
+			if (showSP==TRUE & showSP.CI==TRUE & !is.null(fit) & !is.cubicmodel) {
 				PAR <- getPar(fit, "coef", model=model)
 				p1 <- p1 + annotate("errorbar", x=SP$X0, y=SP$Y0, ymin=PAR[PAR$label=="Y0", "ci.lower"], ymax=PAR[PAR$label=="Y0", "ci.upper"], z=max(new2$z), width=.3)
 				p1 <- p1 + annotate("errorbarh", x=SP$X0, y=SP$Y0, xmin=PAR[PAR$label=="X0", "ci.lower"], xmax=PAR[PAR$label=="X0", "ci.upper"], z=max(new2$z), height=.3)
