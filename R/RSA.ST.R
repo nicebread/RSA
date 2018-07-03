@@ -77,6 +77,7 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 	if (!is.null(attr(x, "class"))) {
 		if (attr(x, "class") == "RSA") {
 			if (model %in% c("absunc", "absdiff")) stop("No surface parameters are computed for absolute difference models!")
+		  if (model %in% c("cubic","CA","RRCA","CL","RRCL")) stop("No surface parameters are computed for cubic models!")
 			if (inspect(x$models[[model]], "converged") == FALSE) {
 				warning("Model has not converged!")
 				return(NULL)
