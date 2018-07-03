@@ -3,10 +3,10 @@ Package: RSA
 Type: Package
 Title: Response Surface Analysis
 Version: 0.9.12
-Date: 2017-11-02
+Date: 2018-07-03
 Authors@R: c(
-		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("aut", "cre")),
-		person("Sarah", "Humberg", role = c("ctb"))
+		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("cre", "aut")),
+		person("Sarah", "Humberg", role = c("aut"))
 	)
 Maintainer: Felix Schönbrodt <felix@nicebread.de>
 Description: Advanced response surface analysis. The main function RSA computes
@@ -23,16 +23,16 @@ Suggests:
     rgl,
     qgraph,
     AICcmodavg,
-    tkrplot,
     tcltk
 Depends:
     R (>= 2.15.0),
     lavaan (>= 0.5.20),
     ggplot2,
-    lattice    
+    lattice
 Imports:
     plyr,
     RColorBrewer,
-    aplpack
+    aplpack,
+		tkrplot
 License: GPL (>= 2)
 RoxygenNote: 6.0.1

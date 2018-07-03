@@ -25,9 +25,9 @@
 #' @param wx WX coefficient (for (un)constrained absolute difference model)
 #' @param wy WY coefficient (for (un)constrained absolute difference model)
 #' @param y3 Y^3 coefficient
-#' @param x3 X^3 coefficient
-#' @param xy2 XY^2 coefficient
 #' @param x2y X^2Y coefficient
+#' @param xy2 XY^2 coefficient
+#' @param x3 X^3 coefficient
 #' @param b0 Intercept
 #' @param xlim Limits of the x axis
 #' @param ylim Limits of the y axis
@@ -68,10 +68,11 @@
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param demo Do not change that parameter (internal use only)
 #' @param fit Do not change that parameter (internal use only)
-#' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.
-#' @param coefs Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)
-#' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis
-#' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")
+#' @param param Should the surface parameters a1 to a5 be shown on the plot? In case of a 3d plot a1 to a5 are printed on top of the plot; in case of a contour plot the principal axes are plotted. Surface parameters are not printed for cubic surfaces.
+#' @param coefs Should the regression coefficients b1 to b5 (b1 to b9 for cubic models) be shown on the plot? (Only for 3d plot)
+#' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2", "E2", "K1", "K2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis, E2 = second extremum line in the CA or RRCA model, K1, K2 = boundary lines of the regions of significance in the CL or RRCL model.
+#' @param axesStyles Define the visual styles of the axes LOC, LOIC, PA1, PA2, E2, K1, and K2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.
+#' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points", "E2", "K1", "K2")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
 #' @param link Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"
 #' @param suppress.surface Should the surface be suppressed (only for \code{type="3d"})? Useful for only showing the data points, or for didactic purposes (e.g., first show the cube, then fade in the surface).
@@ -147,7 +148,13 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	suppress.ticklabels=FALSE,
 	rotation=list(x=-63, y=32, z=15), label.rotation=list(x=19, y=-40, z=92), 
 	gridsize=21, bw=FALSE, legend=TRUE, param=TRUE, coefs=FALSE,
-	axes=c("LOC", "LOIC", "PA1", "PA2"), 
+	axes=c("LOC", "LOIC", "PA1", "PA2"),
+	axesStyles=list(
+		LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue")),
+		LOIC= list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue")),
+		PA1 = list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30")),
+		PA2 = list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))
+	),
 	project=c("contour"), maxlines=FALSE,
 	cex.tickLabel=1, cex.axesLabel=1, cex.main=1, 
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
@@ -167,12 +174,27 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the regression coefficients.")
 	}
 	
+  
+  # is the model a cubic model?
+  is.cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
+  
 	# remove LOC, LOIC etc. when they do not make sense.
-	if (any(c(x3, xy2, x2y, y3, w, wx, wy) != 0)) {
+  if (any(c(w, wx, wy) != 0)) {
 		axes <- ""
 		project <- project[!project %in% c("PA1", "PA2", "LOC", "LOIC")]
-	}
-	
+  }
+  if (is.cubicmodel) {
+    axes <- axes[!axes %in% c("PA1", "PA2")]
+    project <- project[!project %in% c("PA1", "PA2")]
+  }
+  if ((!model %in% c("CA","RRCA")) | x2 == 0 | x3 == 0) {
+    axes <- axes[!axes %in% c("E2")]
+    project <- project[!project %in% c("E2")]
+  }
+  if ((!model %in% c("CL","RRCL")) | x2 == 0 | x3 == 0 | is.null(fit)) {
+    axes <- axes[!axes %in% c("K1", "K2")]
+    project <- project[!project %in% c("K1", "K2")]
+  }
 	
 	# define the defaults
 	
@@ -227,7 +249,16 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	type <- match.arg(type, c("interactive", "3d", "contour"))
 	surface <- match.arg(surface, c("predict", "smooth"))
 	points[["value"]] <- match.arg(points[["value"]], c("raw", "predicted"))
-
+	
+	# define defaults of axes styles
+	if (is.null(axesStyles[["LOC"]])) axesStyles[["LOC"]] <- list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))
+	if (is.null(axesStyles[["LOIC"]])) axesStyles[["LOIC"]] <- list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))
+	if (is.null(axesStyles[["PA1"]])) axesStyles[["PA1"]] <- list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))
+	if (is.null(axesStyles[["PA2"]])) axesStyles[["PA2"]] <- list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))	
+	if (is.null(axesStyles[["E2"]])) axesStyles[["E2"]] <- list(lty="solid", lwd=2, col=ifelse(bw==TRUE, "black", "deeppink"))	
+	if (is.null(axesStyles[["K1"]])) axesStyles[["K1"]] <- list(lty="solid", lwd=2, col=ifelse(bw==TRUE, "black", "deeppink"))	
+	if (is.null(axesStyles[["K2"]])) axesStyles[["K2"]] <- list(lty="solid", lwd=2, col=ifelse(bw==TRUE, "black", "deeppink"))	
+	
 	if (demo == FALSE) {
 			if (is.null(xlab)) {
 				if (!is.null(points$data)) {
@@ -261,10 +292,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		surface <- "predict"
 	}
 	
-	C <- c(x, y, x2, y2, xy, w, wx, wy, x3, xy2, x2y, y3)
+	C <- c(x, y, x2, y2, xy, w, wx, wy, x3, x2y, xy2, y3)
 	
-	if (!model %in% c("absunc", "absdiff")) {
-		if (!is.null(fit) & model != "cubic" & model != "null") {
+	if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel) {
+		if (!is.null(fit) & model != "null") {
 			SP <- RSA.ST(fit, model=model)
 			PAR <- getPar(fit, "coef", model=model)
 			
@@ -306,6 +337,9 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	COEFS <- ""
 	if (coefs == TRUE) {
 		COEFS <- paste0("b1 = ", f2(x, 3), "\n", "b2 = ", f2(y, 3), "\n", "b3 = ", f2(x2, 3), "\n", "b4 = ", f2(xy, 3), "\n", "b5 = ", f2(y2, 3), "\n")
+		if (is.cubicmodel){
+		  COEFS <- paste0(COEFS, "b6 = ", f2(x3, 3), "\n", "b7 = ", f2(x2y, 3), "\n", "b8 = ", f2(xy2, 3), "\n", "b9 = ", f2(y3, 3), "\n")
+		}
 	}
 	
 	
@@ -348,8 +382,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				paste0("W_", N[1]),
 				paste0("W_", N[2]),
 				paste0(N[1], "3"),
-				paste0(N[1], "_", N[2], "2"),
 				paste0(N[1], "2", "_", N[2]),
+				paste0(N[1], "_", N[2], "2"),
 				paste0(N[2], "3")
 			)]))
 			
@@ -448,18 +482,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		}
 		
 		gridCol <- ifelse(contour$show == TRUE, "grey60", "grey30")
-		
-		LOC.col <- LOIC.col <- "blue"
-		PA1.col <- PA2.col <- "grey30"
 	} else {
+		
+		# B/W palette
 		if (is.null(pal)) {
 			pal <- colorRampPalette(c("#FFFFFF", "#AAAAAA", "#030303"), bias=2)(11)
 			if (flip==TRUE) {pal <- rev(pal)}
 		}
 		gridCol <- ifelse(contour$show == TRUE, "grey10", "grey10")
-		
-		LOC.col <- LOIC.col <- "black"
-		PA1.col <- PA2.col <- "black"
 	}
 	if (length(pal) < 2) {legend <- FALSE}
 	
@@ -570,14 +600,15 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			# 1. Projection on bottom of cube
 			  if (length(project) > 0) {
 				  for (p in project) {
-					  if (p %in% c("LOC", "LOIC", "PA1", "PA2")) {
+					  if (p %in% c("LOC", "LOIC", "PA1", "PA2", "E2", "K1", "K2")) {
 						  if (is.null(axesList[[p]])) break;
+								
 						  a0 <- RESCALE(getIntersect2(p0=axesList[[p]]$p0, p1=axesList[[p]]$p1))
 						  if (nrow(a0) <= 1) break;
 							  panel.3dscatter(x = a0$X, y = a0$Y, z = rep(RESCALE.Z(min(zlim.final) + .01), nrow(a0)), 
 						  				xlim = xlim, ylim = ylim, zlim = zlim,
-			                            xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
-										type="l", col.line=axesList[[p]]$col, lty=axesList[[p]]$lty, lwd=2, ...)
+			                xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
+										type="l", col.line=axesList[[p]]$style[["col"]], lty=axesList[[p]]$style[["lty"]], lwd=axesList[[p]]$style[["lwd"]], ...)
 					  }
 					  
 					  if (p == "hull") {
@@ -671,7 +702,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 								  if (nrow(a0) <= 1) break;
 					              panel.3dscatter(x = a0$X, y = a0$Y, z = a0$Z, xlim = xlim, ylim = ylim, zlim = zlim,
 					                      	xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, 
-											type="l", col.line=axesList[[a]]$col, lty=axesList[[a]]$lty, lwd=2, ...)
+											type="l", col.line=axesList[[a]]$style[["col"]], lty=axesList[[a]]$style[["lty"]], lwd=axesList[[a]]$style[["lwd"]], ...)
 							  }
 						  }   
 					  }
@@ -800,19 +831,32 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					Y <- p0 + p1*X
 					n <- data.frame(X, Y)
 					n2 <- add.variables(z~X+Y, n)
-					n2$Z <- b0 + colSums(c(x, y, x2, y2, xy)*t(n2[, c(1:5)]))
+					n2$Z <- b0 + colSums(c(x, y, x2, y2, xy, x3, x2y, xy2, y3)*t(n2[, c("X","Y","X2","Y2","X_Y","X3","X2_Y","X_Y2","Y3")]))
 					if (!is.null(Z)) n2$Z <- Z
 					return(n2[, c("X", "Y", "Z")])
 				}
 				
 				axesList <- list()
-				axesList[["LOC"]]  <- list(p0=0, p1=1, lty="solid", col=LOC.col)
-				axesList[["LOIC"]] <- list(p0=0, p1=-1, lty="solid", col=LOIC.col)
-				if (x2 != y2) {
-					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, lty="dotted", col=PA1.col)
-					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, lty="dotted", col=PA2.col)	
-				}			
+				axesList[["LOC"]]  <- list(p0=0, p1=1, style=axesStyles[["LOC"]])
+				axesList[["LOIC"]] <- list(p0=0, p1=-1, style=axesStyles[["LOIC"]])
 				
+				if (x2 != y2 & !is.cubicmodel) {
+					axesList[["PA1"]] <- list(p0=SP$p10, p1=SP$p11, style=axesStyles[["PA1"]])
+					axesList[["PA2"]] <- list(p0=SP$p20, p1=SP$p21, style=axesStyles[["PA2"]])	
+				}	
+				
+				axesList[["E2"]] <- list(p0=(2*x2/(3*x3)), p1=1, style=axesStyles[["E2"]])
+				
+				if ((model=="CL" | model=="RRCL") & !is.null(fit)){
+				  clrange <- clRange(fit, model=model)
+				  if (!is.na(clrange$k1)){
+				    axesList[["K1"]] <- list(p0=2*clrange$k1, p1=-1, style=axesStyles[["K1"]])
+				    } 
+				  if (!is.na(clrange$k2)){
+				    axesList[["K2"]] <- list(p0=2*clrange$k2, p1=-1, style=axesStyles[["K2"]])
+				  }
+				}
+
 				
 				# Define color range: Relative to surface min/max, or relative to box (zlim)?
 				if (pal.range == "box") {
@@ -898,15 +942,39 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			if ("LOIC" %in% axes) {
 				p1 <- p1 + geom_abline(aes(intercept=0, slope=-1), linetype="dotted", size=1, color="grey20")
 			}
-			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
-				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
-			}
-			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
-				p1 <- p1+ geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
+			
+			if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel){
+  			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
+  			}
+  			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
+  			}
 			}
 			
-			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR")) {
-				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
+			if ("E2" %in% axes) {
+			  E20 <- 2*x2/(3*x3)
+			  p1 <- p1 + geom_abline(aes(intercept=E20, slope=1), color="deeppink")
+			}
+			
+			if ("K1" %in% axes) {
+			  k1 <- clRange(fit, model=model)$k1
+			  if (!is.na(k1)){
+			    p1 <- p1 + geom_abline(aes(intercept=2*k1, slope=-1), color="deeppink")
+			  }
+			}
+			
+			if ("K2" %in% axes) {
+			  k2 <- clRange(fit, model=model)$k2
+			  if (!is.na(k2)){
+			    p1 <- p1 + geom_abline(aes(intercept=2*k2, slope=-1), color="deeppink")
+			  }
+			}
+			
+			if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel){
+  			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR") & !is.cubicmodel) {
+  				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
+  			}
 			}
 				
 				
@@ -929,7 +997,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			}
 			
 			# plot CI of SP
-			if (showSP==TRUE & showSP.CI==TRUE & !is.null(fit)) {
+			if (showSP==TRUE & showSP.CI==TRUE & !is.null(fit) & !is.cubicmodel) {
 				PAR <- getPar(fit, "coef", model=model)
 				p1 <- p1 + annotate("errorbar", x=SP$X0, y=SP$Y0, ymin=PAR[PAR$label=="Y0", "ci.lower"], ymax=PAR[PAR$label=="Y0", "ci.upper"], z=max(new2$z), width=.3)
 				p1 <- p1 + annotate("errorbarh", x=SP$X0, y=SP$Y0, xmin=PAR[PAR$label=="X0", "ci.lower"], xmax=PAR[PAR$label=="X0", "ci.upper"], z=max(new2$z), height=.3)
@@ -972,15 +1040,15 @@ plot.RSA <- function(x, ...) {
 	extras$x2 <- as.numeric(ifelse(is.na(C["b3"]), 0, C["b3"]))
 	extras$y2 <- as.numeric(ifelse(is.na(C["b5"]), 0, C["b5"]))
 	extras$xy <- as.numeric(ifelse(is.na(C["b4"]), 0, C["b4"]))
-	extras$w <- as.numeric(ifelse(is.na(C["b6"]), 0, C["b6"]))
-	extras$wx <- as.numeric(ifelse(is.na(C["b7"]), 0, C["b7"]))
-	extras$wy <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
+	extras$w <- as.numeric(ifelse(is.na(C["w1"]), 0, C["w1"]))
+	extras$wx <- as.numeric(ifelse(is.na(C["w2"]), 0, C["w2"]))
+	extras$wy <- as.numeric(ifelse(is.na(C["w3"]), 0, C["w3"]))
 	
 	# cubic parameters
-	extras$x3 <- as.numeric(ifelse(is.na(C["b9"]), 0, C["b9"]))
-	extras$xy2 <- as.numeric(ifelse(is.na(C["b10"]), 0, C["b10"]))
-	extras$x2y <- as.numeric(ifelse(is.na(C["b11"]), 0, C["b11"]))
-	extras$y3 <- as.numeric(ifelse(is.na(C["b12"]), 0, C["b12"]))
+	extras$x3 <- as.numeric(ifelse(is.na(C["b6"]), 0, C["b6"]))
+	extras$x2y <- as.numeric(ifelse(is.na(C["b7"]), 0, C["b7"]))
+	extras$xy2 <- as.numeric(ifelse(is.na(C["b8"]), 0, C["b8"]))
+	extras$y3 <- as.numeric(ifelse(is.na(C["b9"]), 0, C["b9"]))
 	
 	if (is.null(extras[["xlab"]])) {extras[["xlab"]] <- fit$IV1}
 	if (is.null(extras[["ylab"]])) {extras[["ylab"]] <- fit$IV2}

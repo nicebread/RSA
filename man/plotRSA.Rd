@@ -13,14 +13,18 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
   -63, y = 32, z = 15), label.rotation = list(x = 19, y = -40, z = 92),
   gridsize = 21, bw = FALSE, legend = TRUE, param = TRUE,
   coefs = FALSE, axes = c("LOC", "LOIC", "PA1", "PA2"),
-  project = c("contour"), maxlines = FALSE, cex.tickLabel = 1,
-  cex.axesLabel = 1, cex.main = 1, points = list(data = NULL, show = NA,
-  value = "raw", jitter = 0, color = "black", cex = 0.5, out.mark = FALSE),
-  fit = NULL, link = "identity", tck = c(1.5, 1.5, 1.5),
-  distance = c(1.3, 1.3, 1.4), border = FALSE, contour = list(show =
-  FALSE, color = "grey40", highlight = c()), hull = NA, showSP = FALSE,
-  showSP.CI = FALSE, pal = NULL, pal.range = "box", pad = 0,
-  demo = FALSE, ...)
+  axesStyles = list(LOC = list(lty = "solid", lwd = 2, col = ifelse(bw ==
+  TRUE, "black", "blue")), LOIC = list(lty = "solid", lwd = 2, col = ifelse(bw
+  == TRUE, "black", "blue")), PA1 = list(lty = "dotted", lwd = 2, col =
+  ifelse(bw == TRUE, "black", "gray30")), PA2 = list(lty = "dotted", lwd = 2,
+  col = ifelse(bw == TRUE, "black", "gray30"))), project = c("contour"),
+  maxlines = FALSE, cex.tickLabel = 1, cex.axesLabel = 1, cex.main = 1,
+  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color =
+  "black", cex = 0.5, out.mark = FALSE), fit = NULL, link = "identity",
+  tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3, 1.4), border = FALSE,
+  contour = list(show = FALSE, color = "grey40", highlight = c()),
+  hull = NA, showSP = FALSE, showSP.CI = FALSE, pal = NULL,
+  pal.range = "box", pad = 0, demo = FALSE, ...)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}
@@ -94,6 +98,8 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 \item{coefs}{Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)}
 
 \item{axes}{A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis}
+
+\item{axesStyles}{Define the visual styles of the axes LOC, LOIC, PA1, and PA2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.}
 
 \item{project}{A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")}
 

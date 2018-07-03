@@ -9,6 +9,9 @@ print.RSA <- function(x, ..., model="full", digits=3) {
 summary.RSA <- function(object, ..., model="full", digits=3) {
 	x <- object
 	
+	# is the model a cubic model?
+	is.cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
+	
 	# Print model summary, also show package version
 	if(!exists("meta") || is.null(meta)) meta <- packageDescription("RSA")
 	cat(sprintf("RSA output (package version %s)", meta$Version))
@@ -19,7 +22,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		eff <- getPar(x, model=model, standardized=TRUE)
 		eff <- eff[order(eff$label), ]
 		
-		if (!model %in% c("cubic", "absunc", "absdiff")) {
+		if (!model %in% c("absunc", "absdiff") & !is.cubicmodel) {
 			ST <- RSA.ST(x, model=model)
 		} else {
 			ST <- NULL
@@ -31,7 +34,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	# Before conducting the polynomial regression analyses, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrep- ancies in your sample.
 	
 	cat("Are there discrepancies in the predictors (with respect to numerical congruence)?\n----------------------------\n")
-	D <- data[, IV2] - data[, IV1]
+	D <- (data[, IV2] - data[, IV1])/sd(c(data[, IV1], data[, IV2], na.rm=TRUE)) 
 	Congruence <- cut(D, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "Congruence", paste0(IV2, " > ", IV1)))
 	print(round(prop.table(table(Congruence)), 3)*100)
 	
@@ -57,10 +60,10 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	cat(paste0("\n\nNumber of observations: n = ", nobs(x$models[[model]]), "\n----------------------------\n"))
 
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
-	if (model != "cubic") {
+	if (!is.cubicmodel) {
 		coef.sel <- paste0("b", 0:5)
 	} else {
-		coef.sel <- paste0("b", c(0:5, 9:12))
+		coef.sel <- paste0("b", c(0:9))
 	}
 	
 	RC <- eff[eff$label %in% coef.sel, c(1:3, 6:7)]
@@ -72,7 +75,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	
 	
 		
-	if (!model %in% c("onlyx", "onlyy", "cubic")) {
+	if (!model %in% c("onlyx", "onlyy") & !is.cubicmodel) {
 		cat(paste0("\n\n\nSurface tests (a1 to a5) for model <", model, ">\n----------------------------\n"))
 		as <- eff[eff$label %in% paste0("a", 1:5), c(1:3, 6:7)]
 		as[, 2:5] <- round(as[, 2:5], digits)
