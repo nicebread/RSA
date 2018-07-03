@@ -925,19 +925,25 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			if ("LOIC" %in% axes) {
 				p1 <- p1 + geom_abline(aes(intercept=0, slope=-1), linetype="dotted", size=1, color="grey20")
 			}
-			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
-				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
+			
+			if (!model %in% c("absunc", "absdiff")  & !cubicmodel){
+  			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
+  			}
+  			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
+  			}
 			}
-			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
-				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
-			}
+			
 			if ("E2" %in% axes) {
 			  E20 <- 2*x2/(3*x3)
 			  p1 <- p1 + geom_abline(aes(intercept=E20, slope=1), color="deeppink")
 			}
 			
-			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR") & !cubicmodel) {
-				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
+			if (!model %in% c("absunc", "absdiff")  & !cubicmodel){
+  			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR") & !cubicmodel) {
+  				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
+  			}
 			}
 				
 				
