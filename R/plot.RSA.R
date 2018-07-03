@@ -68,11 +68,11 @@
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param demo Do not change that parameter (internal use only)
 #' @param fit Do not change that parameter (internal use only)
-#' @param param Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.
-#' @param coefs Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)
-#' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis
-#' @param axesStyles Define the visual styles of the axes LOC, LOIC, PA1, and PA2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.
-#' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")
+#' @param param Should the surface parameters a1 to a5 be shown on the plot? In case of a 3d plot a1 to a5 are printed on top of the plot; in case of a contour plot the principal axes are plotted. Surface parameters are not printed for cubic surfaces.
+#' @param coefs Should the regression coefficients b1 to b5 (b1 to b9 for cubic models) be shown on the plot? (Only for 3d plot)
+#' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2", "E2", "K1", "K2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis, E2 = second extremum line in the CA or RRCA model, K1, K2 = boundary lines of the regions of significance in the CL or RRCL model.
+#' @param axesStyles Define the visual styles of the axes LOC, LOIC, PA1, PA2, E2, K1, and K2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.
+#' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points", "E2", "K1", "K2")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
 #' @param link Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"
 #' @param suppress.surface Should the surface be suppressed (only for \code{type="3d"})? Useful for only showing the data points, or for didactic purposes (e.g., first show the cube, then fade in the surface).
@@ -849,8 +849,12 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				
 				if ((model=="CL" | model=="RRCL") & !is.null(fit)){
 				  clrange <- clRange(fit, model=model)
-				  axesList[["K1"]] <- list(p0=2*clrange$k1, p1=-1, style=axesStyles[["K1"]]) 
-				  axesList[["K2"]] <- list(p0=2*clrange$k2, p1=-1, style=axesStyles[["K2"]]) 
+				  if (!is.na(clrange$k1)){
+				    axesList[["K1"]] <- list(p0=2*clrange$k1, p1=-1, style=axesStyles[["K1"]])
+				    } 
+				  if (!is.na(clrange$k2)){
+				    axesList[["K2"]] <- list(p0=2*clrange$k2, p1=-1, style=axesStyles[["K2"]])
+				  }
 				}
 
 				
@@ -955,12 +959,16 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			
 			if ("K1" %in% axes) {
 			  k1 <- clRange(fit, model=model)$k1
-			  p1 <- p1 + geom_abline(aes(intercept=2*k1, slope=-1), color="deeppink")
+			  if (!is.na(k1)){
+			    p1 <- p1 + geom_abline(aes(intercept=2*k1, slope=-1), color="deeppink")
+			  }
 			}
 			
 			if ("K2" %in% axes) {
 			  k2 <- clRange(fit, model=model)$k2
-			  p1 <- p1 + geom_abline(aes(intercept=2*k2, slope=-1), color="deeppink")
+			  if (!is.na(k2)){
+			    p1 <- p1 + geom_abline(aes(intercept=2*k2, slope=-1), color="deeppink")
+			  }
 			}
 			
 			if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel){
