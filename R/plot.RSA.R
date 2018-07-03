@@ -191,7 +191,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
     axes <- axes[!axes %in% c("E2")]
     project <- project[!project %in% c("E2")]
   }
-  if ((!model %in% c("CL","RRCL")) | x2 == 0 | x3 == 0) {
+  if ((!model %in% c("CL","RRCL")) | x2 == 0 | x3 == 0 | is.null(fit)) {
     axes <- axes[!axes %in% c("K1", "K2")]
     project <- project[!project %in% c("K1", "K2")]
   }
@@ -847,7 +847,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				
 				axesList[["E2"]] <- list(p0=(2*x2/(3*x3)), p1=1, style=axesStyles[["E2"]])
 				
-				if (model=="CL" | model=="RRCL"){
+				if ((model=="CL" | model=="RRCL") & !is.null(fit)){
 				  clrange <- clRange(fit, model=model)
 				  axesList[["K1"]] <- list(p0=2*clrange$k1, p1=-1, style=axesStyles[["K1"]]) 
 				  axesList[["K2"]] <- list(p0=2*clrange$k2, p1=-1, style=axesStyles[["K2"]]) 

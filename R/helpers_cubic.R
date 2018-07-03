@@ -45,7 +45,7 @@ ci_pred <- function(obj, x, y, side, n, p, alpha, model){
   }
 
 
-# main functionto identify data points behind E2 and test how many of them have outcome predictions that significantly differ from predictions for predictor combinations on E2 (that have the same level)
+# main function to identify data points behind E2 and test how many of them have outcome predictions that significantly differ from predictions for predictor combinations on E2 (that have the same level)
 caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA"){
       
   rsa = object
