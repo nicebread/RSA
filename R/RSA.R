@@ -138,6 +138,14 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	}
 	
 	
+	# temporary workaround to avoid listwise deletion when the data contains missings
+	#
+	# lavaan versions < 0.6.3 will apply listwise deletion (because fixed.x = TRUE in the sem() models) and have no workaround implemented, so they should not be applied.
+	if (any(is.na(df)) & missing=="fiml" & packageVersion("lavaan") < "0.6.3"){stop("Please install the latest version of 'lavaan'!")}
+	#
+	# lavaan versions >= 0.6.3 have the fiml.x workaround
+	if (any(is.na(df)) & missing=="fiml" & packageVersion("lavaan") >= "0.6.3"){missing <- "fiml.x"}
+	
 	
 	IV12 <- paste0(IV1, "2")
 	IV22 <- paste0(IV2, "2")
