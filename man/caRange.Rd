@@ -9,15 +9,17 @@ caRange(object, alpha = 0.05, verbose = TRUE, model = "CA")
 \arguments{
 \item{object}{An RSA object}
 
-\item{alpha}{Alpha level}
+\item{alpha}{Alpha level for the one-sided confidence interval of the outcome predictions on E2}
 
 \item{verbose}{Should extra information be printed?}
 
 \item{model}{Either "CA" or "RRCA"}
 }
 \description{
-Main function to identify data points behind E2 and test how many of them have outcome predictions that significantly differ from predictions for predictor combinations on E2 (that have the same level)
+Identify data points behind E2 and test how many of them have outcome predictions that significantly differ from predictions for predictor combinations on E2 (that have the same level)
 }
 \details{
-TODO
+When testing an asymmetric congruence hypothesis with the CA or RRCA model, the \code{caRange} function helps to determine whether the hypothesis is supported for the whole range of realistic predictor combinations. It computes the position of the second extremum line E2 and tests how many predictor combinations are in the data which lie "behind" this line and, at the same time, have a significantly different outcome prediction than points on E2. 
+
+When plotting the estimated model (CA or RRCA) with \code{\link{plot}}, you can plot the line E2 and the surface above this line by calling "E2" in the options \code{project} and \code{axes}.
 }

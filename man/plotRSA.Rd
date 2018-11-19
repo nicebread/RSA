@@ -5,26 +5,27 @@
 \title{Plots a response surface of a polynomial equation of second degree}
 \usage{
 plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
-  wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0, type = "3d",
-  model = "full", xlim = NULL, ylim = NULL, zlim = NULL, xlab = NULL,
-  ylab = NULL, zlab = NULL, main = "", surface = "predict",
-  lambda = NULL, suppress.surface = FALSE, suppress.box = FALSE,
-  suppress.grid = FALSE, suppress.ticklabels = FALSE, rotation = list(x =
-  -63, y = 32, z = 15), label.rotation = list(x = 19, y = -40, z = 92),
-  gridsize = 21, bw = FALSE, legend = TRUE, param = TRUE,
-  coefs = FALSE, axes = c("LOC", "LOIC", "PA1", "PA2"),
-  axesStyles = list(LOC = list(lty = "solid", lwd = 2, col = ifelse(bw ==
-  TRUE, "black", "blue")), LOIC = list(lty = "solid", lwd = 2, col = ifelse(bw
-  == TRUE, "black", "blue")), PA1 = list(lty = "dotted", lwd = 2, col =
-  ifelse(bw == TRUE, "black", "gray30")), PA2 = list(lty = "dotted", lwd = 2,
-  col = ifelse(bw == TRUE, "black", "gray30"))), project = c("contour"),
-  maxlines = FALSE, cex.tickLabel = 1, cex.axesLabel = 1, cex.main = 1,
-  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color =
-  "black", cex = 0.5, out.mark = FALSE), fit = NULL, link = "identity",
-  tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3, 1.4), border = FALSE,
-  contour = list(show = FALSE, color = "grey40", highlight = c()),
-  hull = NA, showSP = FALSE, showSP.CI = FALSE, pal = NULL,
-  pal.range = "box", pad = 0, demo = FALSE, ...)
+  wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0,
+  type = "3d", model = "full", xlim = NULL, ylim = NULL,
+  zlim = NULL, xlab = NULL, ylab = NULL, zlab = NULL, main = "",
+  surface = "predict", lambda = NULL, suppress.surface = FALSE,
+  suppress.box = FALSE, suppress.grid = FALSE,
+  suppress.ticklabels = FALSE, rotation = list(x = -63, y = 32, z =
+  15), label.rotation = list(x = 19, y = -40, z = 92), gridsize = 21,
+  bw = FALSE, legend = TRUE, param = TRUE, coefs = FALSE,
+  axes = c("LOC", "LOIC", "PA1", "PA2"), axesStyles = list(LOC =
+  list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black", "blue")),
+  LOIC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black",
+  "blue")), PA1 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE,
+  "black", "gray30")), PA2 = list(lty = "dotted", lwd = 2, col = ifelse(bw
+  == TRUE, "black", "gray30"))), project = c("contour"),
+  maxlines = FALSE, cex.tickLabel = 1, cex.axesLabel = 1,
+  cex.main = 1, points = list(data = NULL, show = NA, value = "raw",
+  jitter = 0, color = "black", cex = 0.5, out.mark = FALSE), fit = NULL,
+  link = "identity", tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3,
+  1.4), border = FALSE, contour = list(show = FALSE, color = "grey40",
+  highlight = c()), hull = NA, showSP = FALSE, showSP.CI = FALSE,
+  pal = NULL, pal.range = "box", pad = 0, demo = FALSE, ...)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}
@@ -93,15 +94,15 @@ plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
 
 \item{legend}{Print color legend for z values?}
 
-\item{param}{Should the surface parameters a1 to a4 be shown on the plot? In case of a 3d plot a1 to a4 are printed on top of the plot; in case of a contour plot the principal axes are plotted.}
+\item{param}{Should the surface parameters a1 to a5 be shown on the plot? In case of a 3d plot a1 to a5 are printed on top of the plot; in case of a contour plot the principal axes are plotted. Surface parameters are not printed for cubic surfaces.}
 
-\item{coefs}{Should the regression coefficients b1 to b5 be shown on the plot? (Only for 3d plot)}
+\item{coefs}{Should the regression coefficients b1 to b5 (b1 to b9 for cubic models) be shown on the plot? (Only for 3d plot)}
 
-\item{axes}{A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis}
+\item{axes}{A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2", "E2", "K1", "K2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis, E2 = second extremum line in the CA or RRCA model, K1, K2 = boundary lines of the regions of significance in the CL or RRCL model.}
 
-\item{axesStyles}{Define the visual styles of the axes LOC, LOIC, PA1, and PA2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.}
+\item{axesStyles}{Define the visual styles of the axes LOC, LOIC, PA1, PA2, E2, K1, and K2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.}
 
-\item{project}{A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points")}
+\item{project}{A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points", "E2", "K1", "K2")}
 
 \item{maxlines}{Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"}
 

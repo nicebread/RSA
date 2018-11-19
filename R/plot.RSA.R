@@ -174,6 +174,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the regression coefficients.")
 	}
 	
+	if (length(x) > 1 | length(y) > 1 | length(x2) > 1 | length(xy) > 1 | length(y2) > 1 | length(b0) > 1) {
+		stop("Provide a single number to each regression coefficient")
+	}
+	
   
   # is the model a cubic model?
   is.cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")

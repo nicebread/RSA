@@ -6,11 +6,11 @@
 \alias{demoSRRR}
 \title{Plots a response surface of a polynomial equation of second degree with interactive controls}
 \usage{
-demoRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
-  wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0, type = "3d",
-  zlim = c(-2, 2), xlim = c(-2, 2), ylim = c(-2, 2), xlab = NULL,
-  ylab = NULL, zlab = NULL, points = TRUE, model = "full",
-  project = c("PA1", "PA2"), extended = FALSE, ...)
+demoRSA(x = NULL, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0,
+  wx = 0, wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0,
+  type = "3d", zlim = c(-2, 2), xlim = c(-2, 2), ylim = c(-2, 2),
+  xlab = NULL, ylab = NULL, zlab = NULL, points = TRUE,
+  model = "full", project = c("PA1", "PA2"), extended = FALSE, ...)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}

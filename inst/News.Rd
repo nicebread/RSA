@@ -2,6 +2,28 @@
 \title{News for package 'RSA'}
 \encoding{UTF-8}
 
+
+\section{Version 0.9.13}{
+
+
+\subsection{New features}{
+	\itemize{
+		\item Add some additional security checks for parameters of the plotRSA function.
+	}
+}
+
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item Had to react to a change in \code{lavaan} concerning missing values. If you want FIML estimation, you need lavaan version >= 0.6.3; an error is printed if the version is below that.
+		\item Fixed a bug where the percentage of (in)congruent cases was not printed when missing values were present.
+	}
+}
+
+}
+
+
+
+
 \section{Version 0.9.12}{
 
 
