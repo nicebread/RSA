@@ -29,7 +29,7 @@
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is not implemented yet!
 #' @param estimator Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values. If you want to reproduce standard OLS estimates, use \code{estimator="ML"} and \code{se="standard"}
 #' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).
-#' @param missing Handling of missing values. By default (\code{NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If cases with missing values should be excluded, use \code{missing = "listwise"}.
+#' @param missing Handling of missing values (this parameter is passed to the \code{lavaan} \code{sem} function). By default (\code{missing=NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If cases with missing values should be excluded, use \code{missing = "listwise"}.
 #' @param ... Additional parameters passed to the \code{lavaan} \code{\link{sem}} function.
 #'
 #'
@@ -131,7 +131,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	if (is.na(missing)) {
 		if (any(is.na(df))) {
 			missing <- "fiml"
-			warning("There are missing values in your data set. Model is computed with option `missing = 'fiml'`. This is only valid if the data are missing completely at random (MCAR) or missing at random (MAR)! If you want to exclude NA, use `missing = 'listwise'`", call.=FALSE)
+			warning("There are missing values in your data set. Model is computed with option `missing = 'fiml'`. This is only valid if the data are missing completely at random (MCAR) or missing at random (MAR)! If you want to exclude NAs, use `missing = 'listwise'`", call.=FALSE)
 		} else {
 			missing <- "listwise"
 		}
@@ -141,10 +141,10 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	# temporary workaround to avoid listwise deletion when the data contains missings
 	#
 	# lavaan versions < 0.6.3 will apply listwise deletion (because fixed.x = TRUE in the sem() models) and have no workaround implemented, so they should not be applied.
-	if (any(is.na(df)) & missing=="fiml" & packageVersion("lavaan") < "0.6.3"){stop("Please install the latest version of 'lavaan'!")}
+	if (any(is.na(df)) & missing=="fiml" & packageVersion("lavaan") < "0.6.3") {stop("Please install the latest version of 'lavaan'! lavaan versions < 0.6.3 will apply listwise deletion (because fixed.x = TRUE in the sem() models) and have no workaround implemented, so they should not be applied.")}
 	#
 	# lavaan versions >= 0.6.3 have the fiml.x workaround
-	if (any(is.na(df)) & missing=="fiml" & packageVersion("lavaan") >= "0.6.3"){missing <- "fiml.x"}
+	if (any(is.na(df)) & missing=="fiml" & packageVersion("lavaan") >= "0.6.3") {missing <- "fiml.x"}
 	
 	
 	IV12 <- paste0(IV1, "2")

@@ -34,7 +34,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	# Before conducting the polynomial regression analyses, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrep- ancies in your sample.
 	
 	cat("Are there discrepancies in the predictors (with respect to numerical congruence)?\n----------------------------\n")
-	D <- (data[, IV2] - data[, IV1])/sd(c(data[, IV1], data[, IV2], na.rm=TRUE)) 
+	D <- (data[, IV2] - data[, IV1])/sd(c(data[, IV1], data[, IV2]), na.rm=TRUE)
 	Congruence <- cut(D, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "Congruence", paste0(IV2, " > ", IV1)))
 	print(round(prop.table(table(Congruence)), 3)*100)
 	
