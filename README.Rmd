@@ -1,39 +1,55 @@
+---
+output:
+  md_document:
+    variant: gfm
+---
+
 <!-- README.md is generated from README.Rmd. Please edit that file 
 rmarkdown::render("README.rmd")
 -->
 
-[![Build
-Status](https://travis-ci.org/nicebread/RSA.svg?branch=master)](https://travis-ci.org/nicebread/RSA)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2018--12--13-yellowgreen.svg)](/commits/master)
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
 
-[![packageversion](https://img.shields.io/badge/Package%20version-0.9.13-orange.svg?style=flat-square)](commits/master)
+
+[![Build Status](https://travis-ci.org/nicebread/RSA.svg?branch=master)](https://travis-ci.org/nicebread/RSA)
+[![Last-changedate](https://img.shields.io/badge/last%20change-`r gsub('-', '--', Sys.Date())`-yellowgreen.svg)](/commits/master)
+```{r, echo = FALSE} 
+	version <- as.vector(read.dcf('DESCRIPTION')[, 'Version']) 
+	version <- gsub('-', '.', version)
+``` 
+[![packageversion](https://img.shields.io/badge/Package%20version-`r version`-orange.svg?style=flat-square)](commits/master)
 ![](http://cranlogs.r-pkg.org/badges/RSA)
 
-# RSA
+RSA
+===
 
 An R package for Response Surface Analysis
 
 ## Installation
-
 The stable CRAN version can be installed by:
 
     install.packages("RSA", dependencies=TRUE)
 
-The current development version can be installed
-    by:
+The current development version can be installed by:
 
-    install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "SDMTools", "qgraph", "AICcmodavg"), dependencies=TRUE)
+	install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "SDMTools", "qgraph", "AICcmodavg"), dependencies=TRUE)
     library(devtools)
     install_github("nicebread/RSA")
 
+	
 ## Information
 
-  - An email list for asking questions related to the RSA-package has
-    been created at Google groups:
-    <https://groups.google.com/forum/?fromgroups&hl=en#!forum/rsa-in-r>
+* An email list for asking questions related to the RSA-package has been created at Google groups: https://groups.google.com/forum/?fromgroups&hl=en#!forum/rsa-in-r
+
 
 ## Demo script (with built-in data set)
-
+    
     # if not already done: 
     # install the RSA package
     # (only has to be done once)
@@ -59,7 +75,7 @@ The current development version can be installed
     
     # Compare all models
     compare(r1, plot=TRUE)
-    aictab(r1, plot=TRUE)
+	aictab(r1, plot=TRUE)
     
     # Show all RSA parameters with parametric
     # SEs, p values, and CIs
@@ -77,7 +93,7 @@ The current development version can be installed
     
     # Plot the final model
     plot(r1, model="RR", 
-        xlab="Explicit power motive",
+    	xlab="Explicit power motive",
         ylab="Implicit power motive",
         zlab="Affective valence")
           
