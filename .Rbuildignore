@@ -8,3 +8,5 @@ checks
 .travis.yml
 cran-comments.md
 internal_files
+^README\.Rmd$
+^README-.*\.png$
