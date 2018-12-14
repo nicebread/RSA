@@ -1,26 +1,24 @@
-# Sample .travis.yml for R projects.
-#
-# See README.md for instructions, or for more configuration options,
-# see the wiki:
-# https://github.com/craigcitro/r-travis/wiki
-language: c
+language: r
+sudo: false
+cache: packages
 
-before_install:
-- curl -OL http://raw.github.com/craigcitro/r-travis/master/scripts/travis-tool.sh
-- chmod 755 ./travis-tool.sh
-- ./travis-tool.sh bootstrap
+r_binary_packages:
+ - fields
+ - sdmtools
+ - tkrplot
+ - rgl
+ - qgraph
+r_packages:
+ - aiccmodavg
+ - lavaan
+ - ggplot2
+ - lattice
+r_github_packages:
+ - r-lib/covr
 
-install:
-- ./travis-tool.sh r_binary_install fields sdmtools tkrplot rgl qgraph
-- ./travis-tool.sh r_install aiccmodavg
-- ./travis-tool.sh install_deps
+warnings_are_errors: false
 
-script: ./travis-tool.sh run_tests
-
-after_failure:
-- ./travis-tool.sh dump_logs
-
-notifications:
-    email:
-        on_success: felix@nicebrad.de
-        on_failure: felix@nicebrad.de
+# after_success:
+#   - Rscript -e 'covr::codecov()'
+	
+	
