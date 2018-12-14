@@ -4,7 +4,7 @@
 * Travis-CI / Github: 
 	* oldrel: passed
 	* release: passed
-	* devel: failed, because a dependency was not available on R-devel (tcltk)
+	* devel: failed, because a dependency was not available on R-devel (tcltk). But I think this is rather a problem of Travis.
 
 ## R CMD check results
 There were no ERRORs, WARNINGs, or relevant NOTEs on oldrel and release.
