@@ -14,6 +14,7 @@
 
 \subsection{Bug fixes/Glitches}{
 	\itemize{
+		\item Fixed the \code{demoRSA} function.
 		\item Had to react to a change in \code{lavaan} concerning missing values. If you want FIML estimation, you need lavaan version >= 0.6.3; an error is printed if the version is below that.
 		\item Fixed a bug where the percentage of (in)congruent cases was not printed when missing values were present.
 	}

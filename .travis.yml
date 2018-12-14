@@ -5,6 +5,13 @@ r:
   - devel
 cache: packages
 
+# add tcltk support on Ubuntu
+addons:
+  apt:
+    packages:
+    - tcl8.5-dev
+    - tk8.5-dev
+
 warnings_are_errors: false
 
 # see https://docs.travis-ci.com/user/languages/r/

@@ -75,6 +75,8 @@
 
 ## TODO: Convert to Shiny app
 
+#x=NULL; y=0; x2=0; y2=0; xy=0; w=0; wx=0; wy=0; x3=0; xy2=0; x2y=0; y3=0; b0=0; type="3d"; zlim=c(-2, 2); xlim=c(-2, 2); ylim=c(-2, 2); xlab=NULL; ylab=NULL; zlab=NULL; points = TRUE; model="full"; project=c("PA1", "PA2"); extended=FALSE
+
 demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), ylim=c(-2, 2), xlab=NULL, ylab=NULL, zlab=NULL, points = TRUE, model="full", project=c("PA1", "PA2"), extended=FALSE, ...) {
 
 	type <- match.arg(type, c("interactive", "3d", "contour"))
@@ -82,7 +84,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	if (type2 == "interactive") stop("demoRSA only works with type == '3d' or 'contour'!")
 		
 	if (!requireNamespace("tkrplot", quietly = TRUE)) {
-		stop('`tkrplot` package needed for modeltrees. Please install with install.packages("tkrplot")', call. = FALSE)
+		stop('`tkrplot` package needed for demoRSA. Please install with install.packages("tkrplot")', call. = FALSE)
 	}	
 	
 
@@ -90,7 +92,7 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 	if (is.null(x)) {
 		x <- 0
 		fit <- NULL
-		points <- FALSE
+		points <- list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
 		if (is.null(xlab)) {xlab <- "X"}
 		if (is.null(ylab)) {ylab <- "Y"}
 		if (is.null(zlab)) {zlab <- "Z"}
@@ -149,14 +151,14 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 		}
 	} else {
 		fit <- NULL
-		points <- FALSE
+		points <- list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
 		if (is.null(xlab)) {xlab <- "X"}
 		if (is.null(ylab)) {ylab <- "Y"}
 		if (is.null(zlab)) {zlab <- "Z"}
 	}
 	
 
-    TYPE <- tclVar(); tclvalue(TYPE) <- "full"
+  TYPE <- tclVar(); tclvalue(TYPE) <- "full"
 	
 	B0 <- tclVar(); tclvalue(B0) <- b0
 	X <- tclVar(); tclvalue(X) <- x
@@ -286,26 +288,26 @@ demoRSA <- function(x=NULL, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0,
 			sapply(list(X.lab, Y.lab, X2.lab, Y2.lab, XY.lab, W.lab, WY.lab), tkconfigure, foreground="grey40")
 		}
 
-        tkrreplot(img, hscale=1.5, vscale=1.5)
-    }
+    tkrreplot(img, hscale=1.5, vscale=1.5)
+   }
 
     replot <- function() {
-		# read parameters from sliders
-        type <- as.character(tclvalue(TYPE))
-		b0 <- as.numeric(tclvalue(B0))
-		x <- as.numeric(tclvalue(X))
-		y <- as.numeric(tclvalue(Y))
-		x2 <- as.numeric(tclvalue(X2))
-		y2 <- as.numeric(tclvalue(Y2))
-		xy <- as.numeric(tclvalue(XY))
-		w <- as.numeric(tclvalue(W))
-		wx <- as.numeric(tclvalue(WX))
-		wy <- as.numeric(tclvalue(WY))
-		rx <- as.numeric(tclvalue(RX))
-		ry <- as.numeric(tclvalue(RY))
-		rz <- as.numeric(tclvalue(RZ))
+			# read parameters from sliders
+	    type <- as.character(tclvalue(TYPE))
+			b0 <- as.numeric(tclvalue(B0))
+			x <- as.numeric(tclvalue(X))
+			y <- as.numeric(tclvalue(Y))
+			x2 <- as.numeric(tclvalue(X2))
+			y2 <- as.numeric(tclvalue(Y2))
+			xy <- as.numeric(tclvalue(XY))
+			w <- as.numeric(tclvalue(W))
+			wx <- as.numeric(tclvalue(WX))
+			wy <- as.numeric(tclvalue(WY))
+			rx <- as.numeric(tclvalue(RX))
+			ry <- as.numeric(tclvalue(RY))
+			rz <- as.numeric(tclvalue(RZ))
 		
-		plot(plotRSA(x=x, y=y, x2=x2, y2=y2, xy=xy, w=w, wx=wx, wy=wy, b0=b0, rotation=list(x=rx, y=ry, z=rz), zlim=zlim, xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, zlab=zlab, points=points, demo=TRUE, type=type2, fit=fit, project=project, ...))
+			plot(plotRSA(x=x, y=y, x2=x2, y2=y2, xy=xy, w=w, wx=wx, wy=wy, b0=b0, rotation=list(x=rx, y=ry, z=rz), zlim=zlim, xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, zlab=zlab, points=points, demo=TRUE, type=type2, fit=fit, project=project))
     }
 
 	# define framework
