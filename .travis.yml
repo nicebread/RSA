@@ -1,4 +1,10 @@
 language: r
+r:
+  - oldrel
+  - release
+  - devel
 cache: packages
 
 warnings_are_errors: false
+
+# see https://docs.travis-ci.com/user/languages/r/
