@@ -1,24 +1,4 @@
 language: r
-sudo: true
 cache: packages
 
-r_binary_packages:
- - fields
- - sdmtools
- - tkrplot
- - rgl
- - qgraph
-r_packages:
- - aiccmodavg
- - lavaan
- - ggplot2
- - lattice
-r_github_packages:
- - r-lib/covr
-
 warnings_are_errors: false
-
-# after_success:
-#   - Rscript -e 'covr::codecov()'
-	
-	
