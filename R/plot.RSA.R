@@ -89,6 +89,7 @@
 #' @param pal A palette for shading. You can use \code{\link{colorRampPalette}} to construct a color ramp, e.g. \code{plot(r.m, pal=colorRampPalette(c("darkgreen", "yellow", "darkred"))(20))}. If \code{pal="flip"}, the default palette is used, but reversed (so that red is on top and green on the bottom).
 #' @param pal.range Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.
 #' @param pad Pad controls the margin around the figure (positive numbers: larger margin, negative numbers: smaller margin)
+#' @param claxes.alpha Alpha level that is used to determine the axes K1 and K2 that demarcate the regions of significance for the cubic models "CL" and "RRCL"
 #' @param ... Additional parameters passed to the plotting function (e.g., sub="Title"). A useful title might be the R squared of the plotted model: \code{sub = as.expression(bquote(R^2==.(round(getPar(x, "r2", model="full"), 3))))}
 #'
 #' @references
@@ -163,7 +164,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	contour = list(show=FALSE, color="grey40", highlight = c()),
 	hull=NA, showSP=FALSE, showSP.CI=FALSE, 
 	pal=NULL, pal.range="box", 
-	pad=0, demo=FALSE, ...) {
+	pad=0, claxes.alpha=0.05, demo=FALSE, ...) {
 	
 	
 	# ---------------------------------------------------------------------
@@ -852,7 +853,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				axesList[["E2"]] <- list(p0=(2*x2/(3*x3)), p1=1, style=axesStyles[["E2"]])
 				
 				if ((model=="CL" | model=="RRCL") & !is.null(fit)){
-				  clrange <- clRange(fit, model=model)
+				  clrange <- clRange(fit, model=model, alpha=claxes.alpha)
 				  if (!is.na(clrange$k1)){
 				    axesList[["K1"]] <- list(p0=2*clrange$k1, p1=-1, style=axesStyles[["K1"]])
 				    } 
@@ -962,14 +963,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			}
 			
 			if ("K1" %in% axes) {
-			  k1 <- clRange(fit, model=model)$k1
+			  k1 <- clRange(fit, model=model, alpha=claxes.alpha)$k1
 			  if (!is.na(k1)){
 			    p1 <- p1 + geom_abline(aes(intercept=2*k1, slope=-1), color="deeppink")
 			  }
 			}
 			
 			if ("K2" %in% axes) {
-			  k2 <- clRange(fit, model=model)$k2
+			  k2 <- clRange(fit, model=model, alpha=claxes.alpha)$k2
 			  if (!is.na(k2)){
 			    p1 <- p1 + geom_abline(aes(intercept=2*k2, slope=-1), color="deeppink")
 			  }
