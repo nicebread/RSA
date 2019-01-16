@@ -381,9 +381,9 @@ clRange <- function(object, alpha=0.05, verbose=TRUE, model="CL"){
   # = roots of the quadratic function ak^2 + bk + c, with a, b, c computed as follows
   z = qnorm(1-alpha/2)
   
-  a = 64*c3^2 - 64*COV0["b6","b6"]*z^2
-  b = 64*c1*c3 - 64*COV0["b3","b6"]*z^2
-  c = 16*c1^2 - 16*COV0["b3","b3"]*z^2
+  a = 4*c3^2 - 4*COV0["b6","b6"]*z^2
+  b = 4*c1*c3 - 4*COV0["b3","b6"]*z^2
+  c = c1^2 - COV0["b3","b3"]*z^2
   
   roots = quad_roots(a,b,c)
  
