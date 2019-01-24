@@ -65,8 +65,9 @@ ci_pred <- function(obj, x, y, side, n, p, alpha, model){
 #' @param alpha Alpha level for the one-sided confidence interval of the outcome predictions on E2
 #' @param verbose Should extra information be printed?
 #' @param model Either "CA" or "RRCA"
+#' @param alphacorrection Set "Bonferroni" to adjust the alpha level for multiple testing when testing the outcome predictions of all data points behind E2
 
-caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA"){
+caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA", alphacorrection="none"){
       
   rsa = object
   
@@ -143,6 +144,9 @@ caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA"){
   # The results would be exactly the same as with the procedure defined for the CA model in the following.
   # Despite these redundancies, we strictly follow the descriptions in the manuscript here.
   
+  # if requested, apply a Bonferroni correction to the alpha level (number of tests = number of data points behind E2)
+  if(alphacorrection=="Bonferroni"){alpha <- alpha/behind}
+
   if(model == "CA"){
     
     ## compute the confidence interval of the model prediction zr at the intersection point of E2 and the LOIC
@@ -172,6 +176,7 @@ caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA"){
     # build results object for case of CA model
     res <- list(
       data.used = df,
+      behind = behind,
       percentage.behind = p.behind,
       reversion_point_xy = paste0("(",round(xr,2),", ",round(yr,2), ")"),
       reversion_point_z = round(zr,2),
@@ -181,6 +186,7 @@ caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA"){
       which_bad_points = which(df$badcase==TRUE),
       how_many_bad_points = bad,
       percentage_bad_points = p.bad,
+      alpha.used = alpha,
       response = response
       )
     
@@ -223,11 +229,13 @@ caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA"){
     
     # build results object for case of CA model
     res <- list(
-      # data.used = df,
+      data.used = df,
+      behind = behind,
       percentage.behind = p.behind,
       which_bad_points = which(df$badcase==TRUE),
       how_many_bad_points = bad,
       percentage_bad_points = p.bad,
+      alpha.used = alpha,
       response = response
     )
 
