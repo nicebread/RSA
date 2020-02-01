@@ -58,6 +58,21 @@ anovaList <- function(modellist) {
     DF <- sapply(mods, fitmeasures, "df")
     mods <- mods[order(DF, decreasing = FALSE)]
 		
+    
+  # prevent lavaan error in case that some models (but not all) have scaled test statistics
+    
+    # detect such cases (condition copy-pasted from lav_test_LRT.R in lavaan)
+    mods.scaled <- unlist( lapply(mods, function(x) {
+      any(c("satorra.bentler", "yuan.bentler", "yuan.bentler.mplus", "mean.var.adjusted", "scaled.shifted") 
+          %in% unlist(sapply(slot(x, "test"), "[", "test")) ) }))
+    
+    # for the model without scaled test statistics (which is the model with df=0), overwrite second slot in @test to prevent lavaan error 
+    # [lavTestLRT() will then provide the scaled test statistic of the respective other model, which is adequate in this case]
+    if( ! ( all(mods.scaled) | !any(mods.scaled) ) ) {
+      mods[[ which(sapply(mods, fitmeasures, "df") == 0) ]]@test[[2]]$test <- mods[[ which(mods.scaled)[1] ]]@test[[2]]$test
+    } 
+
+    
 	pStr <- sapply(1:length(mods), function(x){ 
 		if(x==1) {
 			paste("mods[[",x,"]]",sep = "")
@@ -102,7 +117,7 @@ cModels <- function(mL, set, free.max) {
 			names(R2.p) <- "R2.p"
 			
 			# compute AICc
-	      	AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
+	    AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
 			names(AICc) <- NULL
 			
 			return(c(AICc=AICc, F[c("cfi", "srmr")], R, R2.p))
