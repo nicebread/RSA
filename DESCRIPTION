@@ -19,7 +19,6 @@ Description: Advanced response surface analysis. The main function RSA computes
     and confidence intervals for them.
 Suggests:
     fields,
-    SDMTools,
     rgl,
     qgraph,
     AICcmodavg,
