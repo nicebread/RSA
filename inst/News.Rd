@@ -3,6 +3,27 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.9.14}{
+
+
+\subsection{New features}{
+	\itemize{
+		\item Started to implement unit testing with covr.
+		
+	}
+}
+
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item Had to react to a change in \code{lavaan} concerning model comparisons. TODO DESCRIBE.
+	}
+}
+
+}
+
+
+
+
 \section{Version 0.9.13}{
 
 

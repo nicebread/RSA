@@ -5,6 +5,7 @@ output:
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file 
+library(badger)
 rmarkdown::render("README.rmd")
 -->
 
@@ -23,8 +24,12 @@ knitr::opts_chunk$set(
 	version <- as.vector(read.dcf('DESCRIPTION')[, 'Version']) 
 	version <- gsub('-', '.', version)
 ``` 
+
+[![](https://www.r-pkg.org/badges/version/RSA?color=orange)](https://cran.r-project.org/package=RSA)
+
 [![packageversion](https://img.shields.io/badge/Package%20version-`r version`-orange.svg?style=flat-square)](commits/master)
 ![](http://cranlogs.r-pkg.org/badges/RSA)
+
 
 RSA
 ===

@@ -14,4 +14,7 @@ addons:
 
 warnings_are_errors: false
 
+after_success:
+  - Rscript -e 'covr::codecov()'
+
 # see https://docs.travis-ci.com/user/languages/r/
