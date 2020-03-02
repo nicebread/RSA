@@ -11,8 +11,8 @@ addons:
     packages:
     - tcl8.6
     - tk8.6
-		- libglu1-mesa-dev
-		- mesa-common-dev
+    - libglu1-mesa-dev
+    - mesa-common-dev
 
 # for the tcltk package, we need some special treatment (as the Travis environment has no display)
 # see https://stackoverflow.com/a/55674747 or https://benlimmer.com/2019/01/14/travis-ci-xvfb/
