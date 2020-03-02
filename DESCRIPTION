@@ -21,7 +21,6 @@ Suggests:
     fields,
     rgl,
     qgraph,
-    AICcmodavg,
     tcltk,
 		testthat,
 		covr
