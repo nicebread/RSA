@@ -5,19 +5,19 @@ r:
 #  - devel
 cache: packages
 
-# add tcltk support on Ubuntu
+# add tcltk support on Ubuntu; add necessary packages for rgl package.
 addons:
   apt:
     packages:
     - tcl8.6
     - tk8.6
+		- libglu1-mesa-dev
+		- mesa-common-dev
 
 # for the tcltk package, we need some special treatment (as the Travis environment has no display)
-# see https://stackoverflow.com/a/55674747
+# see https://stackoverflow.com/a/55674747 or https://benlimmer.com/2019/01/14/travis-ci-xvfb/
 services:
   - xvfb
-before_install:
- - export DISPLAY=:99.0
 
 warnings_are_errors: false
 
