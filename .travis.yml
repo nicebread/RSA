@@ -9,8 +9,8 @@ cache: packages
 addons:
   apt:
     packages:
-    - tcl8.5-dev
-    - tk8.5-dev
+    - tcl8.6
+    - tk8.6
 
 warnings_are_errors: false
 
