@@ -4,8 +4,17 @@
 \alias{movieRSA}
 \title{Create a movie of plotRSA plots, with changing surface and/or rotation}
 \usage{
-movieRSA(name, frames, dur = 2000, fps = 30, width = 800,
-  height = 600, mirror = TRUE, savetodisk = TRUE, clean = TRUE)
+movieRSA(
+  name,
+  frames,
+  dur = 2000,
+  fps = 30,
+  width = 800,
+  height = 600,
+  mirror = TRUE,
+  savetodisk = TRUE,
+  clean = TRUE
+)
 }
 \arguments{
 \item{name}{Name for the subfolder containing all still pictures, and for the final movie file.}

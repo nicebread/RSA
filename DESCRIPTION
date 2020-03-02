@@ -35,6 +35,7 @@ Imports:
     plyr,
     RColorBrewer,
     aplpack,
-		tkrplot
+		tkrplot,
+		methods
 License: GPL (>= 2)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.0

@@ -5,8 +5,16 @@
 \alias{confint}
 \title{Computes confidence intervals for RSA parameters, standard or bootstrapped}
 \usage{
-\method{confint}{RSA}(object, parm, level = 0.95, ..., model = "full",
-  digits = 3, method = "standard", R = 5000)
+\method{confint}{RSA}(
+  object,
+  parm,
+  level = 0.95,
+  ...,
+  model = "full",
+  digits = 3,
+  method = "standard",
+  R = 5000
+)
 }
 \arguments{
 \item{object}{An RSA object}

@@ -4,7 +4,13 @@
 \alias{caRange}
 \title{Range check for the CA/RRCA model}
 \usage{
-caRange(object, alpha = 0.05, verbose = TRUE, model = "CA")
+caRange(
+  object,
+  alpha = 0.05,
+  verbose = TRUE,
+  model = "CA",
+  alphacorrection = "none"
+)
 }
 \arguments{
 \item{object}{An RSA object}
@@ -14,6 +20,8 @@ caRange(object, alpha = 0.05, verbose = TRUE, model = "CA")
 \item{verbose}{Should extra information be printed?}
 
 \item{model}{Either "CA" or "RRCA"}
+
+\item{alphacorrection}{Set "Bonferroni" to adjust the alpha level for multiple testing when testing the outcome predictions of all data points behind E2}
 }
 \description{
 Identify data points behind E2 and test how many of them have outcome predictions that significantly differ from predictions for predictor combinations on E2 (that have the same level)

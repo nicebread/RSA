@@ -4,28 +4,71 @@
 \alias{plotRSA}
 \title{Plots a response surface of a polynomial equation of second degree}
 \usage{
-plotRSA(x = 0, y = 0, x2 = 0, y2 = 0, xy = 0, w = 0, wx = 0,
-  wy = 0, x3 = 0, xy2 = 0, x2y = 0, y3 = 0, b0 = 0,
-  type = "3d", model = "full", xlim = NULL, ylim = NULL,
-  zlim = NULL, xlab = NULL, ylab = NULL, zlab = NULL, main = "",
-  surface = "predict", lambda = NULL, suppress.surface = FALSE,
-  suppress.box = FALSE, suppress.grid = FALSE,
-  suppress.ticklabels = FALSE, rotation = list(x = -63, y = 32, z =
-  15), label.rotation = list(x = 19, y = -40, z = 92), gridsize = 21,
-  bw = FALSE, legend = TRUE, param = TRUE, coefs = FALSE,
-  axes = c("LOC", "LOIC", "PA1", "PA2"), axesStyles = list(LOC =
-  list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black", "blue")),
-  LOIC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black",
-  "blue")), PA1 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE,
-  "black", "gray30")), PA2 = list(lty = "dotted", lwd = 2, col = ifelse(bw
-  == TRUE, "black", "gray30"))), project = c("contour"),
-  maxlines = FALSE, cex.tickLabel = 1, cex.axesLabel = 1,
-  cex.main = 1, points = list(data = NULL, show = NA, value = "raw",
-  jitter = 0, color = "black", cex = 0.5, out.mark = FALSE), fit = NULL,
-  link = "identity", tck = c(1.5, 1.5, 1.5), distance = c(1.3, 1.3,
-  1.4), border = FALSE, contour = list(show = FALSE, color = "grey40",
-  highlight = c()), hull = NA, showSP = FALSE, showSP.CI = FALSE,
-  pal = NULL, pal.range = "box", pad = 0, demo = FALSE, ...)
+plotRSA(
+  x = 0,
+  y = 0,
+  x2 = 0,
+  y2 = 0,
+  xy = 0,
+  w = 0,
+  wx = 0,
+  wy = 0,
+  x3 = 0,
+  xy2 = 0,
+  x2y = 0,
+  y3 = 0,
+  b0 = 0,
+  type = "3d",
+  model = "full",
+  xlim = NULL,
+  ylim = NULL,
+  zlim = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  zlab = NULL,
+  main = "",
+  surface = "predict",
+  lambda = NULL,
+  suppress.surface = FALSE,
+  suppress.box = FALSE,
+  suppress.grid = FALSE,
+  suppress.ticklabels = FALSE,
+  rotation = list(x = -63, y = 32, z = 15),
+  label.rotation = list(x = 19, y = -40, z = 92),
+  gridsize = 21,
+  bw = FALSE,
+  legend = TRUE,
+  param = TRUE,
+  coefs = FALSE,
+  axes = c("LOC", "LOIC", "PA1", "PA2"),
+  axesStyles = list(LOC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "blue")), LOIC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "blue")), PA1 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "gray30")), PA2 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "gray30"))),
+  project = c("contour"),
+  maxlines = FALSE,
+  cex.tickLabel = 1,
+  cex.axesLabel = 1,
+  cex.main = 1,
+  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color = "black", cex
+    = 0.5, out.mark = FALSE),
+  fit = NULL,
+  link = "identity",
+  tck = c(1.5, 1.5, 1.5),
+  distance = c(1.3, 1.3, 1.4),
+  border = FALSE,
+  contour = list(show = FALSE, color = "grey40", highlight = c()),
+  hull = NA,
+  showSP = FALSE,
+  showSP.CI = FALSE,
+  pal = NULL,
+  pal.range = "box",
+  pad = 0,
+  claxes.alpha = 0.05,
+  demo = FALSE,
+  ...
+)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}
@@ -153,6 +196,8 @@ As a shortcut, you can also set \code{points=TRUE} to set the defaults.}
 \item{pal.range}{Should the color range be scaled to the box (\code{pal.range = "box"}, default), or to the min and max of the surface (\code{pal.range = "surface"})? If set to "box", different surface plots can be compared along their color, as long as the zlim is the same for both.}
 
 \item{pad}{Pad controls the margin around the figure (positive numbers: larger margin, negative numbers: smaller margin)}
+
+\item{claxes.alpha}{Alpha level that is used to determine the axes K1 and K2 that demarcate the regions of significance for the cubic models "CL" and "RRCL"}
 
 \item{demo}{Do not change that parameter (internal use only)}
 

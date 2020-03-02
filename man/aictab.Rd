@@ -4,9 +4,13 @@
 \alias{aictab}
 \title{Show a table of AIC model comparisons}
 \usage{
-aictab(x, plot = FALSE, bw = FALSE,
-  models = names(x$models)[!names(x$models) \%in\% c("absdiff",
-  "absunc")], digits = NA)
+aictab(
+  x,
+  plot = FALSE,
+  bw = FALSE,
+  models = names(x$models)[!names(x$models) \%in\% c("absdiff", "absunc")],
+  digits = NA
+)
 }
 \arguments{
 \item{x}{An RSA object}

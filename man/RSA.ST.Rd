@@ -4,8 +4,18 @@
 \alias{RSA.ST}
 \title{Surface tests}
 \usage{
-RSA.ST(x = 0, y = 0, x2 = 0, xy = 0, y2 = 0, b0 = 0,
-  SE = NULL, COV = NULL, df = NULL, model = "full")
+RSA.ST(
+  x = 0,
+  y = 0,
+  x2 = 0,
+  xy = 0,
+  y2 = 0,
+  b0 = 0,
+  SE = NULL,
+  COV = NULL,
+  df = NULL,
+  model = "full"
+)
 }
 \arguments{
 \item{x}{Either an RSA object (returned by the \code{RSA} function), or the coefficient for the X predictor}

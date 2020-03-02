@@ -4,11 +4,24 @@
 \alias{RSA}
 \title{Performs several RSA model tests on a data set with two predictors}
 \usage{
-RSA(formula, data = NULL, center = FALSE, scale = FALSE,
-  na.rm = FALSE, out.rm = TRUE, breakline = FALSE,
-  models = "default", cubic = FALSE, verbose = TRUE, add = "",
-  estimator = "MLR", se = "robust", missing = NA, ...,
-  control.variables = c())
+RSA(
+  formula,
+  data = NULL,
+  center = FALSE,
+  scale = FALSE,
+  na.rm = FALSE,
+  out.rm = TRUE,
+  breakline = FALSE,
+  models = "default",
+  cubic = FALSE,
+  verbose = TRUE,
+  add = "",
+  estimator = "MLR",
+  se = "robust",
+  missing = NA,
+  ...,
+  control.variables = c()
+)
 }
 \arguments{
 \item{formula}{A formula in the form \code{z ~ x*y}, specifying the variable names used from the data frame, where z is the name of the response variable, and x and y are the names of the predictor variables.}
