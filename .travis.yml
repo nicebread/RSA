@@ -12,6 +12,10 @@ addons:
     - tcl8.6
     - tk8.6
 
+before_install:
+ - export DISPLAY=:99.0
+ - sh -e /etc/init.d/xvfb start
+
 warnings_are_errors: false
 
 after_success:
