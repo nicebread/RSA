@@ -66,8 +66,7 @@ anovaList <- function(modellist) {
       any(c("satorra.bentler", "yuan.bentler", "yuan.bentler.mplus", "mean.var.adjusted", "scaled.shifted") 
           %in% unlist(sapply(slot(x, "test"), "[", "test")) ) }))
     
-    # for the model without scaled test statistics (which is the model with df=0), overwrite second slot in @test to prevent lavaan error 
-    # [lavTestLRT() will then provide the scaled test statistic of the respective other model, which is adequate in this case]
+    # change internal label
     if( ! ( all(mods.scaled) | !any(mods.scaled) ) ) {
       mods[[ which(sapply(mods, fitmeasures, "df") == 0) ]]@test[[2]]$test <- mods[[ which(mods.scaled)[1] ]]@test[[2]]$test
     } 

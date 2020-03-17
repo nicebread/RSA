@@ -9,13 +9,14 @@
 \subsection{New features}{
 	\itemize{
 		\item Started to implement unit testing with covr.
+		\item 
 		
 	}
 }
 
 \subsection{Bug fixes/Glitches}{
 	\itemize{
-		\item Had to react to a change in \code{lavaan} concerning model comparisons. TODO DESCRIBE.
+		\item Had to react to a change in \code{lavaan} concerning model comparisons. In case that the models were estimated with robust ML and one of the models had df=0 (i.e., the full second-/third-order polynomial model), \code{lavaan::lavTestLRT} would not allow to compare the (df=0)-model to a nested model because no scaled test statistic had been computed for the (df=0)-model in this case. In the released version, the internal label of the test statistic of the (df=0)-model is overwritten so that the chi-square difference test will be computed anyway. This is valid because the model with zero degrees of freedom has a chi-square test statistic of T=0. The output of the comparison will be the scaled test statistic of the nested model, which is the correct statistic for the scaled chi-square difference test in this case. Note that lavaan versions older than 0.6-3 (i.e., before 09/2018) have provided the standard chi-square instead of the scaled chi-square test statistic of the nested model in such a situation. Results that were obtained with lavaan version <= 0.6-2 can be reproduced by setting \code{estimator="ML"} in \code{RSA()}. 
 	}
 }
 
