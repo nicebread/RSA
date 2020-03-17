@@ -9,8 +9,8 @@
 \subsection{New features}{
 	\itemize{
 		\item Started to implement unit testing with covr.
-		\item 
-		
+		\item New option \code{claxes.alpha} in \code{plot()}. When plotting one of the cubic models \code{"CL"} or \code{"RRCL"} with the axes \code{K1} and \code{K2}, this new option can be used to change the alpha level for which the regions of significance (i.e., the positions of the lines K1 and K2 that demarcate these regions) are computed.
+		\item New option \code{alphacorrection} in \code{caRange()}. Enables Bonferroni-correction when testing the outcome predictions of all data points behind the line \code{E2} for the cubic models \code{"CA"} and \code{"RRCA"}.
 	}
 }
 
