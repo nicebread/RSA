@@ -114,15 +114,15 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 
 evidenceRatio <- function(Delta.AICc) {1/exp(-0.5*Delta.AICc)}
 
-# from: http://byrneslab.net/classes/lavaan_materials/lavaan.modavg.R
+# adapted from: http://byrneslab.net/classes/lavaan_materials/lavaan.modavg.R
 AICc.lavaan<-function(object, second.ord=TRUE, c.hat = 1, return.K = FALSE){
 	object <- as.list(fitMeasures(object))
-	npar<-object$baseline.df - object$df
+	npar <- object$baseline.df - object$df + 2 
 	if(return.K == TRUE) return(object$npar)
 	if(second.ord == FALSE && c.hat>1) return(-2*object$logl/c.hat+2*npar)
-	if(second.ord == FALSE) return(object$aic)
+	if(second.ord == FALSE) return(-2*object$logl + 2*npar)
     if(c.hat>1) return( -2*object$logl/c.hat+2*npar + 2*( npar*(object$npar+1))/(object$ntotal-npar-1))
-    object$aic + 2*( npar*(npar+1))/(object$ntotal-npar-1)
+	  -2*object$logl + 2*npar + 2*( npar*(npar+1))/(object$ntotal-npar-1)
 }
     
 aictab.lavaan<-function(cand.set, modnames, sort = TRUE, c.hat = 1, second.ord = TRUE, nobs = NULL){

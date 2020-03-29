@@ -105,7 +105,7 @@ cModels <- function(mL, set, free.max) {
 			R <- inspect(X, "r2")
 			names(R) <- "R2"
 			n <- lavaan::nobs(X)
-			k <- free.max - F["df"]		
+			k <- free.max - F["df"]	+ 2	
 			
 			suppressWarnings({		
 				R2.p <- ifelse(k==0,
@@ -116,7 +116,7 @@ cModels <- function(mL, set, free.max) {
 			names(R2.p) <- "R2.p"
 			
 			# compute AICc
-	    AICc <- F["aic"] + 2*(k*(k+1))/(n-k-1)
+	    AICc <- -2*F["logl"] + 2*k + 2*(k*(k+1))/(n-k-1)
 			names(AICc) <- NULL
 			
 			return(c(AICc=AICc, F[c("cfi", "srmr")], R, R2.p))
