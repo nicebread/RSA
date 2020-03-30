@@ -82,7 +82,7 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	se = "robust", missing=NA, ..., control.variables=c()) {
 
 
-	if (length(control.variables) > 0) stop("Control.variables feature not implemented yet!")
+	# if (length(control.variables) > 0) stop("Control.variables feature not implemented yet!")
 
 	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong", "cubic", "CA", "CL", "RRCA", "RRCL")
 	
