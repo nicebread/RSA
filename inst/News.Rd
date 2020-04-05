@@ -11,12 +11,22 @@
 		\item Started to implement unit testing with covr.
 		\item New option \code{claxes.alpha} in \code{plot()}. When plotting one of the cubic models \code{"CL"} or \code{"RRCL"} with the axes \code{K1} and \code{K2}, this new option can be used to change the alpha level for which the regions of significance (i.e., the positions of the lines K1 and K2 that demarcate these regions) are computed.
 		\item New option \code{alphacorrection} in \code{caRange()}. Enables Bonferroni-correction when testing the outcome predictions of all data points behind the line \code{E2} for the cubic models \code{"CA"} and \code{"RRCA"}.
+		
+		
+		\item [TODO: describe] control variables allowed
+		\item [TODO] when control variables are included, summary will provide overall R^2 of the model (which includes variance that is explained by the control variables) and increment of R^2 as compared to the intercept + control variables baseline model; the latter R^2 will typically be of interest because it refers to the amount of variance explained by the two predictors in the RSA model
+	
 	}
 }
 
 \subsection{Bug fixes/Glitches}{
 	\itemize{
 		\item Had to react to a change in \code{lavaan} concerning model comparisons. In case that the models were estimated with robust ML and one of the models had df=0 (i.e., the full second-/third-order polynomial model), \code{lavaan::lavTestLRT} would not allow to compare the (df=0)-model to a nested model because no scaled test statistic had been computed for the (df=0)-model in this case. In the released version, the internal label of the test statistic of the (df=0)-model is overwritten so that the chi-square difference test will be computed anyway. This is valid because the model with zero degrees of freedom has a chi-square test statistic of T=0. The output of the comparison will be the scaled test statistic of the nested model, which is the correct statistic for the scaled chi-square difference test in this case. Note that lavaan versions older than 0.6-3 (i.e., before 09/2018) have provided the standard chi-square instead of the scaled chi-square test statistic of the nested model in such a situation. Results that were obtained with lavaan version <= 0.6-2 can be reproduced by setting \code{estimator="ML"} in \code{RSA()}. 
+		\item The \code{print} function for RSA objects now defaults to a sensible model if no specific model is provided.
+		
+		\item [TODO: describe in more detail] in aictab and compare2, fix formula for second-order correction term of AICc -> AICc results might slightly change
+		\item [TODO: describe in more detail] in summary, print R^2 of the sem-estimated model instead of lm-estimated model (because the latter uses listwise deletion) -> the former output can be extracted with $LM
+		
 	}
 }
 

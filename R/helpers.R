@@ -105,7 +105,7 @@ cModels <- function(mL, set, free.max) {
 			R <- inspect(X, "r2")
 			names(R) <- "R2"
 			n <- lavaan::nobs(X)
-			k <- free.max - F["df"]	+ 2	
+			k <- free.max - F["df"]
 			
 			suppressWarnings({		
 				R2.p <- ifelse(k==0,
@@ -116,7 +116,8 @@ cModels <- function(mL, set, free.max) {
 			names(R2.p) <- "R2.p"
 			
 			# compute AICc
-	    AICc <- -2*F["logl"] + 2*k + 2*(k*(k+1))/(n-k-1)
+			K <- k + 2
+	    AICc <- -2*F["logl"] + 2*K + 2*(K*(K+1))/(n-K-1)
 			names(AICc) <- NULL
 			
 			return(c(AICc=AICc, F[c("cfi", "srmr")], R, R2.p))
@@ -129,6 +130,47 @@ cModels <- function(mL, set, free.max) {
 		a1$set <- set
 		return(a1)
 	}
+}
+
+
+# internal helper function: F-test to compare R^2 difference between two nested models
+# x = output object of RSA()
+# unrestricted = name of unrestricted model (model with more estimated parameters)
+# restricted = name of restricted model (less estimated parameters); with default setting "interceptonly", the function will return R^2 and respective pvalue of the unrestricted model
+R2difftest <- function(x, unrestricted="", restricted="interceptonly"){
+  
+  n <- lavaan::nobs(x$models[[unrestricted]])
+  free.max <- getFreeParameters(x$models[[unrestricted]])
+  
+  Fu <- fitmeasures(x$models[[unrestricted]])
+  Ru <- inspect(x$models[[unrestricted]], "r2")
+  ku <- free.max - Fu["df"]
+  
+  if ( restricted=="interceptonly" ){
+    Rr <- 0
+    kr <- 0
+  } else {
+    Fr <- fitmeasures(x$models[[restricted]])
+    Rr <- inspect(x$models[[restricted]], "r2")
+    kr <- free.max - Fr["df"]
+  }
+  
+  suppressWarnings({		
+    R2.p <- ifelse(ku==kr,
+                   NA,
+                   pf( ( ( n - ku - 1 ) * ( Ru - Rr ) ) / ( (ku-kr) * (1 - Ru ) ), ku-kr, n-ku-1, lower.tail=FALSE)
+    )
+  })
+  
+  delta.R2 <- Ru-Rr
+  names(delta.R2) <- "R2"
+  names(R2.p) <- "R2.p"
+  
+  return(list(
+    delta.R2=delta.R2,
+    R2.p=R2.p
+  ))
+  
 }
 
 

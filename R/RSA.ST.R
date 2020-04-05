@@ -15,7 +15,7 @@
 #' @param b0 The intercept
 #' @param SE In case that the coefficients are provided directly (as parameters x, y, x2, y2, xy), SE can provide the standard errors of these estimates. SE has to be a named vector with exactly five elements with the names of the coefficients, e.g.: \code{SE=c(x=.1, y=.2, x2=.1, y2=.5, xy=.3)}. SEs of all parameters have to provided, otherwise the function will print an error. In case standard errors \emph{and} the covariances (see below) \emph{and} df (see below) are provided, parametric confidence intervals for a1 to a4 are calculated.
 #' @param COV Covariances between parameters. COV has to be a named vector with exactly four elements with the names of four specific covariances, e.g.: \code{COV=c(x_y=.1, x2_y2 = .2, x2_xy = .3, y2_xy = .4)}, where x_y is the covariance between x and y, and so on. All these covariances have to provided with exactly these names, otherwise the function will print an error.
-#' @param df Degrees of freedom for the calculation of a1 to a4 confidence intervals. The df are the residual dfs of the model (df = n - estimated parameters). For the full polynomial model, this is n - 6 in a regular regression (the following parameters are estimated: Intercept, x, y, xy, x2, y2). \code{df} should be a single number.
+#' @param df Degrees of freedom for the calculation of a1 to a4 confidence intervals. The df are the residual dfs of the model (df = n - estimated parameters). For the full second-order polynomial model, this is 'n - 6 - number of control variables' in a regular regression (the following parameters are estimated: Intercept, x, y, x2, xy, y2, all control variables). \code{df} should be a single number.
 #' @param model If x is an RSA object, this parameter specifies the model from which to extract the coefficients
 
 #' @return
@@ -93,8 +93,9 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 			x <- as.numeric(ifelse(is.na(C["b1"]), 0, C["b1"]))
 			y <- as.numeric(ifelse(is.na(C["b2"]), 0, C["b2"]))
 			x2 <- as.numeric(ifelse(is.na(C["b3"]), 0, C["b3"]))
-			y2 <- as.numeric(ifelse(is.na(C["b5"]), 0, C["b5"]))
 			xy <- as.numeric(ifelse(is.na(C["b4"]), 0, C["b4"]))
+			y2 <- as.numeric(ifelse(is.na(C["b5"]), 0, C["b5"]))
+			
 			if (fit$models[[model]]@Options$estimator != "DWLS") {
 				SE <- inspect(fit$models[[model]], "se")$beta[fit$DV, -1]
 			} else {

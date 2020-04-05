@@ -1,13 +1,29 @@
 #' @export
 #' @method print RSA
-print.RSA <- function(x, ..., model="full", digits=3) {
+print.RSA <- function(x, ..., model=NULL, digits=3) {
 	summary.RSA(object=x, ..., model=model, digits=digits)
 }
 
 #' @export
 #' @method summary RSA
-summary.RSA <- function(object, ..., model="full", digits=3) {
+summary.RSA <- function(object, ..., model=NULL, digits=3) {
 	x <- object
+	
+	# No model provided? Default to the respective global model
+	if (is.null(model)) {
+	  
+	  # get all model names that have been computed
+	  available.models <- names(x$models)[!sapply(x$models, is.null)]
+	  
+	  if ("cubic" %in% available.models) {
+	    model <- "cubic"
+	  } else if ("full" %in% available.models) {
+	    model <- "full"
+	  } 
+	  
+	   message(paste0("No model has been specified - showing results for the full ", ifelse(model=="cubic", "third-order", "second-order")," polynomial model (<", model, ">)."))
+	   
+	}
 	
 	# is the model a cubic model?
 	is.cubicmodel <- model %in% c("cubic","CA","RRCA","CL","RRCL")
@@ -31,7 +47,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 		
 	## Step 1: Examine amount of discrepancy
 	#--------------------------------------------------
-	# Before conducting the polynomial regression analyses, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrep- ancies in your sample.
+	# When using polynomial regression analyses for the investigation of congruence effects, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrep- ancies in your sample.
 	
 	cat("Are there discrepancies in the predictors (with respect to numerical congruence)?\n----------------------------\n")
 	D <- (data[, IV2] - data[, IV1])/sd(c(data[, IV1], data[, IV2]), na.rm=TRUE)
@@ -39,32 +55,40 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	print(round(prop.table(table(Congruence)), 3)*100)
 	
 	
-	cat("\nIs the full polynomial model significant?\n----------------------------\n")
-	# --> is R2 significant?
-	r2.model <- LM$r.squared
+	cat(paste0("\nIs the corresponding global model (full ", ifelse(is.cubicmodel, "third-order", "second-order")," polynomial model) significant?\n----------------------------\n"))
 	
-	F <- LM$fstatistic
-	p.model <- 1-pf(F[1], F[2], F[3])
-	cat(paste0("Test on model significance: R^2 = ", round(r2.model, 3), ", ", p(p.model), "\n"))
+	globalmodel <- ifelse(is.cubicmodel, "cubic", "full")
 	
-	if (model != "full") {
+	R2.global <- R2difftest(x, unrestricted=globalmodel)
+	cat(paste0("Test on ", ifelse(is.cv, "overall ", ""), "model significance: R^2 = ", round(R2.global$delta.R2, 3), ", ", p0(R2.global$R2.p), "\n"))
+	
+	if (is.cv) {
+	  R2.global.cv <- R2difftest(x, unrestricted=globalmodel, restricted="null")
+	  cat(paste0("R^2 increment above baseline model (with control variables): Delta_R^2 = ",  round(R2.global.cv$delta.R2, 3), ", ", p0(R2.global.cv$R2.p), "\n"))
+	}
+	
+
+	if ( model != globalmodel ) {
 		cat(paste0("\nIs the selected model <", model, "> significant?\n----------------------------\n"))
-		F <- fitmeasures(x$models[[model]])
-		R <- inspect(x$models[[model]], "r2")
-		n <- lavaan::nobs(x$models[[model]])
-		k <- F["baseline.df"] - F["df"]				
-		R2.p <- ifelse(k==0, NA, pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
-		cat(paste0("Test on model significance: R^2 = ", round(R, 3), ", ", p0(R2.p), "\n"))
+	  
+	  R2.model <- R2difftest(x, unrestricted=model)
+	  cat(paste0("Test on ", ifelse(is.cv, "overall ", ""), "model significance: R^2 = ", round(R2.model$delta.R2, 3), ", ", p0(R2.model$R2.p), "\n"))
+	  
+	  if (is.cv) {
+	    R2.model.cv <- R2difftest(x, unrestricted=model, restricted="null")
+	    cat(paste0("R^2 increment above baseline model (with control variables): Delta_R^2 = ",  round(R2.model.cv$delta.R2, 3), ", ", p0(R2.model.cv$R2.p), "\n"))
+	  }
+	
 	}
 
+	
 	cat(paste0("\n\nNumber of observations: n = ", nobs(x$models[[model]]), "\n----------------------------\n"))
 
 	cat(paste0("\n\nRegression coefficients for model <", model, ">\n----------------------------\n"))
-	if (!is.cubicmodel) {
-		coef.sel <- paste0("b", 0:5)
-	} else {
-		coef.sel <- paste0("b", c(0:9))
-	}
+	
+	coef.sel <- paste0("b", 0:5)
+	if (is.cubicmodel) { coef.sel <- c(coef.sel, paste0("b", 6:9)) }
+	if (is.cv) { coef.sel <- c(coef.sel, paste0("cv", 1:length(control.variables))) }
 	
 	RC <- eff[eff$label %in% coef.sel, c(1:3, 6:7)]
 	RC[, 2:5] <- round(RC[, 2:5], digits)
@@ -73,8 +97,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 	RC$sig <- p2star(eff[eff$label %in% coef.sel, "pvalue"])
 	print(RC)	
 	
-	
-		
+
 	if (!model %in% c("onlyx", "onlyy") & !is.cubicmodel) {
 		cat(paste0("\n\n\nSurface tests (a1 to a5) for model <", model, ">\n----------------------------\n"))
 		as <- eff[eff$label %in% paste0("a", 1:5), c(1:3, 6:7)]
@@ -92,7 +115,7 @@ summary.RSA <- function(object, ..., model="full", digits=3) {
 
 		cat(paste0("a3: Is the ridge shifted away from the LOC? ", ifelse(eff[eff$label %in% "a3", "pvalue"] <= .05, "YES", "NO"), "\n"))	
 	
-		cat(paste0("a4: Is there a general effect of incongruence? ", ifelse(eff[eff$label %in% "a4", "pvalue"] <= .05, "YES", "NO"), "\n"))
+		cat(paste0("a4: Is there curvature on the line of incongruence? ", ifelse(eff[eff$label %in% "a4", "pvalue"] <= .05, "YES", "NO"), "\n"))
 
 	
 		PA <- eff[eff$label %in% c("p10", "p11", "p20", "p21"), c(1:3, 6:7)]

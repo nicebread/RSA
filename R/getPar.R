@@ -43,8 +43,17 @@ getPar <- function(x, type="coef", model="full", digits=NA, ...) {
 		return(x$models[[model]]@Options$model)
 	}
 	if (type=="coef") {
-		p1 <- parameterEstimates(x$models[[model]], ...)
+		
+	  # get table of parameter estimates
+	  p1 <- parameterEstimates(x$models[[model]], ...)
+	  
+	  # label the intercept
 		p1$label[p1$lhs==x$DV & p1$op=="~1"] <- "b0"
+		
+		# label the coefficients of control variables, if applicable
+		if (x$is.cv){ p1$label[p1$lhs==x$DV & p1$rhs %in% x$control.variables] <- paste0("cv", 1:length(x$control.variables))	}
+		
+		# keep only parameters that have a label
 		p1 <- data.frame(p1[p1$label != "", ])
 		
 		rownames(p1) <- paste0(p1$lhs, p1$op, p1$rhs)
