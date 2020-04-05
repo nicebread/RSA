@@ -26,7 +26,7 @@
 #' @param verbose Should additional information during the computation process be printed?
 #' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "cubic","CA","RRCA","CL","RRCL")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should the cubic models with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
-#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is not implemented yet!
+#' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
 #' @param estimator Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values. If you want to reproduce standard OLS estimates, use \code{estimator="ML"} and \code{se="standard"}
 #' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).
 #' @param missing Handling of missing values (this parameter is passed to the \code{lavaan} \code{sem} function). By default (\code{missing=NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If cases with missing values should be excluded, use \code{missing = "listwise"}.
@@ -80,9 +80,6 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
 	verbose=TRUE, add = "", estimator="MLR",
 	se = "robust", missing=NA, ..., control.variables=c()) {
-
-
-	# if (length(control.variables) > 0) stop("Control.variables feature not implemented yet!")
 
 	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong", "cubic", "CA", "CL", "RRCA", "RRCL")
 	
@@ -157,8 +154,12 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	W_IV1 <- paste0("W_", IV1)
 	W_IV2 <- paste0("W_", IV2)
 
+	
+	# control variables: set cv flag if control variables are involved
+	is.cv <- length(control.variables) > 0
+	
 	# define control variable
-	CV <- ifelse(length(control.variables > 0), paste0(" + ", paste(control.variables, collapse=" + ")), "")
+	CV <- ifelse(is.cv, paste0(" + ", paste(control.variables, collapse=" + ")), "")
 
 	## Run polynomial regression as a OLS linear model
 	addcubic <- ""
@@ -216,14 +217,13 @@ withCallingHandlers({
 	polycubic <- paste0(DV, " ~ b1*", IV1, " + b2*", IV2, " + b3*", IV12, " + b4*", IV_IA, " + b5*", IV22, " + b6*", IV13, " + b7*", IV_IA2, " + b8*", IV_IA3, " + b9*", IV23, CV) 
 	
 	
-	if ("null" %in% models) {
+	# always estimate the null model (intercept + control variables only)
 		m.null <- ifelse(is.cubic, 
 		                 paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, " + 0*", IV13, " + 0*", IV_IA2, " + 0*", IV_IA3, " + 0*", IV23, CV),
 		                 paste0(DV, "~ 1 + 0*", IV1, " + 0*", IV2, " + 0*", IV12, " + 0*", IV_IA, " + 0*", IV22, CV))
 	  s.NULL <- sem(m.null, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
-	}
-	
-	
+
+	  
 	if ("additive" %in% models) {
 	  if (verbose==TRUE) print("Computing additive model (additive) ...")
 	  m.additive <-  paste(ifelse(is.cubic, polycubic, poly),
@@ -624,7 +624,7 @@ withCallingHandlers({
 	}
 	
 	
-	if ("full" %in% models) {
+	# always estimate the full second-order model (= global model for all second-order models)
 		if (verbose==TRUE) print("Computing polynomial model (full) ...")
 		m.full <-  paste(ifelse(is.cubic,polycubic,poly),
 		  ifelse(is.cubic, paste("b6==0","b7==0","b8==0","b9==0", sep="\n"), ""),
@@ -652,7 +652,7 @@ withCallingHandlers({
 			sep="\n"
 		)
 		s.full <- sem(m.full, data=df[df$out==FALSE, ], fixed.x=TRUE, meanstructure=TRUE, se=se, estimator=estimator, missing=missing, ...)
-	}	
+	
 	
 	if ("weak" %in% models) {
 		if (verbose==TRUE) print("Computing weak fit pattern ...")
@@ -757,7 +757,7 @@ withCallingHandlers({
 	## Test all models of third degree
 
 	# Full model of third degree
-	if ("cubic" %in% models) {
+	if ("cubic" %in% models | is.cubic) {
 		if (verbose==TRUE) print("Computing full cubic model (cubic) ...")
 		m.cubic <-  paste(polycubic,
 			# description of surface above LOC and LOIC
@@ -944,6 +944,7 @@ withCallingHandlers({
 		SRSQD.rot = SRSQD.rot, SRRR.rot = SRRR.rot, LM=summary(lm.full), formula=formula, 
 		data=df, out.rm = out.rm, outliers = which(df$out == TRUE), DV=DV, IV1=IV1, IV2=IV2, IV12=IV12, IV22=IV22, 
 		IV_IA=IV_IA, W_IV1=W_IV1, W_IV2=W_IV2, IV13=IV13, IV_IA2=IV_IA2, IV_IA3=IV_IA3, IV23=IV23, 
+		control.variables = control.variables, is.cv = is.cv, 
 		r.squared = summary(lm.full)$r.squared, 
 		is.cubic=is.cubic)
 	

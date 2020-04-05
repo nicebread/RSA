@@ -51,7 +51,7 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 	
 	# compute CFI, R2.adj
 	free.max <- getFreeParameters(x$models[["full"]])
-	N <- lavaan::nobs(x$models[[1]])
+	N <- lavaan::nobs(x$models[["full"]])
 	c1 <- plyr::ldply(cand.set.models, function(X) {
 		F <- fitmeasures(X, fit.measures = c("df", "cfi"))
 		R <- inspect(X, "r2")
