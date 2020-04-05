@@ -13,8 +13,11 @@
 		\item New option \code{alphacorrection} in \code{caRange()}. Enables Bonferroni-correction when testing the outcome predictions of all data points behind the line \code{E2} for the cubic models \code{"CA"} and \code{"RRCA"}.
 		
 		
-		\item [TODO: describe] control variables allowed
-		\item [TODO] when control variables are included, summary will provide overall R^2 of the model (which includes variance that is explained by the control variables) and increment of R^2 as compared to the intercept + control variables baseline model; the latter R^2 will typically be of interest because it refers to the amount of variance explained by the two predictors in the RSA model
+		\item Control variables can now be included in the RSA model by use of the option \code{control.variables}. When control variables are included in the model...
+		  \itemize{
+		    \item [TODO] ...the \code{summary} will provide overall R^2 of the model (which includes variance that is explained by the control variables) and increment of R^2 as compared to the intercept + control variables baseline model; the latter R^2 will typically be of interest because it refers to the amount of variance explained by the two predictors in the RSA model
+  		  \item ...the response surface that is shown with the \code{plot} function shows the model-predicted outcome values when all control variables take their respective mean values.
+  		}
 	
 	}
 }

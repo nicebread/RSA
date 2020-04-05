@@ -1040,6 +1040,22 @@ plot.RSA <- function(x, ...) {
 		# the threshold is the negative of the intercept ...
 		extras[["b0"]] <- -as.numeric(ifelse(is.na(C[paste0(fit$DV, "|t1")]), 0, C[paste0(fit$DV, "|t1")]))
 	}
+	
+	# in case that control variables are involved, shift b0 so that it reflects the intercept when all control variables take their mean values
+	if (fit$is.cv){
+
+	  # vector of means of the control variables
+	  cvmeans <- colMeans( fit$data[,fit$control.variables], na.rm=T)
+
+	  # coefficients of the control variables
+	  cvcoefs <- C[paste0(fit$DV, "~", fit$control.variables)]
+
+	  # new b0 = b0 + cv1*mean(controlvariable1) + cv2*mean(controlvariable2) + ...
+	  extras[["b0"]] <- extras[["b0"]] + sum(cvmeans*cvcoefs)
+	  
+	  message("Your model contains control variables. The plot shows the predicted outcome values when all control variables take their respective mean values.")
+	  }
+
 	extras$x <- as.numeric(ifelse(is.na(C["b1"]), 0, C["b1"]))
 	extras$y <- as.numeric(ifelse(is.na(C["b2"]), 0, C["b2"]))
 	extras$x2 <- as.numeric(ifelse(is.na(C["b3"]), 0, C["b3"]))
