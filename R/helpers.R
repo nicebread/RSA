@@ -105,7 +105,7 @@ cModels <- function(mL, set, free.max) {
 			R <- inspect(X, "r2")
 			names(R) <- "R2"
 			n <- lavaan::nobs(X)
-			k <- free.max - F["df"]
+			k <- free.max - F["df"] # number of parameters, including coefficients of control variables (if there are any)
 			
 			suppressWarnings({		
 				R2.p <- ifelse(k==0,
@@ -116,7 +116,7 @@ cModels <- function(mL, set, free.max) {
 			names(R2.p) <- "R2.p"
 			
 			# compute AICc
-			K <- k + 2
+			K <- k + 2  # number of parameters, including coefficients of control variables (if there are any), intercept and residual variance (thus the +2)
 	    AICc <- -2*F["logl"] + 2*K + 2*(K*(K+1))/(n-K-1)
 			names(AICc) <- NULL
 			

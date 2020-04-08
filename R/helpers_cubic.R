@@ -6,7 +6,7 @@
 # Range check function for strict and broad asymmetric congruence models
 # ---------------------------------------------------------------------
 
-# define function that, for a given point (x,y), computes the one-sided confidence interval of the model-prediction z at (x,y) according to the CA/RRCA model,
+# function that, for a given point (x,y), computes the one-sided confidence interval of the model-prediction z at (x,y) according to the CA/RRCA model,
 
 ci_pred <- function(obj, x, y, side, n, p, alpha, model){
 
@@ -66,6 +66,9 @@ ci_pred <- function(obj, x, y, side, n, p, alpha, model){
 #' @param verbose Should extra information be printed?
 #' @param model Either "CA" or "RRCA"
 #' @param alphacorrection Set "Bonferroni" to adjust the alpha level for multiple testing when testing the outcome predictions of all data points behind E2
+#' 
+#' @references 
+#' Humberg, S., Schönbrodt, F. D., Back, M. D., Nestler, S. (in preparation). \emph{Cubic response surface analysis: Investigating asymmetric and level-dependent congruence effects with third-order polynomial models.} Manuscript submitted for publication.
 
 caRange <- function(object, alpha=0.05, verbose=TRUE, model="CA", alphacorrection="none"){
       
@@ -330,6 +333,9 @@ pick_a_point <- function(c1,c3,cov,k){
 #' @param alpha Alpha level for the regions of significance of the surface's curvature
 #' @param verbose Should extra information be printed?
 #' @param model Either "CL" or "RRCL"
+#' 
+#' @references 
+#' Humberg, S., Schönbrodt, F. D., Back, M. D., Nestler, S. (in preparation). \emph{Cubic response surface analysis: Investigating asymmetric and level-dependent congruence effects with third-order polynomial models.} Manuscript submitted for publication.
 
 clRange <- function(object, alpha=0.05, verbose=TRUE, model="CL"){
   

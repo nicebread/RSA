@@ -4,29 +4,29 @@
 #' @description
 #' Show a table of AIC model comparisons
 #'
-#' @details
-#' For detailed information on the function, see the help file for \code{\link[AICcmodavg]{aictab}}
-#'
 #' @return
 #' \describe{
 #'  \item{Modnames}{Model names.}
-#'  \item{K}{Number of estimated parameters (without intercept).}
+#'  \item{K}{Number of estimated parameters (including the intercept, residual variance, and, if present in the model, control variables).}
 #'  \item{AICc}{Akaike Information Criterion (corrected)}
 #'  \item{Delta_AICc}{Difference in AICc between this model and the best model.}
 #'  \item{AICcWt}{The Akaike weights, also termed "model probabilities" by Burnham and Anderson (2002). Indicates the level of support (i.e., weight of evidence) of a model being the most parsimonious among the candidate model set.}
-#'  \item{Cum.Wt}{Cumulative Akaike weight. Models with a Cum.Wt > .95 can be discarded.}
+#'  \item{Cum.Wt}{Cumulative Akaike weight. One possible strategy is to restrict interpretation to the "confidence set" of models, that is, discard models with a Cum.Wt > .95 (see Burnham & Anderson, 2002, for details and alternatives).}
 #'  \item{evidence.ratio}{Likelihood ratio of this model vs. the best model.}
 #' }                       
 #'
 #' @references
 #' Burnham, K. P., & Anderson, D. R. (2002). \emph{Model selection and multimodel inference: A practical information-theoretic approach.} Springer Science & Business Media.
+#' 
 #' @export
 #' @param x An RSA object
 #' @param models A vector with all model names of the candidate set. Defaults to all polynomial models in the RSA object.
 #' @param plot Should a plot of the AICc table be plotted?
 #' @param bw Should the plot be black & white?
 #' @param digits The output is rounded to this number of digits. No rounding if NA (default).
-
+#' 
+#' @note This function is similar to the function \code{\link[AICcmodavg]{aictab}} in the \code{AICcmodavg} package.
+#' 
 #' @examples
 #' \dontrun{
 #' data(motcon)
@@ -117,8 +117,8 @@ evidenceRatio <- function(Delta.AICc) {1/exp(-0.5*Delta.AICc)}
 # adapted from: http://byrneslab.net/classes/lavaan_materials/lavaan.modavg.R
 AICc.lavaan<-function(object, second.ord=TRUE, c.hat = 1, return.K = FALSE){
 	object <- as.list(fitMeasures(object))
-	npar <- object$baseline.df - object$df + 2 
-	if(return.K == TRUE) return(object$npar)
+	npar <- object$baseline.df - object$df + 2 # number of parameters, including coefficients of control variables (if there are any), intercept and residual variance (thus the +2)
+	if(return.K == TRUE) return(npar)
 	if(second.ord == FALSE && c.hat>1) return(-2*object$logl/c.hat+2*npar)
 	if(second.ord == FALSE) return(-2*object$logl + 2*npar)
     if(c.hat>1) return( -2*object$logl/c.hat+2*npar + 2*( npar*(object$npar+1))/(object$ntotal-npar-1))

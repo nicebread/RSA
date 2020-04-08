@@ -10,11 +10,12 @@ Authors@R: c(
 	)
 Maintainer: Felix Schönbrodt <felix@nicebread.de>
 Description: Advanced response surface analysis. The main function RSA computes
-    and compares several nested polynomial regression models (full polynomial,
-    shifted and rotated squared differences, rising ridge surfaces, basic
-    squared differences). The package provides plotting functions for 3d
-    wireframe surfaces, interactive 3d plots, and contour plots. Calculates
-    many surface parameters (a1 to a4, principal axes, stationary point,
+    and compares several nested polynomial regression models (full second- or 
+    third-order polynomial, shifted and rotated squared difference model, 
+    rising ridge surfaces, basic squared difference model, asymmetric or 
+    level-dependent congruence effect models). The package provides plotting 
+    functions for 3d wireframe surfaces, interactive 3d plots, and contour plots. 
+    Calculates many surface parameters (a1 to a5, principal axes, stationary point,
     eigenvalues) and provides standard, robust, or bootstrapped standard errors
     and confidence intervals for them.
 Suggests:

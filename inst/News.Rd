@@ -3,7 +3,7 @@
 \encoding{UTF-8}
 
 
-\section{Version 0.9.14}{
+\section{Version 0.10.0}{
 
 
 \subsection{New features}{
@@ -11,24 +11,21 @@
 		\item Started to implement unit testing with covr.
 		\item New option \code{claxes.alpha} in \code{plot()}. When plotting one of the cubic models \code{"CL"} or \code{"RRCL"} with the axes \code{K1} and \code{K2}, this new option can be used to change the alpha level for which the regions of significance (i.e., the positions of the lines K1 and K2 that demarcate these regions) are computed.
 		\item New option \code{alphacorrection} in \code{caRange()}. Enables Bonferroni-correction when testing the outcome predictions of all data points behind the line \code{E2} for the cubic models \code{"CA"} and \code{"RRCA"}.
-		
-		
 		\item Control variables can now be included in the RSA model by use of the option \code{control.variables}. When control variables are included in the model...
 		  \itemize{
-		    \item [TODO] ...the \code{summary} will provide overall R^2 of the model (which includes variance that is explained by the control variables) and increment of R^2 as compared to the intercept + control variables baseline model; the latter R^2 will typically be of interest because it refers to the amount of variance explained by the two predictors in the RSA model
-  		  \item ...the response surface that is shown with the \code{plot} function shows the model-predicted outcome values when all control variables take their respective mean values.
+		    \item ...the \code{summary} will show not only the overall R^2 of the model (which includes variance that is explained by the control variables), but also the increment of R^2 as compared to the baseline model with intercept and control variables. This R^2 increment will typically be of interest because it refers to the amount of variance explained by the two predictors X and Y (plus their squared and interaction terms) in the RSA model.
+  		  \item ...the response surface that is shown with the \code{plot} function will show the model-predicted outcome values when all control variables take their respective mean values.
+  		  \item ...the number of parameters K per model that is shown in the \code{aictab} table will include the number of control variables (in addition to all freely estimated paramters, the intercept, and the residual variance).
   		}
-	
 	}
 }
 
 \subsection{Bug fixes/Glitches}{
 	\itemize{
 		\item Had to react to a change in \code{lavaan} concerning model comparisons. In case that the models were estimated with robust ML and one of the models had df=0 (i.e., the full second-/third-order polynomial model), \code{lavaan::lavTestLRT} would not allow to compare the (df=0)-model to a nested model because no scaled test statistic had been computed for the (df=0)-model in this case. In the released version, the internal label of the test statistic of the (df=0)-model is overwritten so that the chi-square difference test will be computed anyway. This is valid because the model with zero degrees of freedom has a chi-square test statistic of T=0. The output of the comparison will be the scaled test statistic of the nested model, which is the correct statistic for the scaled chi-square difference test in this case. Note that lavaan versions older than 0.6-3 (i.e., before 09/2018) have provided the standard chi-square instead of the scaled chi-square test statistic of the nested model in such a situation. Results that were obtained with lavaan version <= 0.6-2 can be reproduced by setting \code{estimator="ML"} in \code{RSA()}. 
-		\item The \code{print} function for RSA objects now defaults to a sensible model if no specific model is provided.
-		
-		\item [TODO: describe in more detail] in aictab and compare2, fix formula for second-order correction term of AICc -> AICc results might slightly change
-		\item [TODO: describe in more detail] in summary, print R^2 of the sem-estimated model instead of lm-estimated model (because the latter uses listwise deletion) -> the former output can be extracted with $LM
+		\item The \code{print} function for RSA objects now defaults to a sensible global model (second- or third-order full polynomial model) if no specific model is provided.
+		\item Fixed the formula for the AICc in \code{aictab} and \code{compare2}. In the formula of the (first-order) AIC, the number of free parameters K included the intercept and residual variance, but the second-order correction term did not. These two parameters are now consistently counted in K. This means that results for the (second-order) AICc might slightly change due to the fix, whereas results for the (first-order) AIC are the same.
+		\item In the \code{summary}, the R^2 value of the full model is now the R^2 of the model that was estimated with \code{lavaan}. The R^2 of the \code{lm} model which was shown here before can still be extracted from the \code{RSA()} output object by inspecting \code{$LM}. 
 		
 	}
 }
