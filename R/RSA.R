@@ -17,8 +17,8 @@
 #' @import RColorBrewer
 #' @param formula A formula in the form \code{z ~ x*y}, specifying the variable names used from the data frame, where z is the name of the response variable, and x and y are the names of the predictor variables.
 #' @param data A data frame with the variables
-#' @param center Should predictor variables be centered on \emph{each variable's} sample mean before analyses? You should think carefully about this option, as different centering of the predictor variables can affect the commensurability of the predictor scales.
-#' @param scale Should predictor variables be scales on the SD of \emph{each variable} before analyses? You should think carefully about this option, as different scaling of the predictor variables can affect the commensurability of the predictor scales.
+#' @param center Method for centering the predictor variables before the analysis. Default option ("none") applies no centering. "pooled" centers the predictor variables on their \emph{pooled} sample mean, which preserves the commensurability of the predictor scales. "variablewise" centers the predictor variables on \emph{their respective} sample mean. You should think carefully before applying the "variablewise" option, as centering the predictor variables at different values (e.g., their respective means) can affect the commensurability of the predictor scales.
+#' @param scale Method for scaling the predictor variables before the analysis. Default option ("none") applies no scaling. "pooled" scales the predictor variables on their \emph{pooled} sample SD, which preserves the commensurability of the predictor scales. "variablewise" scales the predictor variables on \emph{their respective} sample SD. You should think carefully before applying the "variablewise" option, as scaling the predictor variables at different values (e.g., their respective SDs) can affect the commensurability of the predictor scales.
 #' @param na.rm Remove missings before proceeding?
 #' @param add Additional syntax that is added to the lavaan model. Can contain, for example, additional constraints, like "p01 == 0; p11 == 0"
 #' @param out.rm Should outliers according to Bollen & Jackman (1980) criteria be excluded from the analyses? In large data sets this analysis is the speed bottleneck. If you are sure that no outliers exist, set this option to FALSE for speed improvements.
@@ -27,6 +27,7 @@
 #' @param models A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "cubic", "CA", "RRCA", "CL", "RRCL")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.
 #' @param cubic Should the cubic models with the additional terms Y^3, XY^2, YX^2, and X^3 be included?
 #' @param control.variables A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.
+#' @param center.control.variables Should the control variables be centered before analyses? This can improve interpretability of the intercept, which will then reflect the predicted outcome value at the point (X,Y)=(0,0) when all control variables take their respective \emph{average} values.
 #' @param estimator Type of estimator that should be used by lavaan. Defaults to "MLR", which provides robust standard errors, a robust scaled test statistic, and can handle missing values. If you want to reproduce standard OLS estimates, use \code{estimator="ML"} and \code{se="standard"}
 #' @param se Type of standard errors. This parameter gets passed through to the \code{sem} function of the \code{lavaan} package. See options there. By default, robust SEs are computed. If you use \code{se="boot"}, \code{lavaan} provides CIs and p-values based on the bootstrapped standard error. If you use \code{confint(..., method="boot")}, in contrast, you get CIs and p-values based on percentile bootstrap (see also \code{\link{confint.RSA}}).
 #' @param missing Handling of missing values (this parameter is passed to the \code{lavaan} \code{sem} function). By default (\code{missing=NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If cases with missing values should be excluded, use \code{missing = "listwise"}.
@@ -96,10 +97,10 @@
 #' 		ylab="Implicit power motive", zlab="Affective valence")
 #' }
 
-RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE, 
+RSA <- function(formula, data=NULL, center="none", scale="none", na.rm=FALSE, 
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
 	verbose=TRUE, add = "", estimator="MLR",
-	se = "robust", missing=NA, ..., control.variables=c()) {
+	se = "robust", missing=NA, ..., control.variables=c(), center.control.variables=FALSE) {
 
 	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong", "cubic", "CA", "CL", "RRCA", "RRCL")
 	
@@ -125,11 +126,46 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	IV1 <- all.vars(formula)[2]
 	IV2 <- all.vars(formula)[3]
 
-	## Step 0a: Standardize values (if requested) and calculate higher order terms
-	df <- data[, c(DV, IV1, IV2, control.variables)]	# reduce data frame to actually used variables
-	df[, IV1] <- scale(df[, IV1], center=center, scale=scale)
-	df[, IV2] <- scale(df[, IV2], center=center, scale=scale)
-		
+	# reduce data frame to actually used variables
+	df <- data[, c(DV, IV1, IV2, control.variables)]	
+	
+	
+	## Step 0a: Standardize predictor variables (if requested)
+
+	# when boolean options are used for center/scale (as was necessary in earlier package versions), restore behavior of earlier versions
+	if(center==TRUE){center <- "variablewise"}
+	if(scale==TRUE){scale <- "variablewise"}
+	
+	# "variablewise": standardization at respective variable means/SDs
+	
+	if(center=="variablewise"){
+	  warning("You specified 'variablewise' centering of the predictor variables. Make sure to check whether this is a good choice, as it can distort commensurability. Use center='pooled' if you want to center at the pooled mean instead.", call.=FALSE)
+	  df[, IV1] <- scale(df[, IV1], center=TRUE, scale=FALSE)
+	  df[, IV2] <- scale(df[, IV2], center=TRUE, scale=FALSE)
+	}
+	
+	if(scale=="variablewise"){
+	  warning("You specified 'variablewise' scaling of the predictor variables. Make sure to check whether this is a good choice, as it can distort commensurability. Use scale='pooled' if you want to scale at the pooled SD instead.", call.=FALSE)
+	  df[, IV1] <- scale(df[, IV1], center=FALSE, scale=TRUE)
+	  df[, IV2] <- scale(df[, IV2], center=FALSE, scale=TRUE)
+	}
+	
+	# "pooled": standardization at pooled means/SDs
+	
+	if(center=="pooled"){
+	  pooled.mean <-  mean( c(df[,IV1],df[,IV2]) , na.rm=T)
+	  df[, IV1] <- df[, IV1] - pooled.mean
+	  df[, IV2] <- df[, IV2] - pooled.mean
+	}
+	
+	if(scale=="pooled"){
+	  pooled.sd <-  sd( c(df[,IV1],df[,IV2]) , na.rm=T)
+	  df[, IV1] <- df[, IV1] / pooled.sd
+	  df[, IV2] <- df[, IV2] / pooled.sd
+	}
+	
+	
+	# calculate higher order terms
 	df <- add.variables(formula, data.frame(data.matrix(df)))
 	
 	# give warnings if the zero point is outside of data range
@@ -175,12 +211,20 @@ RSA <- function(formula, data=NULL, center=FALSE, scale=FALSE, na.rm=FALSE,
 	W_IV2 <- paste0("W_", IV2)
 
 	
+	## control variables
+	
 	# control variables: set cv flag if control variables are involved
 	is.cv <- length(control.variables) > 0
 	
-	# define control variable
+	# center control variables (if requested)
+	if(is.cv & center.control.variables){
+	  df[,control.variables] <- scale( df[,control.variables], center=TRUE, scale=FALSE )
+	}
+	
+	# define control variable part of the regression model
 	CV <- ifelse(is.cv, paste0(" + ", paste(control.variables, collapse=" + ")), "")
 
+	
 	## Run polynomial regression as a OLS linear model
 	addcubic <- ""
 	if (is.cubic) addcubic <- paste0(" + ", paste(IV13, IV_IA2, IV_IA3, IV23, sep=" + "))

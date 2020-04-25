@@ -11,13 +11,17 @@
 		\item Started to implement unit testing with covr.
 		\item New option \code{claxes.alpha} in \code{plot()}. When plotting one of the cubic models \code{"CL"} or \code{"RRCL"} with the axes \code{K1} and \code{K2}, this new option can be used to change the alpha level for which the regions of significance (i.e., the positions of the lines K1 and K2 that demarcate these regions) are computed.
 		\item New option \code{alphacorrection} in \code{caRange()}. Enables Bonferroni-correction when testing the outcome predictions of all data points behind the line \code{E2} for the cubic models \code{"CA"} and \code{"RRCA"}.
+		
 		\item Control variables can now be included in the RSA model by use of the option \code{control.variables}. When control variables are included in the model...
 		  \itemize{
+		    \item ...you have the option to center the control variables before model estimation, by use of the option \code{center.control.variables}. This can improve interpretability of the intercept, which will then reflect the predicted outcome value at the point (X,Y)=(0,0) when all control variables take their respective \emph{average} values.
 		    \item ...the \code{summary} will show not only the overall R^2 of the model (which includes variance that is explained by the control variables), but also the increment of R^2 as compared to the baseline model with intercept and control variables. This R^2 increment will typically be of interest because it refers to the amount of variance explained by the two predictors X and Y (plus their squared and interaction terms) in the RSA model.
 		    \item ...the AIC table obtained with \code{aictab} will include two additional columns: the increment of R^2 as compared to the baseline model (\code{R2.baseline}) and the p-value for F-test of this increment (\code{R2.baseline.p}).
   		  \item ...the response surface that is shown with the \code{plot} function will show the model-predicted outcome values when all control variables take their respective mean values.
   		  \item ...the number of parameters K per model that is shown in the \code{aictab} table will include the number of control variables (in addition to all freely estimated paramters, the intercept, and the residual variance).
   		}
+  		
+  	\item New options \code{center="pooled"} and \code{scale="pooled"} in \code{RSA()}, which allow centering/scaling the predictor variables on their pooled mean/SD. This option is typically preferred over variable-wise centering/scaling, because the "pooled" version preserves commensurability of the predictor scales.
 	}
 }
 
