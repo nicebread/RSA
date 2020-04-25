@@ -168,7 +168,8 @@ R2difftest <- function(x, unrestricted="", restricted="interceptonly"){
   
   return(list(
     delta.R2=delta.R2,
-    R2.p=R2.p
+    R2.p=R2.p, 
+    ku=ku
   ))
   
 }

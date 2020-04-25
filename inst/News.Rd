@@ -14,6 +14,7 @@
 		\item Control variables can now be included in the RSA model by use of the option \code{control.variables}. When control variables are included in the model...
 		  \itemize{
 		    \item ...the \code{summary} will show not only the overall R^2 of the model (which includes variance that is explained by the control variables), but also the increment of R^2 as compared to the baseline model with intercept and control variables. This R^2 increment will typically be of interest because it refers to the amount of variance explained by the two predictors X and Y (plus their squared and interaction terms) in the RSA model.
+		    \item ...the AIC table obtained with \code{aictab} will include two additional columns: the increment of R^2 as compared to the baseline model (\code{R2.baseline}) and the p-value for F-test of this increment (\code{R2.baseline.p}).
   		  \item ...the response surface that is shown with the \code{plot} function will show the model-predicted outcome values when all control variables take their respective mean values.
   		  \item ...the number of parameters K per model that is shown in the \code{aictab} table will include the number of control variables (in addition to all freely estimated paramters, the intercept, and the residual variance).
   		}

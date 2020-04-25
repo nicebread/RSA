@@ -8,11 +8,17 @@
 #' \describe{
 #'  \item{Modnames}{Model names.}
 #'  \item{K}{Number of estimated parameters (including the intercept, residual variance, and, if present in the model, control variables).}
-#'  \item{AICc}{Akaike Information Criterion (corrected)}
+#'  \item{LL}{Model log-likelihood.}
+#'  \item{AICc}{Akaike Information Criterion (corrected).}
 #'  \item{Delta_AICc}{Difference in AICc between this model and the best model.}
 #'  \item{AICcWt}{The Akaike weights, also termed "model probabilities" by Burnham and Anderson (2002). Indicates the level of support (i.e., weight of evidence) of a model being the most parsimonious among the candidate model set.}
 #'  \item{Cum.Wt}{Cumulative Akaike weight. One possible strategy is to restrict interpretation to the "confidence set" of models, that is, discard models with a Cum.Wt > .95 (see Burnham & Anderson, 2002, for details and alternatives).}
 #'  \item{evidence.ratio}{Likelihood ratio of this model vs. the best model.}
+#'  \item{cfi}{Comparative Fit Index (CFI).}
+#'  \item{R2}{Coefficient of determination (R-squared).}
+#'  \item{R2.adj}{Adjusted R-squared.}
+#'  \item{R2.baseline}{Only provided if the model contains control variables. Difference in R-squared as compared to the baseline model with intercept and control variables (= the model "null"). This R^2 increment will typically be of interest because it refers to the amount of variance explained by the two predictors X and Y (plus their squared and interaction terms) in the RSA model.}
+#'  \item{R2.baseline.p}{Only provided if the model contains control variables. p-value for the F-test of the model against the baseline model.}
 #' }                       
 #'
 #' @references
@@ -45,34 +51,63 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 	
 	a1 <- aictab.lavaan(cand.set.models, modnames=names(cand.set.models))
 	class(a1) <- "data.frame"
-	a1 <- a1[, c("Modnames", "K", "AICc", "Delta_AICc", "AICcWt", "Cum.Wt")]
+	a1 <- a1[, c("Modnames", "K", "LL", "AICc", "Delta_AICc", "AICcWt", "Cum.Wt")]
 	a1$evidence.ratio <- evidenceRatio(a1$Delta_AICc)
 	a1$evidence.ratio[1] <- NA	
-	
-	# compute CFI, R2.adj
-	free.max <- getFreeParameters(x$models[["full"]])
-	N <- lavaan::nobs(x$models[["full"]])
-	c1 <- plyr::ldply(cand.set.models, function(X) {
-		F <- fitmeasures(X, fit.measures = c("df", "cfi"))
-		R <- inspect(X, "r2")
-		names(R) <- "R2"
-		n <- lavaan::nobs(X)
-		k <- free.max - F["df"]				
-		R2.p <- ifelse(k==0,
-			NA,
-			pf(((n-k-1)*R)/(k*(1-R)), k, n-k-1, lower.tail=FALSE))
-		names(R2.p) <- "R2.p"
-		
-		return(c(F[c("cfi", "srmr")], R, R2.p, k))
+
+	c1 <- plyr::ldply(names(cand.set.models), function(m) {
+
+	  Modnames <- m
+
+	  # CFI
+	  cfi <- fitmeasures(x$models[[m]], fit.measures = "cfi")
+
+	  # R2 and F-test of this model versus intercept only model
+	  R2.vs.interceptonly <- R2difftest(x, unrestricted=m, restricted="interceptonly")
+	  R2 <- R2.vs.interceptonly$delta.R2
+	  R2.p <- R2.vs.interceptonly$R2.p
+	  
+	  # number of parameters (without intercept and residual variance) for computation of adjusted R^2
+	  object <- as.list(fitMeasures(x$models[[m]]))
+	  df <- object$baseline.df - object$df
+
+	  return( data.frame(Modnames=Modnames, cfi=as.vector(cfi), R2=as.vector(R2), R2.p=R2.p, df) )
 	})
-	colnames(c1)[1] <- "Modnames"
-	c1$R2.adj <- 1 - ((1-c1$R2))*((N-1)/(N-c1$df-1))
 	
+	# un-factor
+	c1$Modnames <- as.character(levels(c1$Modnames))[c1$Modnames]
+	
+	# adjusted R2
+	N <- lavaan::nobs(x$models[["full"]])
+	c1$R2.adj <- 1 - ((1-c1$R2))*((N-1)/(N-c1$df-1))
+
 	# merge aic and other fit indices
 	a2 <- merge(a1, c1[, c("Modnames", "cfi", "R2", "R2.p", "R2.adj")], by="Modnames")
+
+	# if control variables are present: include delta R2 and F-tests the models versus the baseline model (intercept + control variables)
+	if(x$is.cv){
+
+	  c1.cv <- plyr::ldply(names(cand.set.models), function(m) {
+
+	    Modnames <- m
+
+	    R2.vs.baseline <- R2difftest(x, unrestricted=m, restricted="null")
+	    R2.baseline <- R2.vs.baseline$delta.R2
+	    R2.baseline.p <- R2.vs.baseline$R2.p
+
+	    return( data.frame(Modnames=Modnames, R2.baseline=as.vector(R2.baseline), R2.baseline.p=R2.baseline.p) )
+	  })
+
+	  # un-factor
+	  c1.cv$Modnames <- as.character(levels(c1.cv$Modnames))[c1.cv$Modnames]
+
+	  a2 <- merge(a2, c1.cv, by="Modnames")
+	}
+
+	# order by aic and round
 	a2 <- a2[order(a2$Delta_AICc), ]
 	if (!is.na(digits)) {
-		a2[, -c(1:2)] <- round(a2[, -c(1:2)], digits)
+	  a2[, -c(1:2)] <- round(a2[, -c(1:2)], digits)
 	}
 	
 	
