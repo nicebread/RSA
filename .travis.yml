@@ -1,9 +1,9 @@
 language: r
 r:
-#  - oldrel
+  - oldrel
   - release
 #  - devel
-cache: packages
+#cache: packages
 
 # add tcltk support on Ubuntu; add necessary packages for rgl package.
 addons:

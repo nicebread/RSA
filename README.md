@@ -26,7 +26,7 @@ The current development version can be installed by:
     install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "qgraph", "AICcmodavg"))
     devtools::install_github("nicebread/RSA")
 
-## Information
+## Questions? Got to our Google mailing list
 
   - An email list for asking questions related to the RSA-package has
     been created at Google groups:
@@ -100,3 +100,8 @@ plots with this [interactive
 app](http://shinyapps.org/showapp.php?app=https://tellmi.psy.lmu.de/felix/polySurface):
 
 ![](http://shinyapps.org/teaserpics/polynomialSurfaceExplorer.jpg)
+
+# Maintainers
+
+[Felix Schönbrodt](https://www.nicebread.de/) [Sarah
+Humberg](https://www.uni-muenster.de/PsyIFP/AEBack/members/Sarah_Humberg.html)
