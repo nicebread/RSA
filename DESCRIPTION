@@ -3,7 +3,7 @@ Package: RSA
 Type: Package
 Title: Response Surface Analysis
 Version: 0.10.0
-Date: 2020-03-02
+Date: 2020-04-29
 Authors@R: c(
 		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("cre", "aut")),
 		person("Sarah", "Humberg", role = c("aut"))

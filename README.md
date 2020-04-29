@@ -26,7 +26,7 @@ The current development version can be installed by:
     install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "qgraph", "AICcmodavg"))
     devtools::install_github("nicebread/RSA")
 
-## Questions? Got to our Google mailing list
+## Questions? Go to our Google mailing list
 
   - An email list for asking questions related to the RSA-package has
     been created at Google groups:
