@@ -1,5 +1,5 @@
 ## Test environments
-* local OS X install, R 3.5.1
+* local OS X install, R 4.0.0
 * Win-builder
 * Travis-CI / Github: 
 	* oldrel: passed

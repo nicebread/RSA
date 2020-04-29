@@ -4,7 +4,9 @@
 \name{motcon}
 \alias{motcon}
 \title{Data set on motive congruence.}
-\format{A data frame with 84 rows and 3 variables}
+\format{
+A data frame with 84 rows and 3 variables
+}
 \description{
 A dataset containing the explicit power motive, implicit power motive and self ratings of affective valence during a spontaneous speech.
 The variables are as follows:

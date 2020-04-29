@@ -31,6 +31,7 @@
 		\item The \code{print} function for RSA objects now defaults to a sensible global model (second- or third-order full polynomial model) if no specific model is provided.
 		\item Fixed the formula for the AICc in \code{aictab} and \code{compare2}. In the formula of the (first-order) AIC, the number of free parameters K included the intercept and residual variance, but the second-order correction term did not. These two parameters are now consistently counted in K. This means that results for the (second-order) AICc might slightly change due to the fix, whereas results for the (first-order) AIC are the same.
 		\item In the \code{summary}, the R^2 value of the full model is now the R^2 of the model that was estimated with \code{lavaan}. The R^2 of the \code{lm} model which was shown here before can still be extracted from the \code{RSA()} output object by inspecting \code{$LM}. 
+		\item Got rid of notorious "Warning sqrt(b3*b5)"
 		
 	}
 }

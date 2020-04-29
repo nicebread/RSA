@@ -21,14 +21,15 @@ services:
 
 warnings_are_errors: false
 
-r_binary_packages:
- - rcppeigen
- - lavaan
- - ggplot2
- - lattice
- - plyr
- - testthat
- - dplyr
+# Binary packages are not there yet - reenable later.
+#r_binary_packages:
+ # - rcppeigen
+ # - lavaan
+ # - ggplot2
+ # - lattice
+ # - plyr
+ # - testthat
+ # - dplyr
 
 after_success:
   - Rscript -e 'covr::codecov()'

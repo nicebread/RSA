@@ -4,7 +4,9 @@
 \name{motcon2}
 \alias{motcon2}
 \title{Another data set on motive congruence.}
-\format{A data frame with 362 rows and 3 variables}
+\format{
+A data frame with 362 rows and 3 variables
+}
 \description{
 A dataset containing the explicit intimacy motive, implicit affiliation/intimacy motive and self ratings of affective valence.
 The variables are as follows:
