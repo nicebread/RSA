@@ -7,8 +7,8 @@
 RSA(
   formula,
   data = NULL,
-  center = FALSE,
-  scale = FALSE,
+  center = "none",
+  scale = "none",
   na.rm = FALSE,
   out.rm = TRUE,
   breakline = FALSE,
@@ -19,8 +19,9 @@ RSA(
   estimator = "MLR",
   se = "robust",
   missing = NA,
-  ...,
-  control.variables = c()
+  control.variables = c(),
+  center.control.variables = FALSE,
+  ...
 )
 }
 \arguments{
@@ -28,9 +29,9 @@ RSA(
 
 \item{data}{A data frame with the variables}
 
-\item{center}{Should predictor variables be centered on \emph{each variable's} sample mean before analyses? You should think carefully about this option, as different centering of the predictor variables can affect the commensurability of the predictor scales.}
+\item{center}{Method for centering the predictor variables before the analysis. Default option ("none") applies no centering. "pooled" centers the predictor variables on their \emph{pooled} sample mean, which preserves the commensurability of the predictor scales. "variablewise" centers the predictor variables on \emph{their respective} sample mean. You should think carefully before applying the "variablewise" option, as centering the predictor variables at different values (e.g., their respective means) can affect the commensurability of the predictor scales.}
 
-\item{scale}{Should predictor variables be scales on the SD of \emph{each variable} before analyses? You should think carefully about this option, as different scaling of the predictor variables can affect the commensurability of the predictor scales.}
+\item{scale}{Method for scaling the predictor variables before the analysis. Default option ("none") applies no scaling. "pooled" scales the predictor variables on their \emph{pooled} sample SD, which preserves the commensurability of the predictor scales. "variablewise" scales the predictor variables on \emph{their respective} sample SD. You should think carefully before applying the "variablewise" option, as scaling the predictor variables at different values (e.g., their respective SDs) can affect the commensurability of the predictor scales.}
 
 \item{na.rm}{Remove missings before proceeding?}
 
@@ -38,7 +39,7 @@ RSA(
 
 \item{breakline}{Should the breakline in the unconstrained absolute difference model be allowed (the breakline is possible from the model formulation, but empirically rather unrealistic ...). Defaults to \code{FALSE}}
 
-\item{models}{A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "cubic","CA","RRCA","CL","RRCL")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.}
+\item{models}{A vector with names of all models that should be computed. Should be any from \code{c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "RR", "SRR", "SRRR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "cubic", "CA", "RRCA", "CL", "RRCL")}. For \code{models="all"}, all models are computed, for \code{models="default"} all models besides absolute difference models are computed.}
 
 \item{cubic}{Should the cubic models with the additional terms Y^3, XY^2, YX^2, and X^3 be included?}
 
@@ -52,19 +53,26 @@ RSA(
 
 \item{missing}{Handling of missing values (this parameter is passed to the \code{lavaan} \code{sem} function). By default (\code{missing=NA}), Full Information Maximum Likelihood (FIML) is employed in case of missing values. If cases with missing values should be excluded, use \code{missing = "listwise"}.}
 
-\item{...}{Additional parameters passed to the \code{lavaan} \code{\link{sem}} function.}
+\item{control.variables}{A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled.}
 
-\item{control.variables}{A string vector with variable names from \code{data}. These variables are added as linear predictors to the model (in order "to control for them"). No interactions with the other variables are modeled. WARNING: This feature is not implemented yet!}
+\item{center.control.variables}{Should the control variables be centered before analyses? This can improve interpretability of the intercept, which will then reflect the predicted outcome value at the point (X,Y)=(0,0) when all control variables take their respective \emph{average} values.}
+
+\item{...}{Additional parameters passed to the \code{lavaan} \code{\link{sem}} function.}
 }
 \description{
 Performs several RSA model tests on a data set with two predictors
 }
 \details{
-Even if the main variables of the model are normally distirbuted, their squared terms and interaction terms are necessarily non-normal. By default, the RSA function uses a scaled test statistic (\code{test="Satorra-Bentler"}) and robust standard errors (\code{se="robust"}), which are robust against violations of the normality assumption. 
+Even if the main variables of the model are normally distributed, their squared terms and interaction terms are necessarily non-normal. By default, the RSA function uses a scaled test statistic (\code{test="Satorra-Bentler"}) and robust standard errors (\code{se="robust"}), which are robust against violations of the normality assumption. 
 
 \emph{Why does my standard polynomial regression give different p-values and SEs than the RSA package? Shouldn't they be the same?} This is due to the robust standard errors employed in the RSA package. If you set \code{estimator="ML"} and \code{se="standard"}, you get p-values that are very close to the standard approach. (They might still not be identical because the standard regression approach usually uses an OLS estimator and RSA uses an ML estimator).
 
 You can also fit \strong{binary outcome variables} with a probit link function. For that purpose, the response variable has to be defined as "ordered", and the \code{lavaan} estimator changed to "WLSMV": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary", estimator="WLSMV")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
+}
+\note{
+For explanations of the meaning of the various different models that can be estimated, please see Schönbrodt (2016) for the second-order models (i.e., all models but "CA", "RRCA", "CL", "RRCL") and Humberg et al. (in preparation) for the third-order (cubic) models ("CA", "RRCA", "CL", "RRCL"). 
+
+For most of the second-order models, several auxiliary parameters are computed from the estimated model coefficients (e.g., a1, ..., a5, p10, p11, p20, p21) and printed in the \code{summary} output. They can be used to guide interpretation by means of response surface methodology. Some references that explain how to use these parameters for interpretation are Edwards (2002; comprehensive overview of response surface methodology), Humberg et al. (2019; interpretation of a1, a2, a3, a4, p10, and p11, and how to use them to investigate congruence effects), Nestler et al. (2019; interpretation of a1, a2, a3, a4, and a5, and how to use them to investigate congruence effects, see in particular Appendix A for the introduction of a5), and Schönbrodt et al. (2018; interpretation of a1,...,a5, see in particular Appendix A for a5).
 }
 \examples{
 # Compute response surface from a fake data set
@@ -106,6 +114,19 @@ c1 <- confint(r.m, model="SSQD", method="boot", R=10)
 plot(r.m, model="RR", xlab="Explicit power motive", 
 		ylab="Implicit power motive", zlab="Affective valence")
 }
+}
+\references{
+Edwards, J. R. (2002). Alternatives to difference scores: Polynomial regression analysis and response surface methodology. In F. Drasgow & N. W. Schmitt (Eds.), \emph{Advances in measurement and data analysis} (pp. 350–400). San Francisco, CA: Jossey-Bass.
+
+Humberg, S., Nestler, S., & Back, M. D. (2019). Response Surface Analysis in Personality and Social Psychology: Checklist and Clarifications for the Case of Congruence Hypotheses. \emph{Social Psychological and Personality Science}, 10(3), 409–419. doi:10.1177/1948550618757600
+
+Humberg, S., Schönbrodt, F. D., Back, M. D., Nestler, S. (in preparation). \emph{Cubic response surface analysis: Investigating asymmetric and level-dependent congruence effects with third-order polynomial models.} Manuscript submitted for publication.
+
+Nestler, S., Humberg, S., & Schönbrodt, F. D. (2019). Response surface analysis with multilevel data: Illustration for the case of congruence hypotheses. \emph{Psychological Methods}, 24(3), 291–308. doi:10.1037/met0000199
+
+Schönbrodt, F. D. (2016). \emph{Testing fit patterns with polynomial regression models.} Retrieved from osf.io/3889z
+
+Schönbrodt, F. D., Humberg, S., & Nestler, S. (2018). Testing similarity effects with dyadic response surface analysis. \emph{European Journal of Personality}, 32(6), 627-641. doi:10.1002/per.2169
 }
 \seealso{
 \code{\link{demoRSA}}, \code{\link{plotRSA}}, \code{\link{RSA.ST}}, \code{\link{confint.RSA}}, \code{\link{compare}}

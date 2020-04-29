@@ -23,3 +23,6 @@ When testing a level-dependent congruence hypothesis with the CL or RRCL model, 
 
 When plotting the estimated model (CL or RRCL) with \code{\link{plot}}, you can plot the lines at which the significance status of the curvature changes and the surface above these lines by calling "K1" and "K2" in the options \code{project} and \code{axes}.
 }
+\references{
+Humberg, S., Schönbrodt, F. D., Back, M. D., Nestler, S. (in preparation). \emph{Cubic response surface analysis: Investigating asymmetric and level-dependent congruence effects with third-order polynomial models.} Manuscript submitted for publication.
+}

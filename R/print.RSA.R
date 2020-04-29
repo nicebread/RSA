@@ -51,8 +51,11 @@ summary.RSA <- function(object, ..., model=NULL, digits=3) {
 	
 	cat("Are there discrepancies in the predictors (with respect to numerical congruence)?\n----------------------------\n")
 	D <- (data[, IV2] - data[, IV1])/sd(c(data[, IV1], data[, IV2]), na.rm=TRUE)
-	Congruence <- cut(D, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "Congruence", paste0(IV2, " > ", IV1)))
-	print(round(prop.table(table(Congruence)), 3)*100)
+	Congruence <- cut(D, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "congruent", paste0(IV2, " > ", IV1)))
+
+	congruenceTab <- paste0(as.vector(table(Congruence)), "%")
+	names(congruenceTab) <- names(table(Congruence))
+	print(congruenceTab)
 	
 	
 	cat(paste0("\nIs the corresponding global model (full ", ifelse(is.cubicmodel, "third-order", "second-order")," polynomial model) significant?\n----------------------------\n"))

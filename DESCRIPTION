@@ -2,7 +2,7 @@ Encoding: UTF-8
 Package: RSA
 Type: Package
 Title: Response Surface Analysis
-Version: 0.9.14
+Version: 0.10.0
 Date: 2020-03-02
 Authors@R: c(
 		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("cre", "aut")),

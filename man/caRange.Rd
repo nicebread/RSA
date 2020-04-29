@@ -31,3 +31,6 @@ When testing an asymmetric congruence hypothesis with the CA or RRCA model, the 
 
 When plotting the estimated model (CA or RRCA) with \code{\link{plot}}, you can plot the line E2 and the surface above this line by calling "E2" in the options \code{project} and \code{axes}.
 }
+\references{
+Humberg, S., Schönbrodt, F. D., Back, M. D., Nestler, S. (in preparation). \emph{Cubic response surface analysis: Investigating asymmetric and level-dependent congruence effects with third-order polynomial models.} Manuscript submitted for publication.
+}

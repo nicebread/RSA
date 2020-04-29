@@ -5,10 +5,11 @@ rmarkdown::render("README.rmd")
 
 [![Build
 Status](https://travis-ci.org/nicebread/RSA.svg?branch=master)](https://travis-ci.org/nicebread/RSA)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2020--03--02-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2020--04--29-yellowgreen.svg)](/commits/master)
 [![](https://www.r-pkg.org/badges/version/RSA?color=orange)](https://cran.r-project.org/package=RSA)
-[![packageversion](https://img.shields.io/badge/Package%20version-0.9.14-orange.svg?style=flat-square)](commits/master)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.10.0-orange.svg?style=flat-square)](commits/master)
 ![](http://cranlogs.r-pkg.org/badges/RSA)
+[![](https://codecov.io/gh/nicebread/RSA/branch/master/graph/badge.svg)](https://codecov.io/gh/nicebread/RSA)
 
 # RSA
 
@@ -18,13 +19,12 @@ An R package for Response Surface Analysis
 
 The stable CRAN version can be installed by:
 
-    install.packages("RSA", dependencies=TRUE)
+    install.packages("RSA")
 
 The current development version can be installed by:
 
-    install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "SDMTools", "qgraph", "AICcmodavg"), dependencies=TRUE)
-    library(devtools)
-    install_github("nicebread/RSA")
+    install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "qgraph", "AICcmodavg"))
+    devtools::install_github("nicebread/RSA")
 
 ## Information
 
@@ -92,3 +92,11 @@ The current development version can be installed by:
     # open an interactive widget with control
     # sliders for regression weights
     demoRSA()
+
+# Interactive plotting of polynomial surfaces
+
+Not part of this package, but related: you can create polynomial surface
+plots with this [interactive
+app](http://shinyapps.org/showapp.php?app=https://tellmi.psy.lmu.de/felix/polySurface):
+
+![](http://shinyapps.org/teaserpics/polynomialSurfaceExplorer.jpg)

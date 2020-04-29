@@ -21,7 +21,7 @@
   		  \item ...the number of parameters K per model that is shown in the \code{aictab} table will include the number of control variables (in addition to all freely estimated paramters, the intercept, and the residual variance).
   		}
   		
-  	\item New options \code{center="pooled"} and \code{scale="pooled"} in \code{RSA()}, which allow centering/scaling the predictor variables on their pooled mean/SD. This option is typically preferred over variable-wise centering/scaling, because the "pooled" version preserves commensurability of the predictor scales.
+  	\item New options \code{center="pooled"} and \code{scale="pooled"} in \code{RSA()}, which allow centering/scaling the predictor variables on their pooled mean/SD. This option is typically preferred over variable-wise centering/scaling, because the "pooled" version preserves commensurability of the predictor scales. The possible options are: Default option ("none") applies no centering. "pooled" centers the predictor variables on their \emph{pooled} sample mean. "variablewise" centers the predictor variables on \emph{their respective} sample mean. You should think carefully before applying the "variablewise" option, as centering the predictor variables at different values (e.g., their respective means) can affect the commensurability of the predictor scales.
 	}
 }
 

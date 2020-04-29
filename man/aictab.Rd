@@ -26,19 +26,25 @@ aictab(
 \value{
 \describe{
  \item{Modnames}{Model names.}
- \item{K}{Number of estimated parameters (without intercept).}
- \item{AICc}{Akaike Information Criterion (corrected)}
+ \item{K}{Number of estimated parameters (including the intercept, residual variance, and, if present in the model, control variables).}
+ \item{LL}{Model log-likelihood.}
+ \item{AICc}{Akaike Information Criterion (corrected).}
  \item{Delta_AICc}{Difference in AICc between this model and the best model.}
  \item{AICcWt}{The Akaike weights, also termed "model probabilities" by Burnham and Anderson (2002). Indicates the level of support (i.e., weight of evidence) of a model being the most parsimonious among the candidate model set.}
- \item{Cum.Wt}{Cumulative Akaike weight. Models with a Cum.Wt > .95 can be discarded.}
+ \item{Cum.Wt}{Cumulative Akaike weight. One possible strategy is to restrict interpretation to the "confidence set" of models, that is, discard models with a Cum.Wt > .95 (see Burnham & Anderson, 2002, for details and alternatives).}
  \item{evidence.ratio}{Likelihood ratio of this model vs. the best model.}
+ \item{cfi}{Comparative Fit Index (CFI).}
+ \item{R2}{Coefficient of determination (R-squared).}
+ \item{R2.adj}{Adjusted R-squared.}
+ \item{R2.baseline}{Only provided if the model contains control variables. Difference in R-squared as compared to the baseline model with intercept and control variables (= the model "null"). This R^2 increment will typically be of interest because it refers to the amount of variance explained by the two predictors X and Y (plus their squared and interaction terms) in the RSA model.}
+ \item{R2.baseline.p}{Only provided if the model contains control variables. p-value for the F-test of the model against the baseline model.}
 }
 }
 \description{
 Show a table of AIC model comparisons
 }
-\details{
-For detailed information on the function, see the help file for \code{\link[AICcmodavg]{aictab}}
+\note{
+This function is similar to the function \code{\link[AICcmodavg]{aictab}} in the \code{AICcmodavg} package.
 }
 \examples{
 \dontrun{

@@ -100,7 +100,7 @@
 RSA <- function(formula, data=NULL, center="none", scale="none", na.rm=FALSE, 
 	out.rm=TRUE, breakline=FALSE, models="default", cubic=FALSE, 
 	verbose=TRUE, add = "", estimator="MLR",
-	se = "robust", missing=NA, ..., control.variables=c(), center.control.variables=FALSE) {
+	se = "robust", missing=NA, control.variables=c(), center.control.variables=FALSE, ...) {
 
 	validmodels <- c("absdiff", "absunc", "diff", "mean", "additive", "IA", "SQD", "SRRR", "SRR", "RR", "SSQD", "SRSQD", "full", "null", "onlyx", "onlyy", "onlyx2", "onlyy2", "weak", "strong", "cubic", "CA", "CL", "RRCA", "RRCL")
 	
@@ -176,7 +176,7 @@ RSA <- function(formula, data=NULL, center="none", scale="none", na.rm=FALSE,
 		
 	# give warning if one variable has a much higher range than the other variable
 	if ((max(df[, IV1], na.rm=TRUE) - min(df[, IV1], na.rm=TRUE)) / (max(df[, IV2], na.rm=TRUE) - min(df[, IV2], na.rm=TRUE)) > 2)
-		warning("Predictor variables have a very different range (by factor 2 or larger)- please check scaling of variables.")
+		warning("Predictor variables have a very different range (by factor 2 or larger) - please check scaling of variables.")
 	
 	
 	
@@ -708,10 +708,6 @@ withCallingHandlers({
 			# eigenvalues
 			"l1 := (b3 + b5 + sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2", 
 			"l2 := (b3 + b5 - sqrt((b3+b5)^2 - 4*b3*b5 + b4^2))/2",
-			# specific tests for fit pattern
-			"weakcondition    := b3*b5",				# must be > 0
-			"strongcondition1 := (b2*b4)/(2*b5) - b1",	# must not be different from 0
-			"strongcondition2 := 2*sqrt(b3*b5)  - b4",	# must not be different from 0
 			add,
 			sep="\n"
 		)
@@ -953,8 +949,6 @@ withCallingHandlers({
   warning=function(w) {
 	   W <- as.character(w$call)
 	   if (
-		   (W[1] == "sqrt" & W[2] == "diag(def.cov)" & grepl("NaNs", w$message)) |
-		   #(W[1] == "sqrt" & W[2] == "b3 * b5") |
 			 (W[1] == "sqrt") |
 		   (W[1] == "nlminb" & W[2] == "x.par") |
 		   (W[2] %in% c("m.SRRR.up", "m.SRRR.down", "m.SRSQD.up", "m.SRSQD.down") & grepl("model has NOT converged", w$message))
