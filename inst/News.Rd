@@ -3,6 +3,21 @@
 \encoding{UTF-8}
 
 
+
+\section{Version 0.10.1}{
+
+
+
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item Fixed error in aictab function (had to react to a change in R 4.0.0)
+	}
+}
+
+}
+
+
+
 \section{Version 0.10.0}{
 
 

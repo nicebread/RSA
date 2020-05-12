@@ -74,8 +74,11 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 	  return( data.frame(Modnames=Modnames, cfi=as.vector(cfi), R2=as.vector(R2), R2.p=R2.p, df) )
 	})
 	
-	# un-factor
-	c1$Modnames <- as.character(levels(c1$Modnames))[c1$Modnames]
+	# un-factor for old R versions
+	if (is.factor(c1$Modnames)) {
+		c1$Modnames <- as.character(levels(c1$Modnames))[c1$Modnames]
+	}
+	
 	
 	# adjusted R2
 	N <- lavaan::nobs(x$models[["full"]])
@@ -99,7 +102,9 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 	  })
 
 	  # un-factor
-	  c1.cv$Modnames <- as.character(levels(c1.cv$Modnames))[c1.cv$Modnames]
+	  if (is.factor(c1.cv$Modnames)) {
+			c1.cv$Modnames <- as.character(levels(c1.cv$Modnames))[c1.cv$Modnames]
+		}
 
 	  a2 <- merge(a2, c1.cv, by="Modnames")
 	}
