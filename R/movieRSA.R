@@ -9,7 +9,7 @@
 #' @export
 #' @param name Name for the subfolder containing all still pictures, and for the final movie file.
 #' @param frames A list of lists: Each list contains parameters which are passed to the plotRSA function. See \code{\link{plotRSA}} for details.
-#' @param dur Duration of the movie in miliseconds
+#' @param dur Duration of the movie in milliseconds
 #' @param fps Frame per second (defaults to 30)
 #' @param width Width of the final movie in pixels
 #' @param height Height of the final movie in pixels

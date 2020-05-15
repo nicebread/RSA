@@ -33,7 +33,7 @@
 
 #' @param type \code{3d} for 3d surface plot, \code{contour} for 2d contour plot. Shortcuts (i.e., first letter of string) are sufficient; be careful: "contour" is very slow at the moment
 #' @param points A list of parameters which define the appearance of the raw scatter points: show = TRUE: Should the original data points be overplotted? value="raw": Plot the original z value, "predicted": plot the predicted z value. jitter=0: Amount of jitter for the raw data points. cex = .5: multiplication factor for point size. See ?plotRSA for details.
-#' @param project Which geatures should be projected on the floor? See ?plotRSA for details.
+#' @param project Which features should be projected on the floor? See ?plotRSA for details.
 #' @param model If x is an RSA object: from which model should the response surface be computed?
 #' @param extended Show additional controls (not implemented yet)
 #' @param ... Other parameters passed through to plot.RSA (e.g., xlab, ylab, zlab, cex, legend)
