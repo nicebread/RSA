@@ -10,7 +10,8 @@
 
 \subsection{Bug fixes/Glitches}{
 	\itemize{
-		\item Fixed error in aictab function (had to react to a change in R 4.0.0)
+		\item Fixed error in aictab function (had to react to a change in R 4.0.0 concerning stringsAsFactors)
+		\item Fixed error in discrepancy output of the summary() function
 	}
 }
 
