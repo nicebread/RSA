@@ -79,7 +79,7 @@ demoRSA(
 
 \item{model}{If x is an RSA object: from which model should the response surface be computed?}
 
-\item{project}{Which geatures should be projected on the floor? See ?plotRSA for details.}
+\item{project}{Which features should be projected on the floor? See ?plotRSA for details.}
 
 \item{extended}{Show additional controls (not implemented yet)}
 

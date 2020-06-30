@@ -21,7 +21,7 @@ movieRSA(
 
 \item{frames}{A list of lists: Each list contains parameters which are passed to the plotRSA function. See \code{\link{plotRSA}} for details.}
 
-\item{dur}{Duration of the movie in miliseconds}
+\item{dur}{Duration of the movie in milliseconds}
 
 \item{fps}{Frame per second (defaults to 30)}
 

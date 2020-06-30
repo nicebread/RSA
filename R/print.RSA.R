@@ -50,7 +50,7 @@ summary.RSA <- function(object, ..., model=NULL, digits=3) {
 	# When using polynomial regression analyses for the investigation of congruence effects, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrep- ancies in your sample.
 	
 	cat("Are there discrepancies in the predictors (with respect to numerical congruence)?\n")
-	cat("(A cutpoint of |∆z| > 0.5 is used)\n")
+	cat("(A cutpoint of |\u0394z| > 0.5 is used)\n")
 	cat("\n----------------------------\n")
 	D <- (data[, IV2] - data[, IV1])/sd(c(data[, IV1], data[, IV2]), na.rm=TRUE)
 	Congruence <- cut(D, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "congruent", paste0(IV2, " > ", IV1)))
