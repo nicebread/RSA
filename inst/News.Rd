@@ -2,21 +2,23 @@
 \title{News for package 'RSA'}
 \encoding{UTF-8}
 
+\section{Version 0.10.2}{
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item Moved tkrplot package to "Suggests" to make RSA compatible with Apple Silicon.
+	}
+}
+}
 
 
 \section{Version 0.10.1}{
-
-
-
 \subsection{Bug fixes/Glitches}{
 	\itemize{
 		\item Fixed error in aictab function (had to react to a change in R 4.0.0 concerning stringsAsFactors)
 		\item Fixed error in discrepancy output of the summary() function
 	}
 }
-
 }
-
 
 
 \section{Version 0.10.0}{

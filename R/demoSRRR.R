@@ -15,10 +15,10 @@ demoSRRR <- function(a4rs=0, C=0, S=1, bm=0, type="3d", zlim=c(-2, 2), xlim=c(-2
 	fit <- NULL
 
 	# Define all input components	
-	I_a4rs <- tclVar(); tclvalue(I_a4rs) <- a4rs
-	I_C <- tclVar(); tclvalue(I_C) <- C
-	I_S <- tclVar(); tclvalue(I_S) <- S
-	I_bm <- tclVar(); tclvalue(I_bm) <- bm
+	I_a4rs <- tclVar(); tcltk::tclvalue(I_a4rs) <- a4rs
+	I_C <- tclVar(); tcltk::tclvalue(I_C) <- C
+	I_S <- tclVar(); tcltk::tclvalue(I_S) <- S
+	I_bm <- tclVar(); tcltk::tclvalue(I_bm) <- bm
 	
 	update <- function(...) {
         tkrreplot(img, hscale=1.5, vscale=1.5)
@@ -26,10 +26,10 @@ demoSRRR <- function(a4rs=0, C=0, S=1, bm=0, type="3d", zlim=c(-2, 2), xlim=c(-2
 
     replot <- function() {
 		# read parameters from sliders
-		a4rs <- as.numeric(tclvalue(I_a4rs))
-		C <- as.numeric(tclvalue(I_C))
-		S <- as.numeric(tclvalue(I_S))
-		bm <- as.numeric(tclvalue(I_bm))
+		a4rs <- as.numeric(tcltk::tclvalue(I_a4rs))
+		C <- as.numeric(tcltk::tclvalue(I_C))
+		S <- as.numeric(tcltk::tclvalue(I_S))
+		bm <- as.numeric(tcltk::tclvalue(I_bm))
 
 		# derive regression weights from surface parameters
 		y2 <- a4rs/4

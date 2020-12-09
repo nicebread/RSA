@@ -2,8 +2,8 @@ Encoding: UTF-8
 Package: RSA
 Type: Package
 Title: Response Surface Analysis
-Version: 0.10.1
-Date: 2020-06-30
+Version: 0.10.2
+Date: 2020-12-09
 Authors@R: c(
 		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("cre", "aut")),
 		person("Sarah", "Humberg", role = c("aut"))
@@ -23,8 +23,9 @@ Suggests:
     rgl,
     qgraph,
     tcltk,
-		testthat,
-		covr
+    tkrplot,
+	testthat,
+	covr
 Depends:
     R (>= 2.15.0),
     lavaan (>= 0.5.20),
@@ -34,7 +35,6 @@ Imports:
     plyr,
     RColorBrewer,
     aplpack,
-		tkrplot,
-		methods
+	methods
 License: GPL (>= 2)
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

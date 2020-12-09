@@ -12,9 +12,9 @@ demoSRR <- function(a4=0, C=0, bm=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), yl
 	fit <- NULL
 
 	# Define all input components	
-	I_a4 <- tclVar(); tclvalue(I_a4) <- a4
-	I_C <- tclVar(); tclvalue(I_C) <- C
-	I_bm <- tclVar(); tclvalue(I_bm) <- bm
+	I_a4 <- tclVar(); tcltk::tclvalue(I_a4) <- a4
+	I_C <- tclVar(); tcltk::tclvalue(I_C) <- C
+	I_bm <- tclVar(); tcltk::tclvalue(I_bm) <- bm
 	
 	update <- function(...) {
         tkrreplot(img, hscale=1.5, vscale=1.5)
@@ -22,9 +22,9 @@ demoSRR <- function(a4=0, C=0, bm=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), yl
 
     replot <- function() {
 		# read parameters from sliders
-		a4 <- as.numeric(tclvalue(I_a4))
-		C <- as.numeric(tclvalue(I_C))
-		bm <- as.numeric(tclvalue(I_bm))
+		a4 <- as.numeric(tcltk::tclvalue(I_a4))
+		C <- as.numeric(tcltk::tclvalue(I_C))
+		bm <- as.numeric(tcltk::tclvalue(I_bm))
 
 		# derive regression weights from surface parameters
 		x2 <- a4/4
@@ -67,4 +67,7 @@ demoSRR <- function(a4=0, C=0, bm=0, type="3d", zlim=c(-2, 2), xlim=c(-2, 2), yl
 }
 
 # hack to please CRAN ...
-if(getRversion() >= "2.15.1")  {utils::globalVariables('tclvalue')}
+# Hack to please CRAN:
+if(getRversion() >= "2.15.1")  {
+	utils::globalVariables(c('tclVar', 'tcltk::tclvalue', 'tkconfigure' , 'tkframe', 'tklabel', 'tkpack', 'tkradiobutton', 'tkscale', 'tktoplevel', 'tkwm.title', "tkrplot", "tkrreplot"))
+}
