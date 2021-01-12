@@ -47,13 +47,20 @@ summary.RSA <- function(object, ..., model=NULL, digits=3) {
 		
 	## Step 1: Examine amount of discrepancy
 	#--------------------------------------------------
-	# When using polynomial regression analyses for the investigation of congruence effects, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrep- ancies in your sample.
+	# See Shannock et al. (2010): "When using polynomial regression analyses for the investigation of congruence effects, it is important to inspect how many participants would be considered to have discrepancies between the two predictors so that you have an idea of the base rate of discrepancies in your sample. [...] A good source to follow is the procedure conducted in Fleenor et al. (1996). Standardize the scores for each predictor variable. 
+	# --> We standardize to the common mean and sd! Otherwise we would break commensurability
+	# "Any participant with a standardized score on one predictor variable that is half a standard deviation above or below the standardized score on the other predictor variable is considered to have discrepant values."
 	
 	cat("Are there discrepancies in the predictors (with respect to numerical congruence)?\n")
 	cat("(A cutpoint of |\u0394z| > 0.5 is used)\n")
 	cat("\n----------------------------\n")
-	D <- (data[, IV2] - data[, IV1])/sd(c(data[, IV1], data[, IV2]), na.rm=TRUE)
-	Congruence <- cut(D, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "congruent", paste0(IV2, " > ", IV1)))
+	
+	common.M <- mean(c(data[, IV1], data[, IV2]), na.rm=TRUE)
+	common.SD <- sd(c(data[, IV1], data[, IV2]), na.rm=TRUE)
+	IV1.z <- (data[, IV1] - common.M) / common.SD
+	IV2.z <- (data[, IV2] - common.M) / common.SD
+	z.diff <- IV2.z - IV1.z
+	Congruence <- cut(z.diff, breaks=c(-Inf, -.5, .5, Inf), labels=c(paste0(IV2, " < ", IV1), "congruent", paste0(IV2, " > ", IV1)))
 
 	congruenceTab <- paste0(as.vector(round(table(Congruence)/length(Congruence), 2)*100), "%")
 	names(congruenceTab) <- names(table(Congruence))

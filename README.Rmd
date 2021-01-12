@@ -120,4 +120,5 @@ Not part of this package, but related: you can create polynomial surface plots w
 # Maintainers
 
 [Felix Schönbrodt](https://www.nicebread.de/)
+
 [Sarah Humberg](https://www.uni-muenster.de/PsyIFP/AEBack/members/Sarah_Humberg.html)

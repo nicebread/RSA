@@ -2,6 +2,14 @@
 \title{News for package 'RSA'}
 \encoding{UTF-8}
 
+\section{Version 0.10.3}{
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item Fixed error in discrepancy output of the summary() function. The computation now follows Shannock et al (2010); however, we standardize to the common mean and sd of both predictor variables. Otherwise we would break commensurability.
+	}
+}
+}
+
 \section{Version 0.10.2}{
 \subsection{Bug fixes/Glitches}{
 	\itemize{
