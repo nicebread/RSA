@@ -5,7 +5,7 @@
 \section{Version 0.10.3}{
 \subsection{Bug fixes/Glitches}{
 	\itemize{
-		\item Fixed error in discrepancy output of the summary() function. The computation now follows Shannock et al (2010); however, we standardize to the common mean and sd of both predictor variables. Otherwise we would break commensurability.
+		\item Documented the discrepancy output of the summary() function in the help file.
 	}
 }
 }
