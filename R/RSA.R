@@ -611,7 +611,7 @@ withCallingHandlers({
 	if (any(models %in% c("SRSQD"))) {
 		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), up ...")
 		m.SRSQD.up <- paste(paste(ifelse(is.cubic,polycubic,poly), " + start(0.001)*", IV22),
-			"b1 == (b2*b4)/(2*b5)",
+		  "2*b1*b5 == b2*b4",	# this is a different (but algebraically equivalent) formulation of the constraints
 			"b3 > 0.000001",
 			"b5 > 0.000001",
 			"b4^2 == 4*b3*b5",	# this is a different (but algebraically equivalent) formulation of the constraints
@@ -640,7 +640,7 @@ withCallingHandlers({
 			
 		if (verbose==TRUE) print("Computing rotated squared difference model (SRSQD), down ...")
 		m.SRSQD.down <- paste(paste(ifelse(is.cubic,polycubic,poly), " + start(-0.001)*", IV22),
-			"b1 == (b2*b4)/(2*b5)",
+			"2*b1*b5 == b2*b4",	# this is a different (but algebraically equivalent) formulation of the constraints
 			"b3 < -0.000001",
 			"b5 < -0.000001",
 			"b4^2 == 4*b3*b5",
