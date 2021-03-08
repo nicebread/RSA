@@ -2,6 +2,16 @@
 \title{News for package 'RSA'}
 \encoding{UTF-8}
 
+
+\section{Version 0.10.4}{
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item Fixed error in estimation of SRSQD model (by replacing a model constraint by an equivalent formula).
+	}
+}
+}
+
+
 \section{Version 0.10.3}{
 \subsection{Bug fixes/Glitches}{
 	\itemize{
