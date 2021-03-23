@@ -1,6 +1,6 @@
 ## Test environments
-* local OS X install
-* Win-builder
+* local macos install
+* Win-builder (devel and release)
 * Rhub
 
 ## R CMD check results

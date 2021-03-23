@@ -115,6 +115,16 @@ c1 <- confint(r.m, model="SSQD", method="boot", R=10)
 # Plot the final model
 plot(r.m, model="RR", xlab="Explicit power motive", 
 		ylab="Implicit power motive", zlab="Affective valence")
+		
+# Inclusion of control variables: Fake data on self-other agreement
+data(selfother)
+r.c <- RSA(liking~IQ_self*IQ_friend, 
+           center="pooled",
+           control.variables=c("age", "int"),
+           center.control.variables = TRUE,
+           data=selfother)
+summary(r.c)	
+		
 }
 }
 \references{
