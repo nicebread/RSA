@@ -44,7 +44,7 @@ aictab(
 Show a table of AIC model comparisons
 }
 \note{
-This function is similar to the function \code{\link[AICcmodavg]{aictab}} in the \code{AICcmodavg} package.
+This function is similar to the function \code{aictab} in the \code{AICcmodavg} package.
 }
 \examples{
 \dontrun{

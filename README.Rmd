@@ -41,7 +41,7 @@ The stable CRAN version can be installed by:
 
 The current development version can be installed by:
 
-    install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "qgraph", "AICcmodavg"))
+    install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "qgraph"))
     devtools::install_github("nicebread/RSA")
 
 	

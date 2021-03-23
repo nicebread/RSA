@@ -1,7 +1,7 @@
 ## Test environments
 * local macos install
 * Win-builder (devel and release)
-* Rhub
+* Travis-CI (Debian)
 
 ## R CMD check results
 There were no ERRORs, WARNINGs, or relevant NOTEs .

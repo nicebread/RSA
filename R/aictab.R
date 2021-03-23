@@ -31,7 +31,7 @@
 #' @param bw Should the plot be black & white?
 #' @param digits The output is rounded to this number of digits. No rounding if NA (default).
 #' 
-#' @note This function is similar to the function \code{\link[AICcmodavg]{aictab}} in the \code{AICcmodavg} package.
+#' @note This function is similar to the function \code{aictab} in the \code{AICcmodavg} package.
 #' 
 #' @examples
 #' \dontrun{
