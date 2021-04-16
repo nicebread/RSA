@@ -3,6 +3,22 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.10.5}{
+\subsection{New features}{
+	\itemize{
+		\item Give different colors to points in plot
+		\item Give different size to points in plot
+		\item Draw stilts and projection for a selection of data points in plot
+}
+}
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item -
+	}
+}
+}
+
+
 \section{Version 0.10.4}{
 \subsection{New features}{
 	\itemize{
