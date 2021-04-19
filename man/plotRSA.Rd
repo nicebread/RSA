@@ -159,10 +159,11 @@ plotRSA(
 \itemize{
     \item data: Data frame which contains the coordinates of the raw data points. First column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object
     \item show = TRUE: Should the original data points be overplotted?
-    \item color = "black": Color of the points
+    \item color = "black": Color of the points. Either a single value for all points, or a vector with the same size as data points provided.
         \item value="raw": Plot the original z value, "predicted": plot the predicted z value
     \item jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable
-    \item cex = .5: multiplication factor for point size
+    \item cex = .5: multiplication factor for point size. Either a single value for all points, or a vector with the same size as data points provided.
+        \item stilt: Should stilts be drawn for selected data points (i.e., lines from raw data points to the floor)? A logical vector with the same size as data points provided, indicating which points should get a stilt.
         \item out.mark = FALSE: If set to TRUE, outliers according to Bollen & Jackman (1980) are printed as red X symbols, but only when they have been removed in the RSA function: \code{RSA(..., out.rm=TRUE)}.
         \itemize{
             \item If out.rm == TRUE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is removed from the model and *not plotted* in plotRSA.

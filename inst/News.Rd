@@ -6,15 +6,8 @@
 \section{Version 0.10.5}{
 \subsection{New features}{
 	\itemize{
-		\item Give different colors to points in plot
-		\item Give different size to points in plot
-		\item Draw stilts and projection for a selection of data points in plot
+		\item Draw stilts for selected data points in plot (see new argument in the points list, see \code{?plotRSA})
 }
-}
-\subsection{Bug fixes/Glitches}{
-	\itemize{
-		\item -
-	}
 }
 }
 

@@ -51,10 +51,11 @@
 #'	\itemize{
 #'		\item data: Data frame which contains the coordinates of the raw data points. First column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object
 #'		\item show = TRUE: Should the original data points be overplotted?
-#'		\item color = "black": Color of the points
+#'		\item color = "black": Color of the points. Either a single value for all points, or a vector with the same size as data points provided.
 #' 		\item value="raw": Plot the original z value, "predicted": plot the predicted z value
 #'		\item jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable
-#'		\item cex = .5: multiplication factor for point size
+#'		\item cex = .5: multiplication factor for point size. Either a single value for all points, or a vector with the same size as data points provided.
+#' 		\item stilt: Should stilts be drawn for selected data points (i.e., lines from raw data points to the floor)? A logical vector with the same size as data points provided, indicating which points should get a stilt.
 #' 		\item out.mark = FALSE: If set to TRUE, outliers according to Bollen & Jackman (1980) are printed as red X symbols, but only when they have been removed in the RSA function: \code{RSA(..., out.rm=TRUE)}.
 #'			\itemize{
 #'				\item If out.rm == TRUE (in RSA()) and out.mark == FALSE (in plotRSA()), the outlier is removed from the model and *not plotted* in plotRSA.
@@ -226,7 +227,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	if (is.null(points$color)) points$color <- "black"
 	if (is.null(points$jitter)) points$jitter <- 0
 	if (is.null(points$cex)) points$cex <- 0.5
-	if (is.null(points$stilts)) points$stilts <- FALSE
+	if (is.null(points$stilt)) points$stilt <- FALSE
 	if (is.null(points$out.mark)) points$out.mark <- FALSE
 	if (points$show==TRUE & is.null(points$data)) {
 		warning("You must provide a data frame with the coordinates of the raw data points (points = list(show = TRUE, data = ???)). Points are not plotted.")
@@ -677,7 +678,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 
 			# ---------------------------------------------------------------------
 			# 1b. Stilts
-			if (!(typeof(points) == "logical" && points == FALSE) & length(points$stilts) > 0) {
+			if (!(typeof(points) == "logical" && points == FALSE) & length(points$stilt) > 0) {
 
 				X2 <- xlim.scaled[1] + diff(xlim.scaled) * (x.points - xlim[1]) / diff(xlim)
 	  			Y2 <- ylim.scaled[1] + diff(ylim.scaled) * (y.points - ylim[1]) / diff(ylim)
@@ -685,7 +686,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				Z.floor <- RESCALE.Z(min(zlim.final) + .01)
 
 				# loop through stilts
-				for (s in which(points$stilts == TRUE)) {
+				for (s in which(points$stilt == TRUE)) {
 					
 					# two points: from top to bottom
 					stilt_df <- data.frame(X=c(X2[s], X2[s]), Y=c(Y2[s], Y2[s]), Z=c(Z2[s], Z.floor))

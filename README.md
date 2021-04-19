@@ -5,9 +5,9 @@ rmarkdown::render("README.rmd")
 
 [![Build
 Status](https://travis-ci.org/nicebread/RSA.svg?branch=master)](https://travis-ci.org/nicebread/RSA)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2021--03--23-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2021--04--19-yellowgreen.svg)](/commits/master)
 [![](https://www.r-pkg.org/badges/version/RSA?color=orange)](https://cran.r-project.org/package=RSA)
-[![packageversion](https://img.shields.io/badge/Package%20version-0.10.4-orange.svg?style=flat-square)](commits/master)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.10.5-orange.svg?style=flat-square)](commits/master)
 ![](http://cranlogs.r-pkg.org/badges/RSA)
 [![](https://codecov.io/gh/nicebread/RSA/branch/master/graph/badge.svg)](https://codecov.io/gh/nicebread/RSA)
 
