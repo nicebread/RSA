@@ -234,7 +234,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		points$show <- FALSE
 	}
 
-	if (points$show==TRUE & length(points$color) > 1 & length(points$color) != nrow(points$data)) {
+	if (!is.null(points$data) && (points$show==TRUE & length(points$color) > 1 & (length(points$color) != nrow(points$data)))) {
 		warning("Either provide a single color value, or a vector of colors which has the same length as the data set. Color is reset to 'black' for all data points.")
 		points$color <- "black"
 	}
