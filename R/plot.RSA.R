@@ -695,9 +695,26 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					panel.3dscatter(x = stilt_df$X, y = stilt_df$Y, z = stilt_df$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
 					col=points$color[s], type="l", lwd=2, ...)
 
-					# stilt foot on floor
-					panel.3dscatter(x = X2[s], y = Y2[s], z = Z.floor, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-					col=points$color[s], cex=points$cex[s], type="p", pch=1, lwd=2, ...)
+					# stilt foot on floor with standard point
+					#panel.3dscatter(x = X2[s], y = Y2[s], z = Z.floor, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+					#col=points$color[s], cex=points$cex[s], type="p", pch=1, lwd=2, ...)
+
+					# emulate "X" with perspective: draw two lines that form an x around the foot of the stilt
+					cross_size_x <- diff(xlim.scaled)/30
+					cross_size_y <- diff(ylim.scaled)/30
+					cross1 <- data.frame(
+						X=c(X2[s]-cross_size_x, X2[s]+cross_size_x), 
+						Y=c(Y2[s], Y2[s]), 
+						Z=c(Z.floor, Z.floor))
+					cross2 <- data.frame(
+						X=c(X2[s], X2[s]), 
+						Y=c(Y2[s]-cross_size_y, Y2[s]+cross_size_y), 
+						Z=c(Z.floor, Z.floor))	
+					panel.3dscatter(x = cross1$X, y = cross1$Y, z = cross1$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+					col=points$color[s], type="l", lwd=1, ...)	
+
+					panel.3dscatter(x = cross2$X, y = cross2$Y, z = cross2$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+					col=points$color[s], type="l", lwd=1, ...)
 				}
 			}
 
