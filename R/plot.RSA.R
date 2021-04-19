@@ -226,6 +226,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	if (is.null(points$color)) points$color <- "black"
 	if (is.null(points$jitter)) points$jitter <- 0
 	if (is.null(points$cex)) points$cex <- 0.5
+	if (is.null(points$stilts)) points$stilts <- FALSE
 	if (is.null(points$out.mark)) points$out.mark <- FALSE
 	if (points$show==TRUE & is.null(points$data)) {
 		warning("You must provide a data frame with the coordinates of the raw data points (points = list(show = TRUE, data = ???)). Points are not plotted.")
@@ -608,7 +609,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				
 			
 			# ---------------------------------------------------------------------
-			# 1. Projection on bottom of cube
+			# 1a. Projection on bottom of cube
 			  if (length(project) > 0) {
 				  for (p in project) {
 					  if (p %in% c("LOC", "LOIC", "PA1", "PA2", "E2", "K1", "K2")) {
@@ -672,6 +673,34 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				}
 				  
 		  	
+			
+
+			# ---------------------------------------------------------------------
+			# 1b. Stilts
+			if (!(typeof(points) == "logical" && points == FALSE) & length(points$stilts) > 0) {
+
+				X2 <- xlim.scaled[1] + diff(xlim.scaled) * (x.points - xlim[1]) / diff(xlim)
+	  			Y2 <- ylim.scaled[1] + diff(ylim.scaled) * (y.points - ylim[1]) / diff(ylim)
+				Z2 <- zlim.scaled[1] + diff(zlim.scaled) * (z.points - zlim[1]) / diff(zlim)
+				Z.floor <- RESCALE.Z(min(zlim.final) + .01)
+
+				# loop through stilts
+				for (s in which(points$stilts == TRUE)) {
+					
+					# two points: from top to bottom
+					stilt_df <- data.frame(X=c(X2[s], X2[s]), Y=c(Y2[s], Y2[s]), Z=c(Z2[s], Z.floor))
+							
+					# stilt lines
+					panel.3dscatter(x = stilt_df$X, y = stilt_df$Y, z = stilt_df$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+					col=points$color[s], type="l", lwd=2, ...)
+
+					# stilt foot on floor
+					panel.3dscatter(x = X2[s], y = Y2[s], z = Z.floor, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+					col=points$color[s], cex=points$cex[s], type="p", pch=1, lwd=2, ...)
+				}
+			}
+
+			
 				
 			   # ---------------------------------------------------------------------
 			   # 2. Borders, back part
