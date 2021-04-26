@@ -159,7 +159,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	),
 	project=c("contour"), maxlines=FALSE,
 	cex.tickLabel=1, cex.axesLabel=1, cex.main=1, 
-	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE),
+	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, shells=NULL),
 	fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=FALSE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
@@ -694,7 +694,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 					# stilt lines
 					panel.3dscatter(x = stilt_df$X, y = stilt_df$Y, z = stilt_df$Z, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
 					col=points$color[s], type="l", lwd=2, ...)
-
+					
 					# stilt foot on floor with standard point
 					#panel.3dscatter(x = X2[s], y = Y2[s], z = Z.floor, xlim = xlim, ylim = ylim, zlim = zlim, xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
 					#col=points$color[s], cex=points$cex[s], type="p", pch=1, lwd=2, ...)
@@ -836,12 +836,38 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 							
 	  			              x2 <- xlim.scaled[1] + diff(xlim.scaled) * (x.points - xlim[1]) / diff(xlim)
 	  			              y2 <- ylim.scaled[1] + diff(ylim.scaled) * (y.points - ylim[1]) / diff(ylim)
-							  z2 <- zlim.scaled[1] + diff(zlim.scaled) * (z.points - zlim[1]) / diff(zlim)
-							
+	  			              z2 <- zlim.scaled[1] + diff(zlim.scaled) * (z.points - zlim[1]) / diff(zlim)
+	  			              
+	  			              # original version: 
 	  			              panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
 	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-	  										  pch=20, col=points$color, cex=points$cex, ...)
-							  # plot outliers
+	  			                              pch=20, col=points$color, cex=points$cex, ...)
+	  			              
+	  			              # new, not working version:
+  			                # panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
+  			                #                 xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+  			                #                 pch=21, col=points$shells, fill=points$color, cex=points$cex, ...)
+	  			              
+	  			              
+	  			                 
+	  			              
+	  			              # # idea for final version: chose point settings depending on whether shell line is desired
+	  			              # if(is.null(points$shells)){
+	  			              #   pch <- 20
+	  			              #   col = points$color
+	  			              #   fill = NULL
+	  			              # } else {
+	  			              #   pch <- 21
+	  			              #   col = points$shells
+	  			              #   fill = points$color
+	  			              # }
+	  			              # 
+	  			              #   panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
+	  			              #                   xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+	  			              #                   pch=pch, col=col, fill=fill, cex=points$cex, ...)
+
+	  			              
+	  			              # plot outliers
 							  if (points$out.mark==TRUE) {
 	  			              	panel.3dscatter(x = x2[fit$outliers], y = y2[fit$outliers], z = z2[fit$outliers], xlim = xlim, ylim = ylim, zlim = zlim,
 	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
