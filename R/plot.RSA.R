@@ -159,7 +159,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	),
 	project=c("contour"), maxlines=FALSE,
 	cex.tickLabel=1, cex.axesLabel=1, cex.main=1, 
-	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, shells=NULL),
+	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, shells=FALSE),
 	fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=FALSE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
@@ -209,7 +209,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	
 	if (is.null(points) || (typeof(points) == "logical" && points == TRUE)) {
-		points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE)
+		points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, shells=FALSE)
 	}
 	if (is.null(points) || (typeof(points) == "logical" && points == FALSE)) {
 		points <- list(show=FALSE)
@@ -225,6 +225,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	if (is.null(points$value)) points$value <- "raw"
 	if (is.null(points$color)) points$color <- "black"
+	if (is.null(points$shells)) points$shells <- FALSE
 	if (is.null(points$jitter)) points$jitter <- 0
 	if (is.null(points$cex)) points$cex <- 0.5
 	if (is.null(points$stilt)) points$stilt <- FALSE
@@ -237,6 +238,11 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	if (!is.null(points$data) && (points$show==TRUE & length(points$color) > 1 & (length(points$color) != nrow(points$data)))) {
 		warning("Either provide a single color value, or a vector of colors which has the same length as the data set. Color is reset to 'black' for all data points.")
 		points$color <- "black"
+	}
+
+	if (!is.null(points$data) && (points$show==TRUE & length(points$shells) > 1 & (length(points$shells) != nrow(points$data)))) {
+		warning("Either provide a single shell color value, or a vector of colors which has the same length as the data set. Shell is set to FALSE.")
+		points$shells <- FALSE
 	}
 
 	if (!is.null(fit)) {
@@ -839,10 +845,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	  			              z2 <- zlim.scaled[1] + diff(zlim.scaled) * (z.points - zlim[1]) / diff(zlim)
 	  			              
 	  			              # original version: 
-	  			              panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
-	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-	  			                              pch=20, col=points$color, cex=points$cex, ...)
+							#   panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
+	  			            #                   xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+	  			            #                   pch=20, col=points$color, cex=points$cex, ...)					
 	  			              
+							  panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
+	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
+	  			                              pch=21, col=points$shells, fill=points$color, cex=points$cex, ...)		
+
 	  			              # new, not working version:
   			                # panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
   			                #                 xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
