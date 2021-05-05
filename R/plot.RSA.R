@@ -51,7 +51,8 @@
 #'	\itemize{
 #'		\item data: Data frame which contains the coordinates of the raw data points. First column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object
 #'		\item show = TRUE: Should the original data points be overplotted?
-#'		\item color = "black": Color of the points. Either a single value for all points, or a vector with the same size as data points provided.
+#'		\item color = "black": Color of the points. Either a single value for all points, or a vector with the same size as data points provided. If parameter \code{fill} is also defined, \code{color} refers to the border of the points.
+#'		\item fill = NULL: Fill of the points. Either a single value for all points, or a vector with the same size as data points provided. As a default, this is set to NULL, which means that all points simply have the color \code{color}.
 #' 		\item value="raw": Plot the original z value, "predicted": plot the predicted z value
 #'		\item jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable
 #'		\item cex = .5: multiplication factor for point size. Either a single value for all points, or a vector with the same size as data points provided.
@@ -159,7 +160,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	),
 	project=c("contour"), maxlines=FALSE,
 	cex.tickLabel=1, cex.axesLabel=1, cex.main=1, 
-	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, shells=FALSE),
+	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, fill=NULL),
 	fit=NULL, link="identity", 
 	tck=c(1.5, 1.5, 1.5), distance=c(1.3, 1.3, 1.4), border=FALSE, 
 	contour = list(show=FALSE, color="grey40", highlight = c()),
@@ -208,10 +209,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		points$data <- data.frame(points$data)	# a tibble causes an error ...
 	}
 	
-	if (is.null(points) || (typeof(points) == "logical" && points == TRUE)) {
-		points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, shells=FALSE)
+	if ((typeof(points) == "logical" && points == TRUE)) {
+		points <- list(show=TRUE, value="raw", jitter=0, color="black", cex=.5, out.mark=FALSE, fill=NULL)
 	}
-	if (is.null(points) || (typeof(points) == "logical" && points == FALSE)) {
+	if ((typeof(points) == "logical" && points == FALSE)) {
 		points <- list(show=FALSE)
 	}
 	
@@ -225,7 +226,6 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	}
 	if (is.null(points$value)) points$value <- "raw"
 	if (is.null(points$color)) points$color <- "black"
-	if (is.null(points$shells)) points$shells <- FALSE
 	if (is.null(points$jitter)) points$jitter <- 0
 	if (is.null(points$cex)) points$cex <- 0.5
 	if (is.null(points$stilt)) points$stilt <- FALSE
@@ -235,14 +235,19 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		points$show <- FALSE
 	}
 
+	if (!is.null(points$fill) & compareVersion(as.character(packageVersion("lattice")), "0.21.3") < 0) {
+		warning("Requesting a fill color for points requires a version of the package 'lattice' >= 0.21.3. Parameter fill is set to NULL.")
+		points$fill <- NULL
+	}
+
 	if (!is.null(points$data) && (points$show==TRUE & length(points$color) > 1 & (length(points$color) != nrow(points$data)))) {
 		warning("Either provide a single color value, or a vector of colors which has the same length as the data set. Color is reset to 'black' for all data points.")
 		points$color <- "black"
 	}
 
-	if (!is.null(points$data) && (points$show==TRUE & length(points$shells) > 1 & (length(points$shells) != nrow(points$data)))) {
-		warning("Either provide a single shell color value, or a vector of colors which has the same length as the data set. Shell is set to FALSE.")
-		points$shells <- FALSE
+	if (!is.null(points$data) && (points$show==TRUE & length(points$fill) > 1 & (length(points$fill) != nrow(points$data)))) {
+		warning("Either provide a single fill color value, or a vector of colors which has the same length as the data set. fill is set to NULL.")
+		points$fill <- NULL
 	}
 
 	if (!is.null(fit)) {
@@ -844,37 +849,15 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	  			              y2 <- ylim.scaled[1] + diff(ylim.scaled) * (y.points - ylim[1]) / diff(ylim)
 	  			              z2 <- zlim.scaled[1] + diff(zlim.scaled) * (z.points - zlim[1]) / diff(zlim)
 	  			              
-	  			              # original version: 
-							#   panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
-	  			            #                   xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-	  			            #                   pch=20, col=points$color, cex=points$cex, ...)					
+	  			              if (is.null(points$fill)){
+	  			                panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
+	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, pch=20, col=points$color, cex=points$cex, ...)
+	  			              } else {
+	  			                panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
+	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled, pch=21, col=points$color, fill=points$fill, cex=points$cex, ...)
+							  }
 	  			              
-							  panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
-	  			                              xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-	  			                              pch=21, col=points$shells, fill=points$color, cex=points$cex, ...)		
-
-	  			              # new, not working version:
-  			                # panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
-  			                #                 xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-  			                #                 pch=21, col=points$shells, fill=points$color, cex=points$cex, ...)
-	  			              
-	  			              
-	  			                 
-	  			              
-	  			              # # idea for final version: chose point settings depending on whether shell line is desired
-	  			              # if(is.null(points$shells)){
-	  			              #   pch <- 20
-	  			              #   col = points$color
-	  			              #   fill = NULL
-	  			              # } else {
-	  			              #   pch <- 21
-	  			              #   col = points$shells
-	  			              #   fill = points$color
-	  			              # }
-	  			              # 
-	  			              #   panel.3dscatter(x = x2, y = y2, z = z2, xlim = xlim, ylim = ylim, zlim = zlim,
-	  			              #                   xlim.scaled = xlim.scaled, ylim.scaled = ylim.scaled, zlim.scaled = zlim.scaled,
-	  			              #                   pch=pch, col=col, fill=fill, cex=points$cex, ...)
+							  	  			           
 
 	  			              
 	  			              # plot outliers

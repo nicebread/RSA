@@ -6,7 +6,8 @@
 \section{Version 0.10.5}{
 \subsection{New features}{
 	\itemize{
-		\item Draw stilts for selected data points in plot (see new argument in the points list, see \code{?plotRSA})
+		\item Draw stilts for selected data points in plot (see new argument \code{stilt} in the points list, see \code{?plotRSA}).
+		\item Change color of data point border (see new argument \code{fill} in the points list, see \code{?plotRSA}). If parameter \code{fill} is provided, then this is the fill of the points, and \code{color} is the border color. (This behavior is inherited from R, which uses this system for pch=21).
 }
 }
 }

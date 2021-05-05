@@ -52,7 +52,7 @@ plotRSA(
   cex.axesLabel = 1,
   cex.main = 1,
   points = list(data = NULL, show = NA, value = "raw", jitter = 0, color = "black", cex
-    = 0.5, out.mark = FALSE),
+    = 0.5, out.mark = FALSE, fill = NULL),
   fit = NULL,
   link = "identity",
   tck = c(1.5, 1.5, 1.5),
@@ -159,7 +159,8 @@ plotRSA(
 \itemize{
     \item data: Data frame which contains the coordinates of the raw data points. First column = x, second = y, third = z. This data frame is automatically generated when the plot is based on a fitted RSA-object
     \item show = TRUE: Should the original data points be overplotted?
-    \item color = "black": Color of the points. Either a single value for all points, or a vector with the same size as data points provided.
+    \item color = "black": Color of the points. Either a single value for all points, or a vector with the same size as data points provided. If parameter \code{fill} is also defined, \code{color} refers to the border of the points.
+    \item fill = NULL: Fill of the points. Either a single value for all points, or a vector with the same size as data points provided. As a default, this is set to NULL, which means that all points simply have the color \code{color}.
         \item value="raw": Plot the original z value, "predicted": plot the predicted z value
     \item jitter = 0: Amount of jitter for the raw data points. For z values, a value of 0.005 is reasonable
     \item cex = .5: multiplication factor for point size. Either a single value for all points, or a vector with the same size as data points provided.
