@@ -5,7 +5,7 @@ rmarkdown::render("README.rmd")
 
 [![Build
 Status](https://travis-ci.org/nicebread/RSA.svg?branch=master)](https://travis-ci.org/nicebread/RSA)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2021--05--05-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2021--05--19-yellowgreen.svg)](/commits/master)
 [![](https://www.r-pkg.org/badges/version/RSA?color=orange)](https://cran.r-project.org/package=RSA)
 [![packageversion](https://img.shields.io/badge/Package%20version-0.10.5-orange.svg?style=flat-square)](commits/master)
 ![](http://cranlogs.r-pkg.org/badges/RSA)
@@ -20,6 +20,11 @@ An R package for Response Surface Analysis
 The stable CRAN version can be installed by:
 
     install.packages("RSA")
+
+Note that on macos, the use of X11 (including tcltk) requires
+[XQuartz](https://www.xquartz.org) to be installed manually since it is
+no longer part of OS X. Always re-install XQuartz when upgrading your
+macos to a new major version.
 
 The current development version can be installed by:
 

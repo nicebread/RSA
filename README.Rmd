@@ -39,6 +39,8 @@ The stable CRAN version can be installed by:
 
     install.packages("RSA")
 
+Note that on macos, the use of X11 (including tcltk) requires [XQuartz](https://www.xquartz.org) to be installed manually since it is no longer part of OS X. Always re-install XQuartz when upgrading your macos to a new major version.
+
 The current development version can be installed by:
 
     install.packages(c("devtools", "lavaan", "plyr", "ggplot2", "lattice", "tkrplot", "RColorBrewer", "rgl", "gridExtra", "aplpack", "fields", "qgraph"))
