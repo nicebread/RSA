@@ -52,7 +52,7 @@ plotRSA(
   cex.axesLabel = 1,
   cex.main = 1,
   points = list(data = NULL, show = NA, value = "raw", jitter = 0, color = "black", cex
-    = 0.5, out.mark = FALSE, fill = NULL),
+    = 0.5, stilt = NULL, out.mark = FALSE, fill = NULL),
   fit = NULL,
   link = "identity",
   tck = c(1.5, 1.5, 1.5),

@@ -146,6 +146,10 @@ RSA <- function(formula, data=NULL, center="none", scale="none", na.rm=FALSE,
 	# when boolean options are used for center/scale (as was necessary in earlier package versions), restore behavior of earlier versions
 	if(center==TRUE){center <- "variablewise"}
 	if(scale==TRUE){scale <- "variablewise"}
+	if (!center %in% c("none", "variablewise", "pooled")) {
+		warning('Parameter `center` must be one of c("none", "variablewise", "pooled"), or TRUE (which corresponds to "variablewise") or FALSE (which corresponds to "none"). Setting to "none".')
+		center <- "none"
+	}
 	
 	# "variablewise": standardization at respective variable means/SDs
 	
