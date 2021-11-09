@@ -67,7 +67,8 @@ Even if the main variables of the model are normally distributed, their squared 
 
 \emph{Why does my standard polynomial regression give different p-values and SEs than the RSA package? Shouldn't they be the same?} This is due to the robust standard errors employed in the RSA package. If you set \code{estimator="ML"} and \code{se="standard"}, you get p-values that are very close to the standard approach. (They might still not be identical because the standard regression approach usually uses an OLS estimator and RSA uses an ML estimator).
 
-You can also fit \strong{binary outcome variables} with a probit link function. For that purpose, the response variable has to be defined as "ordered", and the \code{lavaan} estimator changed to "WLSMV": \code{r1 <- RSA(Z.binary ~ X*Y, dat, ordered="Z.binary", estimator="WLSMV")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1, link="probit", zlim=c(0, 1), zlab="Probability")}. \code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link.
+Experimental feature (use with caution!): You can also fit \strong{binary outcome variables} with a probit link function. For that purpose, the response variable has to be defined as "ordered", and the \code{lavaan} estimator changed to "WLSMV": \code{r1.binary <- RSA(z.binary~x*y, df, ordered="z.binary", estimator="WLSMV", model="full")} (for more details see the help file of the \code{\link{sem}} function in the \code{lavaan} package.). The results can also be plotted with probabilities on the z axis using the probit link function: \code{plot(r1.binary, link="probit", zlim=c(0, 1), zlab="Probability")}. For plotting, the binary outcome variable must be coded with 0 and 1 (not as a factor).
+\code{lavaan} at the moment only supports a probit link function for binary outcomes, not a logit link. Please be aware that this experimental feature can fit the full model, but most other functions (such as model comparisons) might break and errors might show up.
 }
 \note{
 For explanations of the meaning of the various different models that can be estimated, please see Schönbrodt (2016) for the second-order models (i.e., all models but "CA", "RRCA", "CL", "RRCL") and Humberg et al. (in press) for the third-order (cubic) models ("CA", "RRCA", "CL", "RRCL"). 
@@ -94,6 +95,8 @@ df <- within(df, {
 	z.add <- diff + 0.4*x + rnorm(n, 0, err)
 	z.complex <- 0.4*x + - 0.2*x*y + + 0.1*x^2 - 0.03*y^2 + rnorm(n, 0, err)
 })
+df$z.binary <- as.numeric(df$z.sq < median(df$z.sq))
+
 \dontrun{
 r1 <- RSA(z.sq~x*y, df)
 summary(r1)
@@ -103,6 +106,13 @@ plot(r1, model="SRSQD")
 plot(r1, model="full", type="c")
 getPar(r1, "coef")	# print model parameters including SE and CI
 RSA.ST(r1)	# get surface parameters
+
+# Example with binary outcome (probit regression, see Details; Experimental and a dirty workaround!). 
+# The standard summary output does not work; you have to access the full model directly:
+r1.binary <- RSA(z.binary~x*y, df, ordered="z.binary", estimator="WLSMV", model="full", se="standard")
+# --> ignore the warning
+summary(r1.binary$models[["full"]])
+plot(r1.binary, link="probit", zlim=c(0, 1), zlab="Probability")
 
 # Motive congruency example
 data(motcon)
