@@ -1004,7 +1004,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			p1 <- ggplot(new2, aes_string(x="x", y="y", z="z")) + geom_tile(aes_string(fill="z")) + scale_fill_gradientn(zlab, colours=pal, limits=limits) + theme_bw() + theme(aspect.ratio=1) + xlab(xlab) + ylab(ylab)
 			
 			if (legend==FALSE) {
-				p1 <- p1 + guides(fill=FALSE)
+				p1 <- p1 + guides(fill="none")
 			}
 	
 			p1 <- p1 + stat_contour(bins=40, alpha=.4)
@@ -1021,37 +1021,37 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				
 			# (in)congruence lines
 			if ("LOC" %in% axes) {
-				p1 <- p1 + geom_abline(aes(intercept=0, slope=1), color="grey20")
+			  p1 <- p1 + geom_abline(aes(intercept=0, slope=1), color=axesStyles[["LOC"]]$col, linetype=ifelse(axesStyles[["LOC"]]$lty=="solid", 1, 2), size=axesStyles[["LOC"]]$lwd )
 			}
 			if ("LOIC" %in% axes) {
-				p1 <- p1 + geom_abline(aes(intercept=0, slope=-1), linetype="dotted", size=1, color="grey20")
+				p1 <- p1 + geom_abline(aes(intercept=0, slope=-1), color=axesStyles[["LOIC"]]$col, linetype=ifelse(axesStyles[["LOIC"]]$lty=="solid", 1, 2), size=axesStyles[["LOIC"]]$lwd )
 			}
 			
 			if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel){
   			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
-  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color=axesStyles[["PA1"]]$col, linetype=ifelse(axesStyles[["PA1"]]$lty=="solid", 1, 2), size=axesStyles[["PA1"]]$lwd )
   			}
   			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
-  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), color=axesStyles[["PA2"]]$col, linetype=ifelse(axesStyles[["PA2"]]$lty=="solid", 1, 2), size=axesStyles[["PA2"]]$lwd )
   			}
 			}
 			
 			if ("E2" %in% axes) {
 			  E20 <- 2*x2/(3*x3)
-			  p1 <- p1 + geom_abline(aes(intercept=E20, slope=1), color="deeppink")
+			  p1 <- p1 + geom_abline(aes(intercept=E20, slope=1), aes_string(intercept="p10", slope="p11"), color=axesStyles[["E2"]]$col, linetype=ifelse(axesStyles[["E2"]]$lty=="solid", 1, 2), size=axesStyles[["E2"]]$lwd )
 			}
 			
 			if ("K1" %in% axes) {
 			  k1 <- clRange(fit, model=model, alpha=claxes.alpha)$k1
 			  if (!is.na(k1)){
-			    p1 <- p1 + geom_abline(aes(intercept=2*k1, slope=-1), color="deeppink")
+			    p1 <- p1 + geom_abline(aes(intercept=2*k1, slope=-1), aes_string(intercept="p10", slope="p11"), color=axesStyles[["K1"]]$col, linetype=ifelse(axesStyles[["K1"]]$lty=="solid", 1, 2), size=axesStyles[["K1"]]$lwd )
 			  }
 			}
 			
 			if ("K2" %in% axes) {
 			  k2 <- clRange(fit, model=model, alpha=claxes.alpha)$k2
 			  if (!is.na(k2)){
-			    p1 <- p1 + geom_abline(aes(intercept=2*k2, slope=-1), color="deeppink")
+			    p1 <- p1 + geom_abline(aes(intercept=2*k2, slope=-1), aes_string(intercept="p10", slope="p11"), color=axesStyles[["K2"]]$col, linetype=ifelse(axesStyles[["K2"]]$lty=="solid", 1, 2), size=axesStyles[["K2"]]$lwd)
 			  }
 			}
 			
