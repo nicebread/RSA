@@ -29,6 +29,9 @@
 #' @param xy2 XY^2 coefficient
 #' @param x3 X^3 coefficient
 #' @param b0 Intercept
+#' @param SE In case that the coefficients are provided directly (as parameters x, y, x2, y2, xy), SE can provide the standard errors of these estimates. SE has to be a named vector with exactly five elements with the names of the coefficients, e.g.: \code{SE=c(x=.1, y=.2, x2=.1, y2=.5, xy=.3)}. SEs of all parameters have to provided, otherwise the function will print an error. In case standard errors \emph{and} the covariances (see below) \emph{and} df (see below) are provided, parametric confidence intervals for a1 to a4 are calculated.
+#' @param COV Covariances between parameters. COV has to be a named vector with exactly four elements with the names of four specific covariances, e.g.: \code{COV=c(x_y=.1, x2_y2 = .2, x2_xy = .3, y2_xy = .4)}, where x_y is the covariance between x and y, and so on. All these covariances have to provided with exactly these names, otherwise the function will print an error.
+#' @param df Degrees of freedom for the calculation of a1 to a4 confidence intervals. The df are the residual dfs of the model (df = n - estimated parameters). For the full polynomial model, this is n - 6 in a regular regression (the following parameters are estimated: Intercept, x, y, xy, x2, y2). \code{df} should be a single number.
 #' @param xlim Limits of the x axis
 #' @param ylim Limits of the y axis
 #' @param zlim Limits of the z axis
@@ -142,7 +145,7 @@
 # rotation=list(x=-45, y=45, z=35), label.rotation=list(x=45, y=-25, z=94)
 # distance=c(1, 1, 1), tck=c(1, 1, 1)
 
-plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, 
+plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2y=0, y3=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 	type="3d", model="full", 
 	xlim=NULL, ylim=NULL, zlim=NULL, 
 	xlab=NULL, ylab=NULL, zlab=NULL, main="",
@@ -348,7 +351,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			}
 			
 		} else {
-			SP <- RSA.ST(x=x, y=y, xy=xy, x2=x2, y2=y2)
+			SP <- RSA.ST(x=x, y=y, xy=xy, x2=x2, y2=y2, SE=SE, COV=COV, df=df)
 			SP.text <- paste0("a", 1:5, ": ", f2(SP$SP$estimate, 2), p2star(SP$SP$p.value), collapse="    ")			
 		}		
 	} else {
