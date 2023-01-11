@@ -563,8 +563,8 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		col2 <- as.character(cut(1:(R[2] - R[1] + 1), breaks=length(pal), labels=pal))
 		
 		rgl::open3d(cex=cex.main)
-		rgl::rgl.viewpoint(-30, -90, fov=0)
-		rgl::rgl.light(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
+		rgl::view3d(-30, -90, fov=0)
+		rgl::light3d(theta = 0, phi = 90, viewpoint.rel = TRUE, ambient = "#FF0000", diffuse = "#FFFFFF", specular = "#FFFFFF")
 		rgl::persp3d(P$x, P$y, DV2, xlab = xlab, ylab = ylab, zlab = zlab, color=col2[DV2 - R[1] + 1], main=main, ...)
 
 		if (contour$show == TRUE) {
