@@ -173,7 +173,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	# Warnings and error handling ...
 	if (!identical(xlim, ylim)) {print("Note: Axes dimensions are not equal. The visual diagonal is *not* the line of numerical congruence! Consider choosing identical values for xlim and ylim.")}
 		
-	if (class(x) == "RSA") {
+	if (inherits(x, "RSA")) {
 		stop("If you want to plot an RSA object, please use plot(...); plotRSA should be only used when you directly provide the regression coefficients.")
 	}
 	

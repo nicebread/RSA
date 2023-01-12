@@ -41,18 +41,18 @@ plotRSA(
   param = TRUE,
   coefs = FALSE,
   axes = c("LOC", "LOIC", "PA1", "PA2"),
-  axesStyles = list(LOC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE,
-    "black", "blue")), LOIC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE,
-    "black", "blue")), PA1 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE,
-    "black", "gray30")), PA2 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE,
-    "black", "gray30"))),
+  axesStyles = list(LOC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "blue")), LOIC = list(lty = "solid", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "blue")), PA1 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "gray30")), PA2 = list(lty = "dotted", lwd = 2, col = ifelse(bw == TRUE, "black",
+    "gray30"))),
   project = c("contour"),
   maxlines = FALSE,
   cex.tickLabel = 1,
   cex.axesLabel = 1,
   cex.main = 1,
-  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color = "black", cex
-    = 0.5, stilt = NULL, out.mark = FALSE, fill = NULL),
+  points = list(data = NULL, show = NA, value = "raw", jitter = 0, color = "black", cex =
+    0.5, stilt = NULL, out.mark = FALSE, fill = NULL),
   fit = NULL,
   link = "identity",
   tck = c(1.5, 1.5, 1.5),
@@ -145,7 +145,7 @@ plotRSA(
 
 \item{axesStyles}{Define the visual styles of the axes LOC, LOIC, PA1, PA2, E2, K1, and K2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.}
 
-\item{project}{A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points", "E2", "K1", "K2")}
+\item{project}{A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points", "E2", "K1", "K2"). Note that projected elements are plotted in the order given in the vector (first elements are plotted first and overplotted by later elements).}
 
 \item{maxlines}{Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"}
 

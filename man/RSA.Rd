@@ -107,9 +107,11 @@ plot(r1, model="full", type="c")
 getPar(r1, "coef")	# print model parameters including SE and CI
 RSA.ST(r1)	# get surface parameters
 
-# Example with binary outcome (probit regression, see Details; Experimental and a dirty workaround!). 
+# Example with binary outcome 
+(probit regression, see Details; Experimental and a dirty workaround!).
 # The standard summary output does not work; you have to access the full model directly:
-r1.binary <- RSA(z.binary~x*y, df, ordered="z.binary", estimator="WLSMV", model="full", se="standard")
+r1.binary <- RSA(z.binary~x*y, df, ordered="z.binary", estimator="WLSMV", 
+    model="full", se="standard")
 # --> ignore the warning
 summary(r1.binary$models[["full"]])
 plot(r1.binary, link="probit", zlim=c(0, 1), zlab="Probability")

@@ -3,7 +3,7 @@ Package: RSA
 Type: Package
 Title: Response Surface Analysis
 Version: 0.10.6
-Date: 2021-11-09
+Date: 2023-01-12
 Authors@R: c(
 		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("cre", "aut")),
 		person("Sarah", "Humberg", role = c("aut"))
@@ -37,4 +37,4 @@ Imports:
     aplpack,
 	methods
 License: GPL (>= 2)
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.3
