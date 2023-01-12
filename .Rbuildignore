@@ -12,3 +12,4 @@ internal_files
 ^README\.Rmd$
 ^README-.*\.png$
 .covrignore
+^CRAN-SUBMISSION$
