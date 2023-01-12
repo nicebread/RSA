@@ -3,6 +3,16 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.10.6}{
+\subsection{Maintenance release}{
+	\itemize{
+		\item Update documentation for binary outcomes (doesn't work well at the moment; just with some dirty workarounds).
+		\item Document an (unintended) feature in plotRSA when using the \code{project} parameter: Note that projected elements are plotted in the order given in the vector (first elements are plotted first and overplotted by later elements).
+		\item Apply patch by Duncan Murdoch regarding deprecations in the rgl package.
+}
+}
+}
+
 \section{Version 0.10.5}{
 \subsection{New features}{
 	\itemize{
