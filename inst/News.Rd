@@ -3,6 +3,21 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.10.XXXXXXX}{ % TODO: chose version number before upload to CRAN
+\subsection{New features}{
+	\itemize{
+		\item Draw user-defined lines on the surface (see new argument \code{addLines} in \code{plotRSA}).
+}
+}
+\subsection{Bug fixes/Glitches}{
+	\itemize{
+		\item In the plots, the user-defined axesStyles will now also be applied to the contour plot.
+		\item Fixed error in plotRSA when pal is set by the user.
+	}
+}
+}
+
+
 \section{Version 0.10.5}{
 \subsection{New features}{
 	\itemize{
