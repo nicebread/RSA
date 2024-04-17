@@ -30,11 +30,11 @@ RSA.ST(
 
 \item{b0}{The intercept}
 
-\item{SE}{In case that the coefficients are provided directly (as parameters x, y, x2, y2, xy), SE can provide the standard errors of these estimates. SE has to be a named vector with exactly five elements with the names of the coefficients, e.g.: \code{SE=c(x=.1, y=.2, x2=.1, y2=.5, xy=.3)}. SEs of all parameters have to be provided, otherwise the function will print an error. In case standard errors \emph{and} the covariances (see below) \emph{and} df (see below) are provided, parametric confidence intervals for a1 to a4 are calculated.}
+\item{SE}{In case that the coefficients are provided directly (as parameters x, y, x2, y2, xy), SE can provide the standard errors of these estimates. SE has to be a named vector with exactly five elements with the names of the coefficients, e.g.: \code{SE=c(x=.1, y=.2, x2=.1, y2=.5, xy=.3)}. SEs of all parameters have to be provided, otherwise the function will print an error. In case standard errors \emph{and} the covariances (see below) \emph{and} df (see below) are provided, parametric confidence intervals for a1 to a5 are calculated.}
 
 \item{COV}{Covariances between parameters. COV has to be a named vector with exactly four elements with the names of four specific covariances, e.g.: \code{COV=c(x_y=.1, x2_y2 = .2, x2_xy = .3, y2_xy = .4)}, where x_y is the covariance between x and y, and so on. All these covariances have to be provided with exactly these names, otherwise the function will print an error.}
 
-\item{df}{Degrees of freedom for the calculation of a1 to a4 confidence intervals. The df are the residual dfs of the model (df = n - estimated parameters). For the full second-order polynomial model, this is 'n - 6 - number of control variables' in a regular regression (the following parameters are estimated: Intercept, x, y, x2, xy, y2, all control variables). \code{df} should be a single number.}
+\item{df}{Degrees of freedom for the calculation of a1 to a5 confidence intervals. The df are the residual dfs of the model (df = n - estimated parameters). For the full second-order polynomial model, this is 'n - 6 - number of control variables' in a regular regression (the following parameters are estimated: Intercept, x, y, x2, xy, y2, all control variables). \code{df} should be a single number.}
 
 \item{model}{If x is an RSA object, this parameter specifies the model from which to extract the coefficients}
 }
@@ -51,7 +51,7 @@ PA1.curv: quadratic component of the first PA, after optimal coord transformatio
 PA2.curv: quadratic component of the second PA, after optimal coord transformation
 }
 \description{
-Calculates surface parameters a1 to a4, the stationary point, the principal axes, the eigenvectors and -values
+Calculates surface parameters a1 to a5, the stationary point, the principal axes, the eigenvectors and -values
 }
 \details{
 No details so far.

@@ -230,7 +230,7 @@ plotRSA(x=.314, y=-.118, x2=-.145, y2=-.102, xy=.299, b0=5.628, type="i")
 # Plot response surface from an RSA object
 set.seed(0xBEEF)
 n <- 300
-err <- 2
+err <- 4
 x <- rnorm(n, 0, 5)
 y <- rnorm(n, 0, 5)
 df <- data.frame(x, y)

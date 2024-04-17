@@ -5,9 +5,9 @@ rmarkdown::render("README.rmd")
 
 [![Build
 Status](https://travis-ci.org/nicebread/RSA.svg?branch=master)](https://travis-ci.org/nicebread/RSA)
-[![Last-changedate](https://img.shields.io/badge/last%20change-2023--01--12-yellowgreen.svg)](/commits/master)
+[![Last-changedate](https://img.shields.io/badge/last%20change-2024--04--17-yellowgreen.svg)](/commits/master)
 [![](https://www.r-pkg.org/badges/version/RSA?color=orange)](https://cran.r-project.org/package=RSA)
-[![packageversion](https://img.shields.io/badge/Package%20version-0.10.6-orange.svg?style=flat-square)](commits/master)
+[![packageversion](https://img.shields.io/badge/Package%20version-0.10.7-orange.svg?style=flat-square)](commits/master)
 ![](http://cranlogs.r-pkg.org/badges/RSA)
 [![](https://codecov.io/gh/nicebread/RSA/branch/master/graph/badge.svg)](https://codecov.io/gh/nicebread/RSA)
 [![SWH](https://archive.softwareheritage.org/badge/swh:1:dir:dc97c04afda45644b8afed6571094713e4eccc5e/)](https://archive.softwareheritage.org/swh:1:dir:dc97c04afda45644b8afed6571094713e4eccc5e;origin=https://github.com/nicebread/RSA;visit=swh:1:snp:8797aa5094b472ecdefca080784bc65b4b1a5a53;anchor=swh:1:rev:c92a7209cbcedca083ee50f4c8931af4ae0f135e)

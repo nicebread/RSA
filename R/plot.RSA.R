@@ -112,7 +112,7 @@
 #' # Plot response surface from an RSA object
 #' set.seed(0xBEEF)
 #' n <- 300
-#' err <- 2
+#' err <- 10
 #' x <- rnorm(n, 0, 5)
 #' y <- rnorm(n, 0, 5)
 #' df <- data.frame(x, y)
@@ -667,7 +667,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				  # project contour on bottom
 				if (contour$show == TRUE | "contour" %in% project) {
 					# "abuse" ggplot to compute the contour lines
-					cs <- ggplot(new2, aes_string(x="x", y="y", fill="z", z="z")) + stat_contour(bins=ifelse(length(pal)>1, length(pal)+1, 8))
+					cs <- ggplot(new2, aes(x=x, y=y, z=z)) + stat_contour(bins=ifelse(length(pal)>1, length(pal)+1, 8))
 					cLines <- ggplot_build(cs)
 					C0 <- cLines$data[[1]][, c("x", "y", "level", "group")]
 					colnames(C0) <- c("X", "Y", "Z", "group")	# C0 keeps the contour lines
@@ -1001,7 +1001,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 				limits <- c(min(new2$z), max(new2$z))
 			}
 			
-			p1 <- ggplot(new2, aes_string(x="x", y="y", z="z")) + geom_tile(aes_string(fill="z")) + scale_fill_gradientn(zlab, colours=pal, limits=limits) + theme_bw() + theme(aspect.ratio=1) + xlab(xlab) + ylab(ylab)
+			p1 <- ggplot(new2, aes(x=x, y=y, z=z)) + geom_tile(aes(fill=z)) + scale_fill_gradientn(zlab, colours=pal, limits=limits) + theme_bw() + theme(aspect.ratio=1) + xlab(xlab) + ylab(ylab)
 			
 			if (legend==FALSE) {
 				p1 <- p1 + guides(fill=FALSE)
@@ -1016,7 +1016,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 
 				# Find closest values in contours
 				C1 <- C0[C0$level %in% f0(unique(C0$level), contour$highlight), ]
-				p1 <- p1 + geom_path(data=C1, aes_string(x="x", y="y", group="group", z="level"), size=1.1)
+				p1 <- p1 + geom_path(data=C1, aes(x=x, y=y, group=group, z=level), size=1.1)
 			}
 				
 			# (in)congruence lines
@@ -1029,10 +1029,10 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 			
 			if (!model %in% c("absunc", "absdiff")  & !is.cubicmodel){
   			if (("PA1" %in% axes) & !any(is.na(SP[c("p10", "p11")]))) {
-  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes_string(intercept="p10", slope="p11"), color="grey20")
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p10", "p11")]), aes(intercept=p10, slope=p11), color="grey20")
   			}
   			if (("PA2" %in% axes) & !any(is.na(SP[c("p20", "p21")]))) {
-  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes_string(intercept="p20", slope="p21"), linetype="dotted", color="grey20")
+  				p1 <- p1 + geom_abline(data=data.frame(SP[c("p20", "p21")]), aes(intercept=p20, slope=p21), linetype="dotted", color="grey20")
   			}
 			}
 			

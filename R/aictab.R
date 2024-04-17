@@ -134,7 +134,7 @@ aictab <- function(x, plot=FALSE, bw=FALSE, models=names(x$models)[!names(x$mode
 		}
 		
 		
-		p1 <- ggplot(a3, aes_string(y="AICcWt", x="Delta_AICc", group=1)) + geom_line(color="grey30") + theme_bw() + geom_vline(xintercept=2, linetype="dotted", color="grey30") + geom_vline(xintercept=7, linetype="dotted", color="grey30") + geom_point(aes_string(color="color", shape="color"), size=3) + coord_cartesian(xlim=c(-0.5, max(a3$Delta_AICc)+1)) + xlab(bquote(Delta~"AICc")) + ylab("Model weight") + geom_text(aes_string(label="ValidModels"), size=3.7, hjust=-0.2) + scale_x_continuous(breaks=c(2, 7, 10)) + scale_color_manual(values=col_scale, guide="none") + scale_shape_manual(values=shape_scale, guide="none")		
+		p1 <- ggplot(a3, aes(y=AICcWt, x=Delta_AICc, group=1)) + geom_line(color="grey30") + theme_bw() + geom_vline(xintercept=2, linetype="dotted", color="grey30") + geom_vline(xintercept=7, linetype="dotted", color="grey30") + geom_point(aes(color=color, shape=color), size=3) + coord_cartesian(xlim=c(-0.5, max(a3$Delta_AICc)+1)) + xlab(bquote(Delta~"AICc")) + ylab("Model weight") + geom_text(aes(label=ValidModels), size=3.7, hjust=-0.2) + scale_x_continuous(breaks=c(2, 7, 10)) + scale_color_manual(values=col_scale, guide="none") + scale_shape_manual(values=shape_scale, guide="none")		
 		
 		p1 <- p1 + 
 			geom_hline(yintercept=a3$AICcWt[max(which(a3$Cum.Wt < .95))], linetype="dotted", color="grey30") + 

@@ -2,12 +2,12 @@ Encoding: UTF-8
 Package: RSA
 Type: Package
 Title: Response Surface Analysis
-Version: 0.10.6
-Date: 2023-01-12
+Version: 0.10.7
+Date: 2024-04-16
 Authors@R: c(
 		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("cre", "aut")),
 		person("Sarah", "Humberg", role = c("aut"))
-	)
+	)    
 Maintainer: Felix Schönbrodt <felix@nicebread.de>
 Description: Advanced response surface analysis. The main function RSA computes
     and compares several nested polynomial regression models (full second- or 
@@ -37,4 +37,4 @@ Imports:
     aplpack,
 	methods
 License: GPL (>= 2)
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1

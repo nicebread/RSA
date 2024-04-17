@@ -3,6 +3,15 @@
 \encoding{UTF-8}
 
 
+\section{Version 0.10.7}{
+\subsection{Maintenance release}{
+	\itemize{
+		\item Update documentation for RSA.ST (change "a4" to "a5")
+		\item Fix the ggplot warning about the fill aesthetic (fixes #33)
+}
+}
+}
+
 \section{Version 0.10.6}{
 \subsection{Maintenance release}{
 	\itemize{

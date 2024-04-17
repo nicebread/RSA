@@ -8,9 +8,13 @@ title.bibtex <- paste("{RSA}: An R package for response surface analysis (versio
 title <- paste("RSA: An R package for response surface analysis (version ",meta$Version,").", sep="")
 
     
-citEntry(entry = "Manual",
+bibentry(
+  bibtype = "Manual",
   title = title.bibtex,
-  author = personList(as.person("Felix D. Schönbrodt"), as.person("Sarah Humberg")),
+  author = c(
+		person(c("Felix"), "Schönbrodt", email = "felix@nicebread.de", role = c("cre", "aut")),
+		person("Sarah", "Humberg", role = c("aut"))
+	),
   year = year,
   url = "https://cran.r-project.org/package=RSA",
 

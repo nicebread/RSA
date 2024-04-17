@@ -1,7 +1,7 @@
 #' @title Surface tests
 #'
 #' @description
-#' Calculates surface parameters a1 to a4, the stationary point, the principal axes, the eigenvectors and -values
+#' Calculates surface parameters a1 to a5, the stationary point, the principal axes, the eigenvectors and -values
 #'
 #' @details
 #' No details so far.
@@ -13,9 +13,9 @@
 #' @param y2 Y^2 coefficient
 #' @param xy XY interaction coefficient
 #' @param b0 The intercept
-#' @param SE In case that the coefficients are provided directly (as parameters x, y, x2, y2, xy), SE can provide the standard errors of these estimates. SE has to be a named vector with exactly five elements with the names of the coefficients, e.g.: \code{SE=c(x=.1, y=.2, x2=.1, y2=.5, xy=.3)}. SEs of all parameters have to be provided, otherwise the function will print an error. In case standard errors \emph{and} the covariances (see below) \emph{and} df (see below) are provided, parametric confidence intervals for a1 to a4 are calculated.
+#' @param SE In case that the coefficients are provided directly (as parameters x, y, x2, y2, xy), SE can provide the standard errors of these estimates. SE has to be a named vector with exactly five elements with the names of the coefficients, e.g.: \code{SE=c(x=.1, y=.2, x2=.1, y2=.5, xy=.3)}. SEs of all parameters have to be provided, otherwise the function will print an error. In case standard errors \emph{and} the covariances (see below) \emph{and} df (see below) are provided, parametric confidence intervals for a1 to a5 are calculated.
 #' @param COV Covariances between parameters. COV has to be a named vector with exactly four elements with the names of four specific covariances, e.g.: \code{COV=c(x_y=.1, x2_y2 = .2, x2_xy = .3, y2_xy = .4)}, where x_y is the covariance between x and y, and so on. All these covariances have to be provided with exactly these names, otherwise the function will print an error.
-#' @param df Degrees of freedom for the calculation of a1 to a4 confidence intervals. The df are the residual dfs of the model (df = n - estimated parameters). For the full second-order polynomial model, this is 'n - 6 - number of control variables' in a regular regression (the following parameters are estimated: Intercept, x, y, x2, xy, y2, all control variables). \code{df} should be a single number.
+#' @param df Degrees of freedom for the calculation of a1 to a5 confidence intervals. The df are the residual dfs of the model (df = n - estimated parameters). For the full second-order polynomial model, this is 'n - 6 - number of control variables' in a regular regression (the following parameters are estimated: Intercept, x, y, x2, xy, y2, all control variables). \code{df} should be a single number.
 #' @param model If x is an RSA object, this parameter specifies the model from which to extract the coefficients
 
 #' @return
@@ -175,7 +175,7 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 		SP <- round(p.all[grepl("^a\\d$", p.all$label), c("est", "se", "z", "pvalue")], 10)
 		colnames(SP) <- c("estimate", "SE", "z.value", "p.value")
 	} else if (!is.null(SE) & length(SE) >= 5 & !is.null(COV) & length(COV) >= 4 & !is.null(df)) {
-		## if SEs are provided: calculate confidence intervals and p values for a1 to a4
+		## if SEs are provided: calculate confidence intervals and p values for a1 to a5
 		se.a1 <- (sqrt(SE["x"]^2 + SE["y"]^2 + 2*COV["x_y"]))
 		t.a1 <- a1 / se.a1
 		p.a1 <- 2 * pt(-abs(t.a1), df)
