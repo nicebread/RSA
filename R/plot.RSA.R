@@ -75,6 +75,7 @@
 #' @param axes A vector of strings specifying the axes that should be plotted. Can be any combination of c("LOC", "LOIC", "PA1", "PA2", "E2", "K1", "K2"). LOC = line of congruence, LOIC = line of incongruence, PA1 = first principal axis, PA2 = second principal axis, E2 = second extremum line in the CA or RRCA model, K1, K2 = boundary lines of the regions of significance in the CL or RRCL model.
 #' @param axesStyles Define the visual styles of the axes LOC, LOIC, PA1, PA2, E2, K1, and K2. Provide a named list: \code{axesStyles=list(LOC = list(lty="solid",  lwd=2, col=ifelse(bw==TRUE, "black", "blue"))}. It recognizes three parameters: \code{lty}, \code{lwd}, and \code{col}. If you define a style for an axis, you have to provide all three parameters, otherwise a warning will be shown.
 #' @param addLines Define lines in the xy-plane which can then be plotted on the surface. Provide a named list, in which each additional line is specified as a named list; for example \code{addLines = list(Line1 = list(function.in="X", p0=0, p1=0), Line2 = list(function.in="Y", p0=0, p1=0))}. The line names (e.g., Line1 and Line2) can be freely chosen. The parameter \code{function.in} can be either "X" or "Y". If it is "X", the line is specified as a function of Y in X via the formula Y = p0 + p1 X. If it is "Y", the line is specified as X = p0 + p1 Y. All lines specified in addLines can be included in the axes and/or project argument via their chosen line names (e.g., axes=c("LOC", "Line1", "Line2")), and their style can be defined via axesStyles.
+#' @param addPoints Define points in the xy-plane which are then plotted in the contour plot. Provide a list with the (x,y) coordinates: \code{addPoints=list(c(0,1), c(-1,.5))}.
 #' @param project A vector of graphic elements that should be projected on the floor of the cube. Can include any combination of c("LOC", "LOIC", "PA1", "PA2", "contour", "points", "E2", "K1", "K2")
 #' @param maxlines Should the maximum lines be plotted? (red: maximum X for a given Y, blue: maximum Y for a given X). Works only in type="3d"
 #' @param link Link function to transform the z axes. Implemented are "identity" (no transformation; default), "probit", and "logit"
@@ -159,7 +160,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 		PA1 = list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30")),
 		PA2 = list(lty="dotted", lwd=2, col=ifelse(bw==TRUE, "black", "gray30"))
 	),
-	addLines=NULL,
+	addLines=NULL, addPoints=NULL,
 	project=c("contour"), maxlines=FALSE,
 	cex.tickLabel=1, cex.axesLabel=1, cex.main=1, 
 	points = list(data=NULL, show=NA, value="raw", jitter=0, color="black", cex=.5, stilt=NULL, out.mark=FALSE, fill=NULL),
@@ -1084,6 +1085,14 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
   			if (showSP==TRUE & !any(is.na(SP[c("X0", "Y0")])) & !model %in% c("RR", "SQD", "SSQD", "SRSQD", "SRR", "SRRR") & !is.cubicmodel) {
   				p1 <- p1 + annotate("point", x=SP$X0, y=SP$Y0, z=max(new2$z))
   			}
+			}
+			
+			if (!is.null(addPoints)){
+			  for(i in 1:length(addPoints)){
+			    xadd <- addPoints[[i]][1]
+			    yadd <- addPoints[[i]][2]
+			    p1 <- p1 + annotate("point", x=xadd, y=yadd, color="black", size=10*points$cex)
+			  }
 			}
 				
 				

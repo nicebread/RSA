@@ -7,6 +7,7 @@
 \subsection{New features}{
 	\itemize{
 		\item Draw user-defined lines on the surface (see new argument \code{addLines} in \code{plotRSA}).
+		\item Draw user-defined fat points in the contour plot (see new argument \code{addPoints} in \code{plotRSA}).
 }
 }
 \subsection{Bug fixes/Glitches}{
