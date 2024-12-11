@@ -51,6 +51,7 @@ confint.RSA <- function(object, parm, level = 0.95, ..., model = "full", digits=
 	
 	if (method == "standard") {
 		p1 <- data.frame(parameterEstimates(object$models[[model]], level=level))
+		p1[which(p1["op"] == "~1" & p1["lhs"] == "z"),"label"] <- "b0"
 		p1 <- p1[p1$label != "", ]
 		rownames(p1) <- p1$label
 		p1 <- p1[, c("ci.lower", "ci.upper", "pvalue")]
