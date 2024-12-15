@@ -202,7 +202,7 @@ RSA.ST <- function(x=0, y=0, x2=0, xy=0, y2=0, b0=0, SE=NULL, COV=NULL, df=NULL,
 			SP <- data.frame(estimate=c(a1, a2, a3, a4, a5), t.value=rep(NA, 5), p.value=rep(NA, 5))
 		}
 	
-	rownames(SP) <- paste0("a", 1:5)
+	rownames(SP) <- paste0("a", 1:(length(rownames(SP))))
 	
 	PA <- data.frame(estimate=c(as1X, as2X, as3X, as4X, as1Y, as2Y, as3Y, as4Y), SE=NA, t.value=NA, p.value=NA)
 	rownames(PA) <- c(paste0("as", 1:4, "X"), paste0("as", 1:4, "Y"))
