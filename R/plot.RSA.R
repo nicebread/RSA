@@ -503,7 +503,7 @@ plotRSA <- function(x=0, y=0, x2=0, y2=0, xy=0, w=0, wx=0, wy=0, x3=0, xy2=0, x2
 	
 	# flip palette?
 	flip <- FALSE
-	if (!is.null(pal) && length(pal)==1 && pal=="flip") {
+	if (!is.null(pal) && pal=="flip") {
 		flip <- TRUE
 		pal <- NULL
 	}
