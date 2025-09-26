@@ -1,0 +1,14 @@
+^CRAN-RELEASE$
+.gitignore
+README.md
+LICENSE
+.DS_Store
+.git
+checks
+.Rapp.history
+.travis.yml
+cran-comments.md
+internal_files
+^README\.Rmd$
+^README-.*\.png$
+.covrignore
