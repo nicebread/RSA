@@ -13,3 +13,5 @@ internal_files
 ^README-.*\.png$
 .covrignore
 ^CRAN-SUBMISSION$
+RSA.Rproj
+RSA.code-workspace
